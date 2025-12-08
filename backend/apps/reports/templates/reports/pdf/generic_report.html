@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    <div class="header-meta">
+        Generated: {{ generated_at|date:"F j, Y, g:i a" }}
+    </div>
+
+    {% if ai_summary %}
+    <div class="summary">
+        <strong>Executive Summary</strong><br>
+        {{ ai_summary }}
+    </div>
+    {% endif %}
+
+    {% if dataset %}
+    <h2>Dataset Overview</h2>
+    <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Name</td><td>{{ dataset.name|default:"N/A" }}</td></tr>
+        <tr><td>Rows</td><td>{{ dataset.row_count|default:"N/A" }}</td></tr>
+        <tr><td>Columns</td><td>{{ dataset.column_count|default:"N/A" }}</td></tr>
+        {% if dataset.file_size_display %}
+        <tr><td>File Size</td><td>{{ dataset.file_size_display }}</td></tr>
+        {% endif %}
+        {% if dataset.created_at %}
+        <tr><td>Uploaded</td><td>{{ dataset.created_at }}</td></tr>
+        {% endif %}
+    </table>
+
+    {% if dataset.columns %}
+    <h3>Columns</h3>
+    <table>
+        <tr><th>Column Name</th><th>Type</th></tr>
+        {% for col in dataset.columns|slice:":20" %}
+        <tr>
+            <td>{{ col.name }}</td>
+            <td>{{ col.dtype|default:"unknown" }}</td>
+        </tr>
+        {% endfor %}
+        {% if dataset.columns|length > 20 %}
+        <tr><td colspan="2"><em>... and {{ dataset.columns|length|add:"-20" }} more columns</em></td></tr>
+        {% endif %}
+    </table>
+    {% endif %}
+    {% endif %}
+
+    {% if eda %}
+    <h2>Exploratory Data Analysis</h2>
+
+    {% if eda.insights %}
+    <h3>Key Insights</h3>
+    {% for insight in eda.insights|slice:":10" %}
+    <div class="insight {% if insight.severity == 'warning' %}insight-warning{% elif insight.severity == 'error' %}insight-error{% endif %}">
+        {{ insight.message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if charts.missing_values %}
+    <h3>Missing Values</h3>
+    <div class="chart">
+        <img src="{{ charts.missing_values }}" alt="Missing Values Chart">
+    </div>
+    {% elif eda.missing_values %}
+    <h3>Missing Values</h3>
+    <table>
+        <tr><th>Column</th><th>Missing Count</th><th>Missing %</th></tr>
+        {% for item in eda.missing_values|slice:":15" %}
+        <tr>
+            <td>{{ item.column }}</td>
+            <td>{{ item.count|default:0 }}</td>
+            <td>{{ item.ratio|floatformat:2 }}%</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if charts.correlation_heatmap %}
+    <h3>Correlation Analysis</h3>
+    <div class="chart">
+        <img src="{{ charts.correlation_heatmap }}" alt="Correlation Heatmap">
+    </div>
+    {% elif eda.correlations %}
+    <h3>Strong Correlations</h3>
+    <table>
+        <tr><th>Column 1</th><th>Column 2</th><th>Correlation</th></tr>
+        {% for item in eda.correlations|slice:":10" %}
+        <tr>
+            <td>{{ item.column1 }}</td>
+            <td>{{ item.column2 }}</td>
+            <td>{{ item.correlation|floatformat:4 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% endif %}
+
+    {% if model %}
+    <h2>Model Performance</h2>
+
+    <h3>Model Information</h3>
+    <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Algorithm</td><td>{{ model.display_name|default:"N/A" }}</td></tr>
+        <tr><td>Task Type</td><td>{{ model.task_type }}</td></tr>
+        {% if model.is_best %}
+        <tr><td>Status</td><td><strong>Best Model</strong></td></tr>
+        {% endif %}
+    </table>
+
+    <h3>Metrics</h3>
+    <div class="metric-grid">
+        {% for key, value in model.metrics.items %}
+        {% if key != 'confusion_matrix' and key != 'roc_curve' and key != 'confusion_matrix_labels' %}
+        <div class="metric-box">
+            <div class="metric-value">{{ value|floatformat:4 }}</div>
+            <div class="metric-label">{{ key }}</div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if charts.confusion_matrix %}
+    <h3>Confusion Matrix</h3>
+    <div class="chart">
+        <img src="{{ charts.confusion_matrix }}" alt="Confusion Matrix">
+    </div>
+    {% endif %}
+
+    {% if charts.roc_curve %}
+    <h3>ROC Curve</h3>
+    <div class="chart">
+        <img src="{{ charts.roc_curve }}" alt="ROC Curve">
+    </div>
+    {% endif %}
+
+    {% if charts.feature_importance %}
+    <h3>Feature Importance</h3>
+    <div class="chart">
+        <img src="{{ charts.feature_importance }}" alt="Feature Importance">
+    </div>
+    {% elif model.feature_importance %}
+    <h3>Top Features</h3>
+    <table>
+        <tr><th>Feature</th><th>Importance</th></tr>
+        {% for item in model.feature_importance|slice:":15" %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.importance|floatformat:4 }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+    {% endif %}
+
+    <div class="footer">
+        Generated by DataForge AI
+    </div>
+</body>
+</html>
