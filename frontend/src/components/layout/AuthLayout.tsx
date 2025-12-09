@@ -1,15 +1,20 @@
-import { Outlet } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { cn } from '@/utils'
+import { Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
+import { cn } from "@/utils";
 
 export function AuthLayout() {
   return (
-    <div className="min-h-screen bg-base app-shell flex items-center justify-center px-4 py-10 relative overflow-hidden">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-10 relative overflow-hidden">
       {/* Content */}
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.45, type: 'spring', stiffness: 320, damping: 28 }}
+        transition={{
+          duration: 0.45,
+          type: "spring",
+          stiffness: 320,
+          damping: 28,
+        }}
         className="relative w-full max-w-md"
       >
         {/* Logo */}
@@ -19,17 +24,23 @@ export function AuthLayout() {
               D
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-semibold text-primary leading-tight">DataForge</h1>
-              <span className="text-sm text-muted font-medium">Calm AI workspace</span>
+              <h1 className="text-2xl font-semibold text-primary leading-tight">
+                DataForge
+              </h1>
+              <span className="text-sm text-muted font-medium">
+                Calm AI workspace
+              </span>
             </div>
           </div>
         </div>
 
         {/* Card */}
-        <div className={cn(
-          'rounded-2xl p-8 glass',
-          'border border-subtle shadow-[0_20px_70px_rgba(15,23,42,0.12)]'
-        )}>
+        <div
+          className={cn(
+            "rounded-2xl p-8 glass",
+            "border border-subtle shadow-[0_20px_70px_rgba(15,23,42,0.12)]"
+          )}
+        >
           <Outlet />
         </div>
 
@@ -39,7 +50,7 @@ export function AuthLayout() {
         </p>
       </motion.div>
     </div>
-  )
+  );
 }
 
-export default AuthLayout
+export default AuthLayout;

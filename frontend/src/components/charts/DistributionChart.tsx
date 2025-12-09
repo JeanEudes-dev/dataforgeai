@@ -1,0 +1,120 @@
+import { useMemo } from 'react'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+} from 'recharts'
+import { motion } from 'framer-motion'
+import type { DistributionData } from '@/types'
+
+interface DistributionChartProps {
+  data: DistributionData
+  columnName: string
+  color?: string
+  height?: number
+}
+
+const COLORS = {
+  numeric: {
+    primary: '#007aff',
+    gradient: ['#007aff', '#5856d6'],
+  },
+  categorical: {
+    primary: '#34c759',
+    gradient: ['#34c759', '#30d158'],
+  },
+}
+
+export function DistributionChart({
+  data,
+  columnName,
+  color,
+  height = 200,
+}: DistributionChartProps) {
+  const chartData = useMemo(() => {
+    return data.bins.map((bin, index) => ({
+      name: bin.length > 12 ? `${bin.slice(0, 12)}...` : bin,
+      fullName: bin,
+      value: data.counts[index],
+    }))
+  }, [data])
+
+  const maxValue = Math.max(...data.counts)
+  const colorScheme = COLORS[data.type]
+  const barColor = color || colorScheme.primary
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="w-full"
+    >
+      <div className="flex items-center justify-between mb-3">
+        <h4 className="text-sm font-medium text-gray-900 truncate" title={columnName}>
+          {columnName}
+        </h4>
+        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+          {data.type}
+        </span>
+      </div>
+      <ResponsiveContainer width="100%" height={height}>
+        <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+          <defs>
+            <linearGradient id={`gradient-${columnName}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={barColor} stopOpacity={0.9} />
+              <stop offset="100%" stopColor={barColor} stopOpacity={0.6} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: 10, fill: '#71717a' }}
+            tickLine={false}
+            axisLine={{ stroke: '#e4e4e7' }}
+            interval={0}
+            angle={-45}
+            textAnchor="end"
+            height={50}
+          />
+          <YAxis
+            tick={{ fontSize: 10, fill: '#71717a' }}
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => value.toLocaleString()}
+          />
+          <Tooltip
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null
+              const item = payload[0].payload
+              return (
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2">
+                  <p className="text-xs text-gray-500">{item.fullName}</p>
+                  <p className="text-sm font-semibold text-gray-900">
+                    {item.value.toLocaleString()} records
+                  </p>
+                </div>
+              )
+            }}
+          />
+          <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={50}>
+            {chartData.map((_, index) => (
+              <Cell
+                key={index}
+                fill={`url(#gradient-${columnName})`}
+                opacity={0.7 + (chartData[index].value / maxValue) * 0.3}
+              />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </motion.div>
+  )
+}
+
+export default DistributionChart

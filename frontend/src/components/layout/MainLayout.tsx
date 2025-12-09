@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Sidebar } from './Sidebar'
-import { Header } from './Header'
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Sidebar } from "./Sidebar";
+import { Header } from "./Header";
 
 export function MainLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-base text-primary app-shell">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -18,8 +18,8 @@ export function MainLayout() {
       {/* Main content area */}
       <motion.div
         initial={false}
-        animate={{ marginLeft: sidebarOpen ? 256 : 72 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        animate={{ marginLeft: sidebarOpen ? 240 : 68 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
         className="min-h-screen flex flex-col relative z-10"
       >
         {/* Header */}
@@ -38,7 +38,7 @@ export function MainLayout() {
         </main>
       </motion.div>
     </div>
-  )
+  );
 }
 
-export default MainLayout
+export default MainLayout;

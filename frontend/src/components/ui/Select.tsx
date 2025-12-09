@@ -1,23 +1,23 @@
-import { Fragment } from 'react'
-import { Listbox, Transition } from '@headlessui/react'
-import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/24/outline'
-import { cn } from '@/utils'
+import { Fragment } from "react";
+import { Listbox, Transition } from "@headlessui/react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
+import { cn } from "@/utils";
 
 interface SelectOption {
-  value: string
-  label: string
-  disabled?: boolean
+  value: string;
+  label: string;
+  disabled?: boolean;
 }
 
 interface SelectProps {
-  value: string
-  onChange: (value: string) => void
-  options: SelectOption[]
-  label?: string
-  placeholder?: string
-  error?: string
-  disabled?: boolean
-  className?: string
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  label?: string;
+  placeholder?: string;
+  error?: string;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function Select({
@@ -25,15 +25,15 @@ export function Select({
   onChange,
   options,
   label,
-  placeholder = 'Select an option',
+  placeholder = "Select an option",
   error,
   disabled,
   className,
 }: SelectProps) {
-  const selectedOption = options.find(opt => opt.value === value)
+  const selectedOption = options.find((opt) => opt.value === value);
 
   return (
-    <div className={cn('w-full', className)}>
+    <div className={cn("w-full", className)}>
       {label && (
         <label className="block text-sm font-medium text-primary mb-1.5">
           {label}
@@ -43,20 +43,26 @@ export function Select({
         <div className="relative">
           <Listbox.Button
             className={cn(
-              'relative w-full py-3 pl-4 pr-10 text-left rounded-xl',
-              'bg-surface/85 text-primary',
-              'border border-subtle shadow-[0_1px_2px_rgba(15,23,42,0.06)]',
-              'transition-all duration-200',
-              'focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15',
-              'disabled:opacity-60 disabled:cursor-not-allowed',
-              error && 'border-error-500 focus:border-error-500 focus:ring-error-500/20'
+              "relative w-full py-2 pl-3 pr-10 text-left rounded-lg",
+              "bg-white text-gray-900",
+              "border border-gray-200 shadow-sm",
+              "transition-all duration-200",
+              "focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20",
+              "disabled:opacity-60 disabled:cursor-not-allowed",
+              error &&
+                "border-error-500 focus:border-error-500 focus:ring-error-500/20"
             )}
           >
-            <span className={cn('block truncate', !selectedOption && 'text-muted')}>
+            <span
+              className={cn(
+                "block truncate",
+                !selectedOption && "text-gray-400"
+              )}
+            >
               {selectedOption?.label || placeholder}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <ChevronUpDownIcon className="h-5 w-5 text-muted" />
+              <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
             </span>
           </Listbox.Button>
 
@@ -68,31 +74,36 @@ export function Select({
           >
             <Listbox.Options
               className={cn(
-                'absolute z-10 mt-2 w-full py-2 rounded-xl',
-                'bg-surface/95 border border-subtle',
-                'shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl',
-                'max-h-60 overflow-auto scrollbar-thin',
-                'focus:outline-none'
+                "absolute z-10 mt-1 w-full py-1 rounded-lg",
+                "bg-white border border-gray-200",
+                "shadow-lg",
+                "max-h-60 overflow-auto scrollbar-thin",
+                "focus:outline-none"
               )}
             >
-              {options.map(option => (
+              {options.map((option) => (
                 <Listbox.Option
                   key={option.value}
                   value={option.value}
                   disabled={option.disabled}
                   className={({ active, selected }) =>
                     cn(
-                      'relative cursor-pointer select-none py-2.5 pl-10 pr-4 rounded-lg mx-1',
-                      'transition-colors duration-150',
-                      active && 'bg-primary-50/80 dark:bg-primary-900/15',
-                      selected && 'text-primary-600 dark:text-primary-400 bg-primary-50/70 dark:bg-primary-900/10',
-                      option.disabled && 'opacity-50 cursor-not-allowed'
+                      "relative cursor-pointer select-none py-2 pl-10 pr-4 mx-1 rounded-md",
+                      "transition-colors duration-150",
+                      active && "bg-gray-50",
+                      selected && "text-primary-600 bg-primary-50 font-medium",
+                      option.disabled && "opacity-50 cursor-not-allowed"
                     )
                   }
                 >
                   {({ selected }) => (
                     <>
-                      <span className={cn('block truncate', selected && 'font-medium')}>
+                      <span
+                        className={cn(
+                          "block truncate",
+                          selected && "font-medium"
+                        )}
+                      >
                         {option.label}
                       </span>
                       {selected && (
@@ -110,7 +121,7 @@ export function Select({
       </Listbox>
       {error && <p className="mt-1.5 text-sm text-error-500">{error}</p>}
     </div>
-  )
+  );
 }
 
-export default Select
+export default Select;

@@ -1,31 +1,35 @@
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
   XMarkIcon,
-} from '@heroicons/react/24/outline'
-import { useToast, type Toast as ToastType, type ToastType as ToastVariant } from '@/contexts'
-import { cn } from '@/utils'
+} from "@heroicons/react/24/outline";
+import {
+  useToast,
+  type Toast as ToastType,
+  type ToastType as ToastVariant,
+} from "@/contexts";
+import { cn } from "@/utils";
 
 const iconMap: Record<ToastVariant, React.ReactNode> = {
   success: <CheckCircleIcon className="w-5 h-5 text-success-500" />,
   error: <ExclamationCircleIcon className="w-5 h-5 text-error-500" />,
   warning: <ExclamationTriangleIcon className="w-5 h-5 text-warning-500" />,
   info: <InformationCircleIcon className="w-5 h-5 text-info-500" />,
-}
+};
 
 const variantStyles: Record<ToastVariant, string> = {
-  success: 'border-l-4 border-l-success-500 bg-success-50/60 dark:bg-success-900/15',
-  error: 'border-l-4 border-l-error-500 bg-error-50/70 dark:bg-error-900/15',
-  warning: 'border-l-4 border-l-warning-500 bg-warning-50/70 dark:bg-warning-900/15',
-  info: 'border-l-4 border-l-info-500 bg-info-50/70 dark:bg-info-900/15',
-}
+  success: "bg-white",
+  error: "bg-white",
+  warning: "bg-white",
+  info: "bg-white",
+};
 
 interface ToastItemProps {
-  toast: ToastType
-  onDismiss: () => void
+  toast: ToastType;
+  onDismiss: () => void;
 }
 
 function ToastItem({ toast, onDismiss }: ToastItemProps) {
@@ -35,11 +39,11 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       initial={{ opacity: 0, x: 50, scale: 0.9 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 50, scale: 0.9 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={cn(
-        'flex items-start gap-3 p-4 rounded-xl',
-        'bg-surface/95 border border-subtle backdrop-blur-xl',
-        'shadow-[0_18px_60px_rgba(15,23,42,0.14)]',
+        "flex items-start gap-3 p-4 rounded-lg",
+        "bg-white border border-subtle",
+        "shadow-lg",
         variantStyles[toast.type]
       )}
     >
@@ -53,24 +57,24 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       <button
         onClick={onDismiss}
         className={cn(
-          'flex-shrink-0 p-1 rounded-lg text-muted',
-          'hover:text-primary hover:bg-sunken',
-          'transition-colors duration-200'
+          "flex-shrink-0 p-1 rounded-lg text-muted",
+          "hover:text-primary hover:bg-sunken",
+          "transition-colors duration-200"
         )}
       >
         <XMarkIcon className="w-4 h-4" />
       </button>
     </motion.div>
-  )
+  );
 }
 
 export function ToastContainer() {
-  const { toasts, removeToast } = useToast()
+  const { toasts, removeToast } = useToast();
 
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full">
       <AnimatePresence mode="popLayout">
-        {toasts.map(toast => (
+        {toasts.map((toast) => (
           <ToastItem
             key={toast.id}
             toast={toast}
@@ -79,7 +83,7 @@ export function ToastContainer() {
         ))}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
-export default ToastContainer
+export default ToastContainer;

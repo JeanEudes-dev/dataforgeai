@@ -1,59 +1,58 @@
-import { cn } from '@/utils'
+import { cn } from "@/utils";
 
 interface SkeletonProps {
-  className?: string
-  variant?: 'text' | 'circular' | 'rectangular'
-  width?: string | number
-  height?: string | number
+  className?: string;
+  variant?: "text" | "circular" | "rectangular";
+  width?: string | number;
+  height?: string | number;
 }
 
 export function Skeleton({
   className,
-  variant = 'text',
+  variant = "text",
   width,
   height,
 }: SkeletonProps) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-sunken/80',
-        'rounded-md',
-        variant === 'text' && 'h-4',
-        variant === 'circular' && 'rounded-full',
-        variant === 'rectangular' && 'rounded-xl',
+        "relative overflow-hidden bg-gray-100",
+        "rounded-md",
+        variant === "text" && "h-4",
+        variant === "circular" && "rounded-full",
+        variant === "rectangular" && "rounded-lg",
         className
       )}
       style={{
         width,
         height,
-        backgroundSize: '200% 100%',
-        backgroundImage: 'linear-gradient(110deg, rgba(255,255,255,0.65), rgba(63,130,244,0.14), rgba(255,255,255,0.65))',
-        animation: 'shimmer 2.4s ease infinite',
       }}
-    />
-  )
+    >
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+    </div>
+  );
 }
 
 // Predefined skeleton components
-export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
+export function SkeletonText({
+  lines = 3,
+  className,
+}: {
+  lines?: number;
+  className?: string;
+}) {
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          className={cn(
-            'h-4',
-            i === lines - 1 && 'w-3/4'
-          )}
-        />
+        <Skeleton key={i} className={cn("h-4", i === lines - 1 && "w-3/4")} />
       ))}
     </div>
-  )
+  );
 }
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={cn('p-5 rounded-2xl bg-surface neu-raised', className)}>
+    <div className={cn("p-5 rounded-2xl bg-surface neu-raised", className)}>
       <Skeleton className="h-6 w-1/3 mb-4" />
       <SkeletonText lines={3} />
       <div className="flex gap-2 mt-4">
@@ -61,12 +60,20 @@ export function SkeletonCard({ className }: { className?: string }) {
         <Skeleton className="h-8 w-20 rounded-lg" />
       </div>
     </div>
-  )
+  );
 }
 
-export function SkeletonTable({ rows = 5, columns = 4, className }: { rows?: number; columns?: number; className?: string }) {
+export function SkeletonTable({
+  rows = 5,
+  columns = 4,
+  className,
+}: {
+  rows?: number;
+  columns?: number;
+  className?: string;
+}) {
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn("space-y-3", className)}>
       {/* Header */}
       <div className="flex gap-4 pb-3 border-b border-subtle">
         {Array.from({ length: columns }).map((_, i) => (
@@ -82,7 +89,7 @@ export function SkeletonTable({ rows = 5, columns = 4, className }: { rows?: num
         </div>
       ))}
     </div>
-  )
+  );
 }
 
-export default Skeleton
+export default Skeleton;

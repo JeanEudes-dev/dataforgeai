@@ -1,16 +1,54 @@
+import { useState, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { ArrowLeftIcon, ArrowPathIcon } from '@heroicons/react/24/outline'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  ArrowLeftIcon,
+  ArrowPathIcon,
+  ChartBarIcon,
+  TableCellsIcon,
+  ExclamationTriangleIcon,
+  LightBulbIcon,
+  ClockIcon,
+  SparklesIcon,
+  ChevronDownIcon,
+} from '@heroicons/react/24/outline'
 import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
 import { StatusBadge, EmptyState } from '@/components/shared'
+import {
+  StatCard,
+  DistributionChart,
+  CorrelationHeatmap,
+  MissingValuesChart,
+  OutliersChart,
+  InsightsPanel,
+  SummaryStatsTable,
+} from '@/components/charts'
 import { edaApi, datasetsApi } from '@/api'
 import { useToastActions } from '@/contexts'
 import { formatNumber, formatDuration, cn } from '@/utils'
+
+type TabId = 'overview' | 'distributions' | 'correlations' | 'quality' | 'insights'
+
+interface Tab {
+  id: TabId
+  label: string
+  icon: React.ComponentType<{ className?: string }>
+}
+
+const tabs: Tab[] = [
+  { id: 'overview', label: 'Overview', icon: ChartBarIcon },
+  { id: 'distributions', label: 'Distributions', icon: ChartBarIcon },
+  { id: 'correlations', label: 'Correlations', icon: TableCellsIcon },
+  { id: 'quality', label: 'Data Quality', icon: ExclamationTriangleIcon },
+  { id: 'insights', label: 'Insights', icon: LightBulbIcon },
+]
 
 export function EDAPage() {
   const { datasetId } = useParams<{ datasetId: string }>()
   const queryClient = useQueryClient()
   const toast = useToastActions()
+  const [activeTab, setActiveTab] = useState<TabId>('overview')
 
   const { data: dataset } = useQuery({
     queryKey: ['datasets', datasetId],
@@ -38,6 +76,21 @@ export function EDAPage() {
 
   const isRunning = edaResult?.status === 'running' || edaResult?.status === 'pending'
 
+  // Calculate data quality score
+  const dataQualityScore = useMemo(() => {
+    if (!edaResult?.missing_analysis) return null
+    const columns = Object.values(edaResult.missing_analysis)
+    if (columns.length === 0) return 100
+    const avgMissing = columns.reduce((sum, col) => sum + col.ratio, 0) / columns.length
+    return Math.round((1 - avgMissing) * 100)
+  }, [edaResult?.missing_analysis])
+
+  // Get distribution columns for preview
+  const distributionColumns = useMemo(() => {
+    if (!edaResult?.distributions) return []
+    return Object.keys(edaResult.distributions).slice(0, 6)
+  }, [edaResult?.distributions])
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -47,6 +100,7 @@ export function EDAPage() {
             <Card key={i}><CardContent className="p-6"><Skeleton className="h-20" /></CardContent></Card>
           ))}
         </div>
+        <Skeleton className="h-64" />
       </div>
     )
   }
@@ -92,6 +146,13 @@ export function EDAPage() {
       ) : edaResult.status !== 'completed' ? (
         <Card>
           <CardContent className="py-12 text-center">
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+              className="inline-block mb-4"
+            >
+              <ArrowPathIcon className="w-8 h-8 text-primary-500" />
+            </motion.div>
             <StatusBadge status={edaResult.status} />
             <p className="text-secondary mt-4">
               {edaResult.status === 'running' ? 'Analysis in progress...' : 'Analysis pending...'}
@@ -103,105 +164,386 @@ export function EDAPage() {
         </Card>
       ) : (
         <>
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-5">
-                <p className="text-sm text-muted mb-1">Computation Time</p>
-                <p className="text-2xl font-bold text-primary">
-                  {edaResult.computation_time ? formatDuration(edaResult.computation_time) : '-'}
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-5">
-                <p className="text-sm text-muted mb-1">Insights Found</p>
-                <p className="text-2xl font-bold text-primary">{edaResult.insights.length}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-5">
-                <p className="text-sm text-muted mb-1">Top Correlations</p>
-                <p className="text-2xl font-bold text-primary">{edaResult.top_correlations.length}</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-5">
-                <p className="text-sm text-muted mb-1">Sampled</p>
-                <p className="text-2xl font-bold text-primary">
-                  {edaResult.sampled ? `Yes (${edaResult.sample_size?.toLocaleString()})` : 'No'}
-                </p>
-              </CardContent>
-            </Card>
+          {/* Tab Navigation */}
+          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl w-fit">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all',
+                  activeTab === tab.id
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                )}
+              >
+                <tab.icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            ))}
           </div>
 
-          {/* Insights */}
-          {edaResult.insights.length > 0 && (
-            <Card>
-              <CardHeader><CardTitle>Key Insights</CardTitle></CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {edaResult.insights.map((insight, i) => (
-                    <li key={i} className={cn(
-                      'p-3 rounded-lg',
-                      insight.type === 'warning' ? 'bg-warning-50 dark:bg-warning-900/20' :
-                      insight.type === 'success' ? 'bg-success-50 dark:bg-success-900/20' :
-                      'bg-info-50 dark:bg-info-900/20'
-                    )}>
-                      <p className="text-sm text-primary">{insight.message}</p>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Overview Tab */}
+              {activeTab === 'overview' && (
+                <div className="space-y-6">
+                  {/* Hero Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard
+                      title="Analysis Time"
+                      value={edaResult.computation_time ? formatDuration(edaResult.computation_time) : '-'}
+                      icon={<ClockIcon className="w-full h-full" />}
+                      color="primary"
+                    />
+                    <StatCard
+                      title="Insights Found"
+                      value={edaResult.insights.length}
+                      subtitle={edaResult.insights.filter(i => i.severity === 'high').length + ' high priority'}
+                      icon={<LightBulbIcon className="w-full h-full" />}
+                      color="info"
+                    />
+                    <StatCard
+                      title="Data Quality"
+                      value={dataQualityScore !== null ? `${dataQualityScore}%` : '-'}
+                      subtitle={dataQualityScore && dataQualityScore >= 90 ? 'Excellent' : dataQualityScore && dataQualityScore >= 70 ? 'Good' : 'Needs attention'}
+                      icon={<ChartBarIcon className="w-full h-full" />}
+                      color={dataQualityScore && dataQualityScore >= 90 ? 'success' : dataQualityScore && dataQualityScore >= 70 ? 'warning' : 'error'}
+                    />
+                    <StatCard
+                      title="Correlations"
+                      value={edaResult.top_correlations.length}
+                      subtitle={edaResult.top_correlations.filter(c => c.strength === 'strong').length + ' strong'}
+                      icon={<TableCellsIcon className="w-full h-full" />}
+                      color="default"
+                    />
+                  </div>
 
-          {/* Top Correlations */}
-          {edaResult.top_correlations.length > 0 && (
-            <Card>
-              <CardHeader><CardTitle>Top Correlations</CardTitle></CardHeader>
-              <CardContent>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-subtle">
-                      <th className="px-4 py-3 text-left">Column 1</th>
-                      <th className="px-4 py-3 text-left">Column 2</th>
-                      <th className="px-4 py-3 text-left">Correlation</th>
-                      <th className="px-4 py-3 text-left">Strength</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {edaResult.top_correlations.slice(0, 10).map((corr, i) => (
-                      <tr key={i} className="border-b border-subtle last:border-0">
-                        <td className="px-4 py-3 text-primary">{corr.column1}</td>
-                        <td className="px-4 py-3 text-primary">{corr.column2}</td>
-                        <td className="px-4 py-3 text-secondary">{formatNumber(corr.correlation, 3)}</td>
-                        <td className="px-4 py-3">
-                          <span className={cn(
-                            'px-2 py-1 rounded text-xs font-medium',
-                            corr.strength === 'strong' ? 'bg-success-100 text-success-700' :
-                            corr.strength === 'moderate' ? 'bg-warning-100 text-warning-700' :
-                            'bg-neutral-100 text-neutral-600'
-                          )}>
-                            {corr.strength}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </CardContent>
-            </Card>
-          )}
+                  {/* Quick Preview: Distributions */}
+                  {distributionColumns.length > 0 && (
+                    <Card padding="none">
+                      <CardHeader className="px-6 pt-6">
+                        <div className="flex items-center justify-between">
+                          <CardTitle>Distribution Preview</CardTitle>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setActiveTab('distributions')}
+                          >
+                            View all <ChevronDownIcon className="w-4 h-4 ml-1 rotate-[-90deg]" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="px-6 pb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {distributionColumns.slice(0, 3).map((col) => (
+                            <DistributionChart
+                              key={col}
+                              columnName={col}
+                              data={edaResult.distributions[col]}
+                              height={180}
+                            />
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
-          {/* AI Insights */}
-          {edaResult.ai_insights && (
-            <Card>
-              <CardHeader><CardTitle>AI Summary</CardTitle></CardHeader>
-              <CardContent>
-                <p className="text-secondary whitespace-pre-wrap">{edaResult.ai_insights}</p>
-              </CardContent>
-            </Card>
+                  {/* Quick Preview: Correlations */}
+                  {Object.keys(edaResult.correlation_matrix || {}).length > 0 && (
+                    <Card padding="none">
+                      <CardHeader className="px-6 pt-6">
+                        <div className="flex items-center justify-between">
+                          <CardTitle>Correlation Matrix</CardTitle>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setActiveTab('correlations')}
+                          >
+                            Details <ChevronDownIcon className="w-4 h-4 ml-1 rotate-[-90deg]" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="px-6 pb-6">
+                        <CorrelationHeatmap matrix={edaResult.correlation_matrix} maxItems={6} />
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* AI Summary */}
+                  {edaResult.ai_insights && (
+                    <Card padding="none" className="overflow-hidden">
+                      <div className="bg-gradient-to-r from-info-500 to-primary-500 px-6 py-4">
+                        <div className="flex items-center gap-2 text-white">
+                          <SparklesIcon className="w-5 h-5" />
+                          <h3 className="font-semibold">AI-Generated Summary</h3>
+                        </div>
+                      </div>
+                      <CardContent className="p-6">
+                        <p className="text-secondary whitespace-pre-wrap leading-relaxed">
+                          {edaResult.ai_insights}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+
+              {/* Distributions Tab */}
+              {activeTab === 'distributions' && (
+                <div className="space-y-6">
+                  <Card padding="none">
+                    <CardHeader className="px-6 pt-6">
+                      <CardTitle>Column Distributions</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Visualize the distribution of values in each column
+                      </p>
+                    </CardHeader>
+                    <CardContent className="px-6 pb-6">
+                      {Object.keys(edaResult.distributions || {}).length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                          {Object.entries(edaResult.distributions).map(([col, data]) => (
+                            <div key={col} className="bg-gray-50 rounded-xl p-4">
+                              <DistributionChart
+                                columnName={col}
+                                data={data}
+                                height={200}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12 text-gray-500">
+                          No distribution data available
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Summary Statistics Table */}
+                  {Object.keys(edaResult.summary_stats || {}).length > 0 && (
+                    <Card padding="none">
+                      <CardHeader className="px-6 pt-6">
+                        <CardTitle>Summary Statistics</CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Click on a row to see percentile details
+                        </p>
+                      </CardHeader>
+                      <CardContent className="px-6 pb-6">
+                        <SummaryStatsTable data={edaResult.summary_stats} />
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+
+              {/* Correlations Tab */}
+              {activeTab === 'correlations' && (
+                <div className="space-y-6">
+                  {/* Full Heatmap */}
+                  <Card padding="none">
+                    <CardHeader className="px-6 pt-6">
+                      <CardTitle>Correlation Heatmap</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Hover over cells to see exact correlation values
+                      </p>
+                    </CardHeader>
+                    <CardContent className="px-6 pb-6">
+                      <CorrelationHeatmap
+                        matrix={edaResult.correlation_matrix}
+                        maxItems={12}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Top Correlations Table */}
+                  {edaResult.top_correlations.length > 0 && (
+                    <Card padding="none">
+                      <CardHeader className="px-6 pt-6">
+                        <CardTitle>Top Correlations</CardTitle>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Strongest relationships between columns
+                        </p>
+                      </CardHeader>
+                      <CardContent className="px-6 pb-6">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-gray-200">
+                                <th className="px-4 py-3 text-left font-medium text-gray-600">Column 1</th>
+                                <th className="px-4 py-3 text-left font-medium text-gray-600">Column 2</th>
+                                <th className="px-4 py-3 text-left font-medium text-gray-600">Correlation</th>
+                                <th className="px-4 py-3 text-left font-medium text-gray-600">Strength</th>
+                                <th className="px-4 py-3 text-left font-medium text-gray-600">Visual</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                              {edaResult.top_correlations.slice(0, 15).map((corr, i) => (
+                                <motion.tr
+                                  key={i}
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  transition={{ delay: i * 0.03 }}
+                                  className="hover:bg-gray-50"
+                                >
+                                  <td className="px-4 py-3 text-gray-900 font-medium">{corr.column1}</td>
+                                  <td className="px-4 py-3 text-gray-900 font-medium">{corr.column2}</td>
+                                  <td className="px-4 py-3 font-mono text-gray-700">
+                                    {formatNumber(corr.correlation, 3)}
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <span className={cn(
+                                      'px-2.5 py-1 rounded-full text-xs font-medium',
+                                      corr.strength === 'strong' ? 'bg-success-100 text-success-700' :
+                                      corr.strength === 'moderate' ? 'bg-warning-100 text-warning-700' :
+                                      'bg-gray-100 text-gray-600'
+                                    )}>
+                                      {corr.strength}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                      <div
+                                        className={cn(
+                                          'h-full rounded-full',
+                                          corr.correlation >= 0 ? 'bg-primary-500' : 'bg-error-500'
+                                        )}
+                                        style={{ width: `${Math.abs(corr.correlation) * 100}%` }}
+                                      />
+                                    </div>
+                                  </td>
+                                </motion.tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+
+              {/* Data Quality Tab */}
+              {activeTab === 'quality' && (
+                <div className="space-y-6">
+                  {/* Quality Score Banner */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className={cn(
+                      'p-6 rounded-2xl text-white',
+                      dataQualityScore && dataQualityScore >= 90
+                        ? 'bg-gradient-to-r from-success-500 to-success-600'
+                        : dataQualityScore && dataQualityScore >= 70
+                        ? 'bg-gradient-to-r from-warning-500 to-warning-600'
+                        : 'bg-gradient-to-r from-error-500 to-error-600'
+                    )}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white/80 text-sm font-medium">Overall Data Quality Score</p>
+                        <p className="text-4xl font-bold mt-1">{dataQualityScore}%</p>
+                        <p className="text-white/80 text-sm mt-2">
+                          {dataQualityScore && dataQualityScore >= 90
+                            ? 'Excellent! Your data is well-prepared for analysis.'
+                            : dataQualityScore && dataQualityScore >= 70
+                            ? 'Good quality, but some columns need attention.'
+                            : 'Consider cleaning your data before proceeding.'}
+                        </p>
+                      </div>
+                      <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center">
+                        <span className="text-3xl font-bold">{dataQualityScore}%</span>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Missing Values */}
+                  <Card padding="none">
+                    <CardHeader className="px-6 pt-6">
+                      <CardTitle>Missing Values Analysis</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Identify columns with missing data
+                      </p>
+                    </CardHeader>
+                    <CardContent className="px-6 pb-6">
+                      <MissingValuesChart
+                        data={edaResult.missing_analysis}
+                        totalRows={dataset?.row_count ?? undefined}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Outliers */}
+                  <Card padding="none">
+                    <CardHeader className="px-6 pt-6">
+                      <CardTitle>Outlier Detection</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Values that fall outside the expected range
+                      </p>
+                    </CardHeader>
+                    <CardContent className="px-6 pb-6">
+                      <OutliersChart data={edaResult.outlier_analysis} />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {/* Insights Tab */}
+              {activeTab === 'insights' && (
+                <div className="space-y-6">
+                  {/* AI Summary at top */}
+                  {edaResult.ai_insights && (
+                    <Card padding="none" className="overflow-hidden">
+                      <div className="bg-gradient-to-r from-info-500 to-primary-500 px-6 py-4">
+                        <div className="flex items-center gap-2 text-white">
+                          <SparklesIcon className="w-5 h-5" />
+                          <h3 className="font-semibold">AI-Generated Analysis</h3>
+                        </div>
+                      </div>
+                      <CardContent className="p-6">
+                        <p className="text-secondary whitespace-pre-wrap leading-relaxed text-base">
+                          {edaResult.ai_insights}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Automated Insights */}
+                  <Card padding="none">
+                    <CardHeader className="px-6 pt-6">
+                      <CardTitle>Automated Insights</CardTitle>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Key findings from your data analysis
+                      </p>
+                    </CardHeader>
+                    <CardContent className="px-6 pb-6">
+                      <InsightsPanel insights={edaResult.insights} maxItems={20} />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Sampling Notice */}
+          {edaResult.sampled && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center gap-2 px-4 py-3 bg-info-50 border border-info-200 rounded-xl text-sm text-info-700"
+            >
+              <ExclamationTriangleIcon className="w-5 h-5 shrink-0" />
+              <span>
+                This analysis was performed on a sample of{' '}
+                <strong>{edaResult.sample_size?.toLocaleString()}</strong> rows for performance.
+              </span>
+            </motion.div>
           )}
         </>
       )}

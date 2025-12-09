@@ -1,140 +1,142 @@
-import { forwardRef, type HTMLAttributes } from 'react'
-import { motion, type HTMLMotionProps } from 'framer-motion'
-import { cn } from '@/utils'
+import { forwardRef, type HTMLAttributes } from "react";
+import { motion, type HTMLMotionProps } from "framer-motion";
+import { cn } from "@/utils";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'elevated' | 'flat' | 'pressed'
-  hoverable?: boolean
-  clickable?: boolean
-  padding?: 'none' | 'sm' | 'md' | 'lg'
+  variant?: "elevated" | "flat" | "pressed";
+  hoverable?: boolean;
+  clickable?: boolean;
+  padding?: "none" | "sm" | "md" | "lg";
 }
 
 const variantStyles = {
-  elevated: 'border border-subtle bg-surface/95 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm',
-  flat: 'border border-subtle bg-surface/90',
-  pressed: 'border border-default bg-sunken shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(15,23,42,0.06)]',
-}
+  elevated: "border border-gray-200 bg-white shadow-sm",
+  flat: "border border-gray-200 bg-gray-50/50",
+  pressed: "border border-gray-200 bg-gray-100 shadow-inner",
+};
 
 const paddingStyles = {
-  none: 'p-0',
-  sm: 'p-3',
-  md: 'p-5',
-  lg: 'p-6',
-}
+  none: "p-0",
+  sm: "p-4",
+  md: "p-6",
+  lg: "p-8",
+};
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
   (
     {
       className,
-      variant = 'elevated',
+      variant = "elevated",
       hoverable = false,
       clickable = false,
-      padding = 'md',
+      padding = "md",
       children,
       ...props
     },
     ref
   ) => {
     const baseClassName = cn(
-      'rounded-2xl',
-      'transition-all duration-300',
+      "rounded-xl",
+      "transition-all duration-200",
       variantStyles[variant],
       paddingStyles[padding],
-      hoverable && variant === 'elevated' && 'hover:shadow-[0_22px_70px_rgba(15,23,42,0.12)] hover:-translate-y-1',
-      clickable && 'cursor-pointer',
+      hoverable &&
+        variant === "elevated" &&
+        "hover:shadow-md hover:-translate-y-0.5",
+      clickable && "cursor-pointer",
       className
-    )
+    );
 
     if (hoverable || clickable) {
       return (
         <motion.div
           ref={ref}
           className={baseClassName}
-          whileHover={{ scale: 1.01, y: -2 }}
+          whileHover={{ scale: 1.005 }}
           whileTap={clickable ? { scale: 0.99 } : undefined}
-          transition={{ type: 'spring' as const, stiffness: 400, damping: 17 }}
-          {...(props as HTMLMotionProps<'div'>)}
+          transition={{ type: "spring" as const, stiffness: 400, damping: 17 }}
+          {...(props as HTMLMotionProps<"div">)}
         >
           {children}
         </motion.div>
-      )
+      );
     }
 
     return (
       <div ref={ref} className={baseClassName} {...props}>
         {children}
       </div>
-    )
+    );
   }
-)
+);
 
-Card.displayName = 'Card'
+Card.displayName = "Card";
 
 // Card sub-components
-type CardHeaderProps = HTMLAttributes<HTMLDivElement>
+type CardHeaderProps = HTMLAttributes<HTMLDivElement>;
 
 export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn('pb-4 border-b border-subtle', className)}
-      {...props}
-    />
+    <div ref={ref} className={cn("pb-4 mb-4", className)} {...props} />
   )
-)
+);
 
-CardHeader.displayName = 'CardHeader'
+CardHeader.displayName = "CardHeader";
 
-type CardTitleProps = HTMLAttributes<HTMLHeadingElement>
+type CardTitleProps = HTMLAttributes<HTMLHeadingElement>;
 
 export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className, ...props }, ref) => (
     <h3
       ref={ref}
-      className={cn('text-lg font-semibold text-primary', className)}
+      className={cn("text-base font-semibold text-primary", className)}
       {...props}
     />
   )
-)
+);
 
-CardTitle.displayName = 'CardTitle'
+CardTitle.displayName = "CardTitle";
 
-type CardDescriptionProps = HTMLAttributes<HTMLParagraphElement>
+type CardDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
 
-export const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionProps>(
-  ({ className, ...props }, ref) => (
-    <p
-      ref={ref}
-      className={cn('text-sm text-secondary mt-1', className)}
-      {...props}
-    />
-  )
-)
+export const CardDescription = forwardRef<
+  HTMLParagraphElement,
+  CardDescriptionProps
+>(({ className, ...props }, ref) => (
+  <p
+    ref={ref}
+    className={cn("text-sm text-secondary mt-1", className)}
+    {...props}
+  />
+));
 
-CardDescription.displayName = 'CardDescription'
+CardDescription.displayName = "CardDescription";
 
-type CardContentProps = HTMLAttributes<HTMLDivElement>
+type CardContentProps = HTMLAttributes<HTMLDivElement>;
 
 export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('', className)} {...props} />
+    <div ref={ref} className={cn("", className)} {...props} />
   )
-)
+);
 
-CardContent.displayName = 'CardContent'
+CardContent.displayName = "CardContent";
 
-type CardFooterProps = HTMLAttributes<HTMLDivElement>
+type CardFooterProps = HTMLAttributes<HTMLDivElement>;
 
 export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('pt-4 mt-4 border-t border-subtle flex items-center gap-3', className)}
+      className={cn(
+        "pt-4 mt-4 border-t border-subtle flex items-center gap-3",
+        className
+      )}
       {...props}
     />
   )
-)
+);
 
-CardFooter.displayName = 'CardFooter'
+CardFooter.displayName = "CardFooter";
 
-export default Card
+export default Card;

@@ -1,25 +1,25 @@
-import { cn } from '@/utils'
+import { cn } from "@/utils";
 
-type SpinnerSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+type SpinnerSize = "xs" | "sm" | "md" | "lg" | "xl";
 
 interface SpinnerProps {
-  size?: SpinnerSize
-  className?: string
+  size?: SpinnerSize;
+  className?: string;
 }
 
 const sizeStyles: Record<SpinnerSize, string> = {
-  xs: 'w-3 h-3',
-  sm: 'w-4 h-4',
-  md: 'w-6 h-6',
-  lg: 'w-8 h-8',
-  xl: 'w-12 h-12',
-}
+  xs: "w-3 h-3",
+  sm: "w-4 h-4",
+  md: "w-6 h-6",
+  lg: "w-8 h-8",
+  xl: "w-12 h-12",
+};
 
-export function Spinner({ size = 'md', className }: SpinnerProps) {
+export function Spinner({ size = "md", className }: SpinnerProps) {
   return (
     <svg
       className={cn(
-        'animate-spin text-primary-500 drop-shadow-[0_8px_24px_rgba(63,130,244,0.35)]',
+        "animate-spin text-primary-500",
         sizeStyles[size],
         className
       )}
@@ -41,7 +41,7 @@ export function Spinner({ size = 'md', className }: SpinnerProps) {
         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
       />
     </svg>
-  )
+  );
 }
 
-export default Spinner
+export default Spinner;
