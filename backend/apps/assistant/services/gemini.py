@@ -173,110 +173,173 @@ Keep the explanation concise and accessible to non-technical users."""
             return self._fallback_metric_explanation(metric_name, metric_value, task_type)
 
     def _build_eda_prompt(self, eda_data: dict) -> str:
-        """Build prompt for EDA insights generation."""
-        # Extract key information
+        """Build prompt for EDA insights generation with optimized data."""
+        # Extract and summarize key information compactly
+        parts = []
+
+        # Column summary (only column names and types, not full stats)
         summary_stats = eda_data.get('summary_stats', {})
-        missing_analysis = eda_data.get('missing_analysis', {})
-        correlations = eda_data.get('correlation_matrix', {})
+        if summary_stats:
+            cols = list(summary_stats.keys())[:20]
+            parts.append(f"Columns analyzed: {', '.join(cols)}")
+
+        # Missing values summary (only columns with missing)
+        missing = eda_data.get('missing_analysis', {})
+        missing_cols = [(k, v.get('ratio', 0)) for k, v in missing.items() if v.get('ratio', 0) > 0]
+        if missing_cols:
+            missing_cols.sort(key=lambda x: x[1], reverse=True)
+            missing_str = ', '.join([f"{k}:{v:.0%}" for k, v in missing_cols[:5]])
+            parts.append(f"Missing values: {missing_str}")
+
+        # Top correlations only
+        top_corr = eda_data.get('top_correlations', [])[:5]
+        if top_corr:
+            corr_str = ', '.join([f"{c['column1']}-{c['column2']}:{c['correlation']:.2f}" for c in top_corr])
+            parts.append(f"Top correlations: {corr_str}")
+
+        # Outliers summary
         outliers = eda_data.get('outlier_analysis', {})
+        outlier_cols = [(k, v.get('ratio', 0)) for k, v in outliers.items() if v.get('ratio', 0) > 0.01]
+        if outlier_cols:
+            outlier_str = ', '.join([f"{k}:{v:.1%}" for k, v in outlier_cols[:5]])
+            parts.append(f"Columns with outliers: {outlier_str}")
+
+        # Existing rule-based insights (just messages)
         insights = eda_data.get('insights', [])
+        if insights:
+            insight_msgs = [i.get('message', '')[:80] for i in insights[:5]]
+            parts.append(f"Detected issues: {'; '.join(insight_msgs)}")
 
-        prompt = f"""Analyze the following exploratory data analysis results and provide actionable insights.
+        context = '\n'.join(parts)
 
-Dataset Summary Statistics:
-{json.dumps(summary_stats, indent=2)[:2000]}
+        prompt = f"""Analyze this EDA summary and provide brief insights:
 
-Missing Value Analysis:
-{json.dumps(missing_analysis, indent=2)[:500]}
+{context}
 
-Key Correlations:
-{json.dumps(correlations, indent=2)[:500]}
+Provide 3-4 bullet points covering:
+- Key data quality issues
+- Important patterns or correlations
+- Recommendations for next steps
 
-Outlier Analysis:
-{json.dumps(outliers, indent=2)[:500]}
-
-Rule-based Insights:
-{json.dumps(insights, indent=2)[:500]}
-
-Please provide:
-1. Key findings from the data
-2. Data quality issues to address
-3. Potential feature engineering opportunities
-4. Recommendations for modeling
-
-Keep the response concise but comprehensive. Use bullet points for clarity."""
+Be concise (max 150 words total)."""
 
         return prompt
 
     def _build_model_prompt(self, model_data: dict) -> str:
-        """Build prompt for model explanation."""
-        prompt = f"""Explain the following trained machine learning model:
+        """Build prompt for model explanation with optimized data."""
+        # Compact metrics
+        metrics = model_data.get('metrics', {})
+        metrics_str = ', '.join([f"{k}={v:.3f}" for k, v in list(metrics.items())[:5]])
 
-Model Name: {model_data.get('display_name', 'Unknown')}
-Algorithm: {model_data.get('algorithm_type', 'Unknown')}
-Task Type: {model_data.get('task_type', 'Unknown')}
+        # Top 5 features only
+        features = model_data.get('feature_importance', {})
+        top_features = list(features.items())[:5]
+        features_str = ', '.join([f"{k}:{v:.2f}" for k, v in top_features]) if top_features else "N/A"
 
-Metrics:
-{json.dumps(model_data.get('metrics', {}), indent=2)}
+        prompt = f"""Explain this ML model briefly:
 
-Feature Importance (top 10):
-{json.dumps(dict(list(model_data.get('feature_importance', {}).items())[:10]), indent=2)}
+Model: {model_data.get('display_name', 'Unknown')} ({model_data.get('algorithm_type', '?')})
+Task: {model_data.get('task_type', 'Unknown')}
+Metrics: {metrics_str}
+Top features: {features_str}
 
-Hyperparameters:
-{json.dumps(model_data.get('hyperparameters', {}), indent=2)}
+In 3-4 sentences, explain:
+- How well the model performs
+- What the key metrics mean
+- Which features matter most
 
-Please provide:
-1. Why this model was selected
-2. What the metrics indicate about performance
-3. Which features are most important and why
-4. Recommendations for improving the model
-
-Keep the explanation accessible to non-technical stakeholders."""
+Keep it simple for non-technical users (max 100 words)."""
 
         return prompt
 
     def _build_report_prompt(self, report_data: dict) -> str:
-        """Build prompt for report summary generation."""
-        prompt = f"""Generate an executive summary for the following data analysis report:
+        """Build prompt for report summary generation with optimized data."""
+        # Compact dataset info
+        ds = report_data.get('dataset_info', {})
+        ds_str = f"{ds.get('name', '?')}, {ds.get('rows', '?')} rows, {ds.get('columns', '?')} cols"
 
-Report Title: {report_data.get('title', 'Data Analysis Report')}
-Report Type: {report_data.get('report_type', 'analysis')}
+        # Key EDA points
+        eda = report_data.get('eda_highlights', {})
+        eda_parts = []
+        if eda.get('missing_ratio'):
+            eda_parts.append(f"Missing: {eda['missing_ratio']:.0%}")
+        if eda.get('top_correlation'):
+            eda_parts.append(f"Top corr: {eda['top_correlation']:.2f}")
+        eda_str = ', '.join(eda_parts) if eda_parts else "N/A"
 
-Dataset Information:
-{json.dumps(report_data.get('dataset_info', {}), indent=2)[:500]}
+        # Model summary
+        model = report_data.get('model_performance', {})
+        model_str = f"{model.get('algorithm', '?')}, score={model.get('score', 0):.2f}" if model else "N/A"
 
-EDA Highlights:
-{json.dumps(report_data.get('eda_highlights', {}), indent=2)[:1000]}
+        prompt = f"""Write a brief executive summary:
 
-Model Performance:
-{json.dumps(report_data.get('model_performance', {}), indent=2)[:500]}
+Report: {report_data.get('title', 'Analysis Report')}
+Dataset: {ds_str}
+EDA: {eda_str}
+Model: {model_str}
 
-Please provide a 3-5 paragraph executive summary covering:
-1. Dataset overview and quality
-2. Key findings from the analysis
-3. Model performance and recommendations
-4. Next steps and actionable insights
-
-Write in a professional tone suitable for business stakeholders."""
+Write 2-3 short paragraphs (max 120 words) covering key findings and recommendations."""
 
         return prompt
 
     def _build_qa_prompt(self, question: str, context: dict) -> str:
-        """Build prompt for Q&A."""
-        prompt = f"""Answer the following question about a dataset and/or machine learning model.
+        """Build prompt for Q&A with optimized context."""
+        # Extract only essential information to reduce token usage
+        summary = self._summarize_context(context)
 
-Context:
-{json.dumps(context, indent=2)[:3000]}
+        prompt = f"""Answer this question about a data analysis project.
+
+{summary}
 
 Question: {question}
 
 Instructions:
 - Answer based only on the provided context
 - If you cannot answer from the context, say so clearly
-- Keep the answer concise and actionable
-- Use simple language accessible to non-technical users"""
+- Keep the answer concise (2-3 sentences max)
+- Use simple language"""
 
         return prompt
+
+    def _summarize_context(self, context: dict) -> str:
+        """Create a compact summary of context for the AI."""
+        parts = []
+
+        # Dataset info
+        if 'dataset' in context:
+            ds = context['dataset']
+            parts.append(f"Dataset: {ds.get('name', 'Unknown')}, {ds.get('row_count', '?')} rows, {ds.get('column_count', '?')} columns")
+            if ds.get('columns'):
+                cols = ds['columns'][:15]  # Max 15 column names
+                parts.append(f"Columns: {', '.join(cols)}")
+
+        # EDA summary (very compact)
+        if 'eda' in context:
+            eda = context['eda']
+            if eda.get('insights'):
+                # Only first 3 insight messages
+                insights = [i.get('message', '')[:100] for i in eda['insights'][:3]]
+                parts.append(f"Key insights: {'; '.join(insights)}")
+            if eda.get('top_correlations'):
+                corrs = eda['top_correlations'][:3]
+                corr_strs = [f"{c['column1']}-{c['column2']}:{c['correlation']:.2f}" for c in corrs]
+                parts.append(f"Top correlations: {', '.join(corr_strs)}")
+
+        # Model summary (very compact)
+        if 'model' in context:
+            m = context['model']
+            parts.append(f"Model: {m.get('display_name', m.get('algorithm', 'Unknown'))}, Task: {m.get('task_type', '?')}")
+            metrics = m.get('metrics', {})
+            if metrics:
+                # Only key metrics
+                key_metrics = []
+                for k in ['accuracy', 'f1_weighted', 'rmse', 'r2']:
+                    if k in metrics:
+                        key_metrics.append(f"{k}={metrics[k]:.3f}")
+                if key_metrics:
+                    parts.append(f"Metrics: {', '.join(key_metrics[:4])}")
+
+        return '\n'.join(parts) if parts else "No context available."
 
     def _fallback_eda_insights(self, eda_data: dict) -> str:
         """Provide fallback insights when Gemini is not available."""

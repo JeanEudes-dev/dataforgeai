@@ -20,9 +20,7 @@ export function AuthLayout() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary-500 via-primary-500 to-info-500 flex items-center justify-center text-white font-semibold">
-              D
-            </div>
+            <img src="/Icon.png" alt="DataForge AI" className="w-11 h-11" />
             <div className="text-left">
               <h1 className="text-2xl font-semibold text-primary leading-tight">
                 DataForge

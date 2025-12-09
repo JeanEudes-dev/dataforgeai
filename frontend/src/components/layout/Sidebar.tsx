@@ -50,9 +50,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           animate={{ opacity: isOpen ? 1 : 0 }}
           className="flex items-center gap-3 overflow-hidden"
         >
-          <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center text-white font-semibold shadow-sm">
-            <span className="text-sm">D</span>
-          </div>
+          <img src="/Icon.png" alt="DataForge AI" className="w-8 h-8" />
           {isOpen && (
             <div className="leading-none">
               <h1 className="font-semibold text-primary text-sm tracking-tight">
