@@ -223,9 +223,16 @@ class ModelTrainerService:
         if target_series.dtype in ['object', 'category', 'bool']:
             return TrainingJob.TaskType.CLASSIFICATION
 
+        n_unique = target_series.nunique()
+
+        # Binary columns (0/1, -1/1, etc.) are always classification
+        if n_unique == 2:
+            return TrainingJob.TaskType.CLASSIFICATION
+
         # Check unique ratio for numeric columns
-        unique_ratio = target_series.nunique() / len(target_series)
-        if unique_ratio < 0.05 and target_series.nunique() <= 20:
+        # Low cardinality numeric columns are likely categorical
+        unique_ratio = n_unique / len(target_series)
+        if unique_ratio <= 0.05 and n_unique <= 20:
             return TrainingJob.TaskType.CLASSIFICATION
 
         return TrainingJob.TaskType.REGRESSION
@@ -335,14 +342,40 @@ class ModelTrainerService:
             X_test=self.X_test
         )
 
-        # Cross-validation
-        cv_scores = cross_val_score(
-            pipeline,
-            pd.concat([self.X_train, self.X_test]),
-            pd.concat([self.y_train, self.y_test]),
-            cv=5,
-            scoring='f1_weighted' if self.job.task_type == TrainingJob.TaskType.CLASSIFICATION else 'neg_root_mean_squared_error'
-        )
+        # Cross-validation with adaptive folds for small datasets
+        X_full = pd.concat([self.X_train, self.X_test])
+        y_full = pd.concat([self.y_train, self.y_test])
+
+        # Determine number of CV folds based on data size
+        if self.job.task_type == TrainingJob.TaskType.CLASSIFICATION:
+            # For classification, ensure each class has enough samples per fold
+            min_class_count = y_full.value_counts().min()
+            n_folds = min(5, max(2, min_class_count))
+        else:
+            # For regression, base on total sample count
+            n_folds = min(5, max(2, len(y_full) // 5))
+
+        # Run cross-validation with fallback for edge cases
+        try:
+            cv_scores = cross_val_score(
+                pipeline,
+                X_full,
+                y_full,
+                cv=n_folds,
+                scoring='f1_weighted' if self.job.task_type == TrainingJob.TaskType.CLASSIFICATION else 'neg_root_mean_squared_error'
+            )
+        except ValueError as e:
+            # Fallback: use simple KFold if stratified fails (e.g., too many classes)
+            from sklearn.model_selection import KFold
+            logger.warning(f'Stratified CV failed, using KFold: {e}')
+            kfold = KFold(n_splits=min(5, max(2, len(y_full) // 5)), shuffle=True, random_state=42)
+            cv_scores = cross_val_score(
+                pipeline,
+                X_full,
+                y_full,
+                cv=kfold,
+                scoring='f1_weighted' if self.job.task_type == TrainingJob.TaskType.CLASSIFICATION else 'neg_root_mean_squared_error'
+            )
 
         # Get feature importance if available
         feature_importance = self._get_feature_importance(pipeline)

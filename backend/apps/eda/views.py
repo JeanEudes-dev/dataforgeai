@@ -139,20 +139,27 @@ class TriggerEDAView(APIView):
                 status=EDAResult.Status.PENDING
             )
 
-            # Dispatch async task
-            from .tasks import run_eda_task
-            run_eda_task.delay(str(dataset_id), str(eda_result.id))
+            # Try to dispatch async task, fall back to sync if Celery unavailable
+            try:
+                from .tasks import run_eda_task
+                run_eda_task.delay(str(dataset_id), str(eda_result.id))
 
-            logger.info(
-                f'Async EDA triggered for dataset {dataset_id} by user {request.user.email}'
-            )
+                logger.info(
+                    f'Async EDA triggered for dataset {dataset_id} by user {request.user.email}'
+                )
 
-            return Response({
-                'eda_result_id': str(eda_result.id),
-                'dataset_id': str(dataset_id),
-                'status': eda_result.status,
-                'message': 'EDA job queued. Check status at /api/v1/eda/{eda_result_id}/',
-            }, status=status.HTTP_202_ACCEPTED)
+                return Response({
+                    'eda_result_id': str(eda_result.id),
+                    'dataset_id': str(dataset_id),
+                    'status': eda_result.status,
+                    'message': 'EDA job queued. Check status at /api/v1/eda/{eda_result_id}/',
+                }, status=status.HTTP_202_ACCEPTED)
+
+            except Exception as e:
+                # Celery/broker not available, fall back to synchronous
+                logger.warning(f'Celery unavailable, running EDA synchronously: {e}')
+                eda_result.delete()  # Remove the pending result
+                # Fall through to synchronous execution below
 
         # Run EDA synchronously
         try:

@@ -1,0 +1,5 @@
+export { TrainingPage } from './TrainingPage'
+export { JobsListPage } from './JobsListPage'
+export { JobDetailPage } from './JobDetailPage'
+export { ModelsListPage } from './ModelsListPage'
+export { ModelDetailPage } from './ModelDetailPage'
