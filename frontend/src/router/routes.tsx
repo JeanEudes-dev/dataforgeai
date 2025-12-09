@@ -5,14 +5,14 @@ import { ErrorPage } from "@/components/shared";
 
 // Lazy load pages for code splitting
 import { lazy, Suspense } from "react";
-import { Spinner } from "@/components/ui";
+import { ForgeLoader } from "@/components/ui";
 
 // Loading component for suspense
 // eslint-disable-next-line react-refresh/only-export-components
 function PageLoader() {
   return (
     <div className="min-h-[400px] flex items-center justify-center">
-      <Spinner size="lg" />
+      <ForgeLoader className="w-32 h-32" />
     </div>
   );
 }

@@ -1,9 +1,22 @@
-export { Button } from './Button'
-export { Input } from './Input'
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card'
-export { Modal } from './Modal'
-export { Badge } from './Badge'
-export { Select } from './Select'
-export { Spinner } from './Spinner'
-export { Skeleton, SkeletonText, SkeletonCard, SkeletonTable } from './Skeleton'
-export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs'
+export { Button } from "./Button";
+export { Input } from "./Input";
+export {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "./Card";
+export { Modal } from "./Modal";
+export { Badge } from "./Badge";
+export { Select } from "./Select";
+export { Spinner } from "./Spinner";
+export {
+  Skeleton,
+  SkeletonText,
+  SkeletonCard,
+  SkeletonTable,
+} from "./Skeleton";
+export { Tabs, TabsList, TabsTrigger, TabsContent } from "./Tabs";
+export { ForgeLoader } from "./ForgeLoader";
