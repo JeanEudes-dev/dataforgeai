@@ -159,5 +159,5 @@ class AssistantStatusView(APIView):
 
         return Response({
             'available': gemini.is_available,
-            'model': 'gemini-1.5-flash' if gemini.is_available else None,
+            'model': 'gemini-flash-latest' if gemini.is_available else None,
         })

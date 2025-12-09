@@ -7,7 +7,7 @@ interface InsightsPanelProps {
   maxItems?: number
 }
 
-const typeConfig = {
+const typeConfig: Record<string, { bg: string; icon: string; iconPath: string }> = {
   info: {
     bg: 'bg-info-50 border-info-200',
     icon: 'bg-info-100 text-info-600',
@@ -23,14 +23,25 @@ const typeConfig = {
     icon: 'bg-success-100 text-success-600',
     iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
   },
+  error: {
+    bg: 'bg-error-50 border-error-200',
+    icon: 'bg-error-100 text-error-600',
+    iconPath: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+  },
 }
 
-const severityOrder = { high: 0, medium: 1, low: 2 }
+const defaultConfig = {
+  bg: 'bg-gray-50 border-gray-200',
+  icon: 'bg-gray-100 text-gray-600',
+  iconPath: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+}
+
+const severityOrder: Record<string, number> = { high: 0, medium: 1, low: 2 }
 
 export function InsightsPanel({ insights, maxItems = 10 }: InsightsPanelProps) {
   // Sort by severity
   const sortedInsights = [...insights]
-    .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity])
+    .sort((a, b) => (severityOrder[a.severity] ?? 3) - (severityOrder[b.severity] ?? 3))
     .slice(0, maxItems)
 
   if (sortedInsights.length === 0) {
@@ -48,7 +59,7 @@ export function InsightsPanel({ insights, maxItems = 10 }: InsightsPanelProps) {
       className="space-y-3"
     >
       {sortedInsights.map((insight, index) => {
-        const config = typeConfig[insight.type]
+        const config = typeConfig[insight.type] || defaultConfig
 
         return (
           <motion.div
