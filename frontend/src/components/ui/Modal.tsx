@@ -66,7 +66,7 @@ export function Modal({
             <Dialog.Panel
               className={cn(
                 'w-full rounded-2xl bg-surface',
-                'shadow-[8px_8px_16px_var(--shadow-dark),-8px_-8px_16px_var(--shadow-light)]',
+                'border border-subtle shadow-[0_20px_70px_rgba(15,23,42,0.16)]',
                 'overflow-hidden',
                 sizeStyles[size]
               )}
@@ -90,8 +90,8 @@ export function Modal({
                     <button
                       onClick={onClose}
                       className={cn(
-                        'p-2 rounded-lg text-muted',
-                        'hover:text-primary hover:bg-sunken',
+                        'p-2 rounded-xl text-muted border border-transparent',
+                        'hover:text-primary hover:bg-primary-50/70 hover:border-primary-100/60',
                         'transition-colors duration-200',
                         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500'
                       )}

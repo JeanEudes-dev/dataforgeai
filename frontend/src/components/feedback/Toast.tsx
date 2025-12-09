@@ -17,10 +17,10 @@ const iconMap: Record<ToastVariant, React.ReactNode> = {
 }
 
 const variantStyles: Record<ToastVariant, string> = {
-  success: 'border-l-4 border-l-success-500',
-  error: 'border-l-4 border-l-error-500',
-  warning: 'border-l-4 border-l-warning-500',
-  info: 'border-l-4 border-l-info-500',
+  success: 'border-l-4 border-l-success-500 bg-success-50/60 dark:bg-success-900/15',
+  error: 'border-l-4 border-l-error-500 bg-error-50/70 dark:bg-error-900/15',
+  warning: 'border-l-4 border-l-warning-500 bg-warning-50/70 dark:bg-warning-900/15',
+  info: 'border-l-4 border-l-info-500 bg-info-50/70 dark:bg-info-900/15',
 }
 
 interface ToastItemProps {
@@ -38,8 +38,8 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       className={cn(
         'flex items-start gap-3 p-4 rounded-xl',
-        'bg-surface',
-        'shadow-[5px_5px_10px_var(--shadow-dark),-5px_-5px_10px_var(--shadow-light)]',
+        'bg-surface/95 border border-subtle backdrop-blur-xl',
+        'shadow-[0_18px_60px_rgba(15,23,42,0.14)]',
         variantStyles[toast.type]
       )}
     >

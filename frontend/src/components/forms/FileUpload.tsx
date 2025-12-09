@@ -78,10 +78,12 @@ export function FileUpload({
         {...getRootProps()}
         className={cn(
           'relative rounded-2xl p-8 transition-all duration-200',
-          'border-2 border-dashed',
+          'border-2 border-dashed border-subtle',
+          'bg-surface/90 backdrop-blur-sm',
+          'shadow-[0_16px_60px_rgba(15,23,42,0.08)]',
           isDragActive
-            ? 'border-primary-400 bg-primary-50/50 dark:bg-primary-900/10'
-            : 'border-default hover:border-primary-300',
+            ? 'border-primary-300 bg-primary-50/60 dark:bg-primary-900/10'
+            : 'hover:border-primary-200 hover:shadow-[0_18px_70px_rgba(15,23,42,0.1)]',
           (disabled || isUploading) && 'opacity-50 cursor-not-allowed',
           !disabled && !isUploading && 'cursor-pointer'
         )}
@@ -97,8 +99,8 @@ export function FileUpload({
               exit={{ opacity: 0, scale: 0.9 }}
               className="flex items-center justify-center gap-4"
             >
-              <div className="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                <DocumentIcon className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-100 to-info-100 dark:from-primary-900/30 dark:to-info-900/25 flex items-center justify-center shadow-[0_12px_30px_rgba(63,130,244,0.18)]">
+                <DocumentIcon className="w-6 h-6 text-primary-600 dark:text-primary-300" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-primary truncate">
@@ -127,8 +129,8 @@ export function FileUpload({
               exit={{ opacity: 0 }}
               className="flex flex-col items-center"
             >
-              <div className="w-12 h-12 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4">
-                <CloudArrowUpIcon className="w-6 h-6 text-primary-600 dark:text-primary-400 animate-bounce" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-100 to-info-100 dark:from-primary-900/30 dark:to-info-900/25 flex items-center justify-center mb-4 shadow-[0_12px_30px_rgba(63,130,244,0.18)]">
+                <CloudArrowUpIcon className="w-6 h-6 text-primary-600 dark:text-primary-300 animate-bounce" />
               </div>
               <p className="text-sm font-medium text-primary mb-2">
                 Uploading...
@@ -151,8 +153,8 @@ export function FileUpload({
               exit={{ opacity: 0 }}
               className="flex flex-col items-center"
             >
-              <div className="w-12 h-12 rounded-xl bg-sunken flex items-center justify-center mb-4">
-                <CloudArrowUpIcon className="w-6 h-6 text-muted" />
+              <div className="w-12 h-12 rounded-xl bg-primary-50/80 dark:bg-primary-900/20 flex items-center justify-center mb-4 text-primary shadow-[0_10px_24px_rgba(63,130,244,0.12)]">
+                <CloudArrowUpIcon className="w-6 h-6" />
               </div>
               <p className="text-sm font-medium text-primary mb-1">
                 {isDragActive ? 'Drop your file here' : 'Drag & drop your file here'}

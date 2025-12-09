@@ -50,9 +50,9 @@ export function TabsList({ children, className }: TabsListProps) {
   return (
     <div
       className={cn(
-        'inline-flex p-1 rounded-xl',
-        'bg-surface',
-        'shadow-[inset_2px_2px_4px_var(--shadow-dark),inset_-2px_-2px_4px_var(--shadow-light)]',
+        'inline-flex p-1 rounded-2xl',
+        'bg-surface/90 border border-subtle',
+        'shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-sm',
         className
       )}
     >
@@ -78,8 +78,8 @@ export function TabsTrigger({ value, children, className, disabled }: TabsTrigge
       onClick={() => !disabled && setActiveTab(value)}
       disabled={disabled}
       className={cn(
-        'relative px-4 py-2 text-sm font-medium rounded-lg',
-        'transition-colors duration-200',
+        'relative px-4 py-2.5 text-sm font-medium rounded-xl',
+        'transition-all duration-200',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         isActive ? 'text-primary-600 dark:text-primary-400' : 'text-secondary hover:text-primary',
@@ -90,9 +90,10 @@ export function TabsTrigger({ value, children, className, disabled }: TabsTrigge
         <motion.div
           layoutId="active-tab"
           className={cn(
-            'absolute inset-0 rounded-lg',
-            'bg-surface',
-            'shadow-[3px_3px_6px_var(--shadow-dark),-3px_-3px_6px_var(--shadow-light)]'
+            'absolute inset-0 rounded-xl',
+            'bg-gradient-to-r from-primary-50/80 to-info-50/80 dark:from-primary-900/20 dark:to-info-900/10',
+            'border border-primary-100/80 dark:border-primary-900/30',
+            'shadow-[0_12px_30px_rgba(63,130,244,0.14)]'
           )}
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         />

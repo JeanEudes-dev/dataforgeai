@@ -39,24 +39,25 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={cn(
         'fixed left-0 top-0 h-screen z-40',
-        'bg-surface',
-        'shadow-[5px_0_10px_var(--shadow-dark)]',
-        'flex flex-col'
+        'bg-surface/85 backdrop-blur-xl',
+        'border-r border-subtle',
+        'shadow-[0_20px_80px_rgba(15,23,42,0.12)]',
+        'flex flex-col px-2'
       )}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-subtle">
+      <div className="h-16 flex items-center justify-between px-3 border-b border-subtle/80">
         <motion.div
           animate={{ opacity: isOpen ? 1 : 0 }}
-          className="flex items-center gap-3"
+          className="flex items-center gap-3 overflow-hidden"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
-            <span className="text-white font-bold text-lg">D</span>
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary-500 via-primary-500 to-info-500 flex items-center justify-center text-white font-semibold shadow-[0_12px_30px_rgba(63,130,244,0.35)]">
+            <span className="text-lg">D</span>
           </div>
           {isOpen && (
-            <div>
-              <h1 className="font-bold text-primary leading-tight">DataForge</h1>
-              <span className="text-xs text-primary-500">AI</span>
+            <div className="leading-tight">
+              <h1 className="font-semibold text-primary text-lg">DataForge</h1>
+              <span className="text-xs text-muted">Cortex Workspace</span>
             </div>
           )}
         </motion.div>
@@ -64,8 +65,8 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <button
           onClick={onToggle}
           className={cn(
-            'p-2 rounded-lg text-muted',
-            'hover:text-primary hover:bg-sunken',
+            'p-2 rounded-xl text-muted',
+            'hover:text-primary hover:bg-primary-50/70 dark:hover:bg-primary-900/10',
             'transition-all duration-200',
             !isOpen && 'mx-auto'
           )}
@@ -90,11 +91,10 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               key={item.path}
               to={item.path}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl',
+                'group relative flex items-center gap-3 px-3 py-2.5 rounded-xl overflow-hidden',
                 'transition-all duration-200',
-                'group relative',
                 isActive
-                  ? 'text-primary-600 dark:text-primary-400'
+                  ? 'text-white'
                   : 'text-secondary hover:text-primary'
               )}
             >
@@ -103,8 +103,8 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   layoutId="sidebar-active"
                   className={cn(
                     'absolute inset-0 rounded-xl',
-                    'bg-primary-50 dark:bg-primary-900/20',
-                    'shadow-[inset_2px_2px_4px_var(--shadow-dark),inset_-2px_-2px_4px_var(--shadow-light)]'
+                    'bg-gradient-to-r from-primary-500/95 via-primary-500/85 to-info-500/85',
+                    'shadow-[0_10px_30px_rgba(63,130,244,0.25)]'
                   )}
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
@@ -121,13 +121,14 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               )}
               {!isOpen && (
                 <div className={cn(
-                  'absolute left-full ml-2 px-2 py-1 rounded-lg',
-                  'bg-surface shadow-lg',
-                  'text-sm font-medium whitespace-nowrap',
+                  'absolute left-full ml-2 px-2.5 py-1.5 rounded-lg',
+                  'bg-surface/95 border border-subtle shadow-[0_12px_30px_rgba(15,23,42,0.15)] backdrop-blur-md',
+                  'text-sm font-medium whitespace-nowrap text-primary',
                   'opacity-0 group-hover:opacity-100',
                   'pointer-events-none transition-opacity duration-200',
                   'z-50'
-                )}>
+                )}
+                >
                   {item.label}
                 </div>
               )}
@@ -137,13 +138,15 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       </nav>
 
       {/* Theme Toggle */}
-      <div className="p-3 border-t border-subtle">
+      <div className="p-3 border-t border-subtle/80">
         <button
           onClick={toggleTheme}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl',
             'text-secondary hover:text-primary',
-            'hover:bg-sunken transition-all duration-200'
+            'hover:bg-primary-50/80 dark:hover:bg-primary-900/15',
+            'border border-transparent hover:border-primary-100/80',
+            'transition-all duration-200'
           )}
         >
           {theme === 'dark' ? (

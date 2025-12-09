@@ -127,7 +127,7 @@ export function JobsListPage() {
                       {job.status === 'completed' && job.best_model && (
                         <div className="flex justify-between text-sm">
                           <span className="text-secondary">Best Model</span>
-                          <span className="text-primary">{job.best_model.algorithm}</span>
+                          <span className="text-primary">{job.best_model.display_name}</span>
                         </div>
                       )}
                     </div>

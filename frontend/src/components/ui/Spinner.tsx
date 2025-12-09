@@ -18,7 +18,11 @@ const sizeStyles: Record<SpinnerSize, string> = {
 export function Spinner({ size = 'md', className }: SpinnerProps) {
   return (
     <svg
-      className={cn('animate-spin text-primary-500', sizeStyles[size], className)}
+      className={cn(
+        'animate-spin text-primary-500 drop-shadow-[0_8px_24px_rgba(63,130,244,0.35)]',
+        sizeStyles[size],
+        className
+      )}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

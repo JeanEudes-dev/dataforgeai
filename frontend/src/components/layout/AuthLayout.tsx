@@ -4,38 +4,31 @@ import { cn } from '@/utils'
 
 export function AuthLayout() {
   return (
-    <div className="min-h-screen bg-base flex items-center justify-center p-4">
-      {/* Background decoration */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-bl from-primary-200/20 to-transparent rounded-full blur-3xl" />
-        <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-primary-300/10 to-transparent rounded-full blur-3xl" />
-      </div>
-
+    <div className="min-h-screen bg-base app-shell flex items-center justify-center px-4 py-10 relative overflow-hidden">
       {/* Content */}
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        initial={{ opacity: 0, y: 20, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, type: 'spring', stiffness: 300, damping: 25 }}
+        transition={{ duration: 0.45, type: 'spring', stiffness: 320, damping: 28 }}
         className="relative w-full max-w-md"
       >
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-xl">D</span>
+          <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary-500 via-primary-500 to-info-500 flex items-center justify-center text-white font-semibold">
+              D
             </div>
             <div className="text-left">
-              <h1 className="text-2xl font-bold text-primary">DataForge</h1>
-              <span className="text-sm text-primary-500 font-medium">AI</span>
+              <h1 className="text-2xl font-semibold text-primary leading-tight">DataForge</h1>
+              <span className="text-sm text-muted font-medium">Calm AI workspace</span>
             </div>
           </div>
         </div>
 
         {/* Card */}
         <div className={cn(
-          'rounded-2xl p-8',
-          'bg-surface',
-          'shadow-[8px_8px_16px_var(--shadow-dark),-8px_-8px_16px_var(--shadow-light)]'
+          'rounded-2xl p-8 glass',
+          'border border-subtle shadow-[0_20px_70px_rgba(15,23,42,0.12)]'
         )}>
           <Outlet />
         </div>

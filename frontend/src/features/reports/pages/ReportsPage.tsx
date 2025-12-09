@@ -266,7 +266,7 @@ export function ReportsPage() {
               onChange={setSelectedModelId}
               options={models.map((m) => ({
                 value: m.id,
-                label: `${m.algorithm} - ${m.target_column}`,
+                label: `${m.display_name} - ${m.target_column}`,
               }))}
               placeholder="Select a model..."
             />

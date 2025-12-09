@@ -12,12 +12,12 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: 'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300',
-  primary: 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400',
-  success: 'bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400',
-  warning: 'bg-warning-100 text-warning-700 dark:bg-warning-900/30 dark:text-warning-400',
-  error: 'bg-error-100 text-error-700 dark:bg-error-900/30 dark:text-error-400',
-  info: 'bg-info-100 text-info-700 dark:bg-info-900/30 dark:text-info-400',
+  default: 'bg-surface/70 text-secondary border border-subtle shadow-[0_1px_2px_rgba(15,23,42,0.05)]',
+  primary: 'bg-primary-50 text-primary-700 border border-primary-100 dark:bg-primary-900/25 dark:text-primary-200 dark:border-primary-900/40',
+  success: 'bg-success-50 text-success-700 border border-success-100 dark:bg-success-900/25 dark:text-success-200 dark:border-success-900/40',
+  warning: 'bg-warning-50 text-warning-700 border border-warning-100 dark:bg-warning-900/25 dark:text-warning-200 dark:border-warning-900/40',
+  error: 'bg-error-50 text-error-700 border border-error-100 dark:bg-error-900/25 dark:text-error-200 dark:border-error-900/40',
+  info: 'bg-info-50 text-info-700 border border-info-100 dark:bg-info-900/25 dark:text-info-200 dark:border-info-900/40',
 }
 
 const dotColors: Record<BadgeVariant, string> = {

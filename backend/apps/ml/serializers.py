@@ -47,6 +47,7 @@ class TrainedModelListSerializer(serializers.ModelSerializer):
             'display_name',
             'algorithm_type',
             'task_type',
+            'target_column',
             'dataset',
             'dataset_name',
             'is_best',

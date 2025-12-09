@@ -16,6 +16,7 @@ export interface TrainingJobMetrics {
   accuracy?: number
   precision?: number
   recall?: number
+  f1?: number
   f1_score?: number
   f1_weighted?: number
   roc_auc?: number
@@ -24,6 +25,15 @@ export interface TrainingJobMetrics {
   r2?: number
   r2_score?: number
   mse?: number
+  mape?: number
+  // Classification specific
+  confusion_matrix?: number[][]
+  confusion_matrix_labels?: string[]
+  roc_curve?: {
+    fpr: number[]
+    tpr: number[]
+    thresholds: (number | null)[]
+  }
 }
 
 export interface FeatureImportance {
@@ -34,12 +44,15 @@ export interface TrainedModelListItem {
   id: string
   name: string
   display_name: string
-  algorithm: string
   algorithm_type: AlgorithmType
   task_type: TaskType
   target_column: string
+  dataset: string
+  dataset_name: string
   metrics: TrainingJobMetrics
   primary_metric: number
+  model_size: number | null
+  model_size_display: string
   is_best: boolean
   created_at: string
 }
@@ -50,7 +63,6 @@ export interface TrainedModel extends Timestamps {
   dataset: DatasetListItem
   name: string
   display_name: string
-  algorithm: string
   algorithm_type: AlgorithmType
   task_type: TaskType
   feature_columns: string[]

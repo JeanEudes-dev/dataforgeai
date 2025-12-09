@@ -134,7 +134,7 @@ export function PredictionsPage() {
           <div>
             <h1 className="text-2xl font-bold text-primary">Make Predictions</h1>
             <p className="text-secondary mt-1">
-              {model.algorithm} • {model.target_column}
+              {model.display_name} • {model.target_column}
             </p>
           </div>
         </div>

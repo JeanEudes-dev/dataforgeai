@@ -16,15 +16,19 @@ export function Skeleton({
   return (
     <div
       className={cn(
-        'animate-pulse bg-sunken',
-        variant === 'text' && 'h-4 rounded',
+        'relative overflow-hidden bg-sunken/80',
+        'rounded-md',
+        variant === 'text' && 'h-4',
         variant === 'circular' && 'rounded-full',
-        variant === 'rectangular' && 'rounded-lg',
+        variant === 'rectangular' && 'rounded-xl',
         className
       )}
       style={{
-        width: width,
-        height: height,
+        width,
+        height,
+        backgroundSize: '200% 100%',
+        backgroundImage: 'linear-gradient(110deg, rgba(255,255,255,0.65), rgba(63,130,244,0.14), rgba(255,255,255,0.65))',
+        animation: 'shimmer 2.4s ease infinite',
       }}
     />
   )

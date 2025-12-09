@@ -10,9 +10,9 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles = {
-  elevated: 'shadow-[5px_5px_10px_var(--shadow-dark),-5px_-5px_10px_var(--shadow-light)]',
-  flat: 'shadow-none border border-subtle',
-  pressed: 'shadow-[inset_3px_3px_6px_var(--shadow-dark),inset_-3px_-3px_6px_var(--shadow-light)]',
+  elevated: 'border border-subtle bg-surface/95 shadow-[0_18px_60px_rgba(15,23,42,0.08)] backdrop-blur-sm',
+  flat: 'border border-subtle bg-surface/90',
+  pressed: 'border border-default bg-sunken shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-1px_0_rgba(15,23,42,0.06)]',
 }
 
 const paddingStyles = {
@@ -36,11 +36,11 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     ref
   ) => {
     const baseClassName = cn(
-      'bg-surface rounded-2xl',
-      'transition-shadow duration-300',
+      'rounded-2xl',
+      'transition-all duration-300',
       variantStyles[variant],
       paddingStyles[padding],
-      hoverable && variant === 'elevated' && 'hover:shadow-[8px_8px_16px_var(--shadow-dark),-8px_-8px_16px_var(--shadow-light)]',
+      hoverable && variant === 'elevated' && 'hover:shadow-[0_22px_70px_rgba(15,23,42,0.12)] hover:-translate-y-1',
       clickable && 'cursor-pointer',
       className
     )

@@ -49,17 +49,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             type={type}
             disabled={disabled}
             className={cn(
-              'w-full px-4 py-2.5 rounded-xl',
-              'bg-surface text-primary placeholder:text-muted',
-              'shadow-[inset_2px_2px_4px_var(--shadow-dark),inset_-2px_-2px_4px_var(--shadow-light)]',
-              'border border-transparent',
+              'w-full px-4 py-3 rounded-xl',
+              'bg-surface/85 text-primary placeholder:text-muted',
+              'border border-subtle',
+              'shadow-[0_1px_2px_rgba(15,23,42,0.06)]',
               'transition-all duration-200',
-              'focus:outline-none focus:border-primary-400',
-              'focus:shadow-[inset_3px_3px_6px_var(--shadow-dark),inset_-3px_-3px_6px_var(--shadow-light)]',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              error && 'border-error-500 focus:border-error-500',
-              leftIcon && 'pl-10',
-              rightIcon && 'pr-10',
+              'focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15',
+              'disabled:opacity-60 disabled:cursor-not-allowed',
+              error && 'border-error-500 focus:border-error-500 focus:ring-error-500/20',
+              leftIcon && 'pl-11',
+              rightIcon && 'pr-11',
               className
             )}
             {...props}

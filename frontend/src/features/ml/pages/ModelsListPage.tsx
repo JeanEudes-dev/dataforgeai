@@ -98,7 +98,7 @@ export function ModelsListPage() {
                         </div>
                         <div className="min-w-0">
                           <h3 className="font-semibold text-primary">
-                            {model.algorithm}
+                            {model.display_name}
                           </h3>
                           <p className="text-xs text-muted">
                             {formatRelativeTime(model.created_at)}

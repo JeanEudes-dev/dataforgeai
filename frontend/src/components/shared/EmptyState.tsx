@@ -32,11 +32,13 @@ export function EmptyState({
       transition={{ duration: 0.3 }}
       className={cn(
         'flex flex-col items-center justify-center py-12 px-6 text-center',
+        'rounded-2xl border border-dashed border-subtle/80 bg-surface/80',
+        'shadow-[0_18px_50px_rgba(15,23,42,0.08)] backdrop-blur-sm',
         className
       )}
     >
       {icon && (
-        <div className="w-16 h-16 mb-4 rounded-2xl bg-sunken flex items-center justify-center text-muted">
+        <div className="w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br from-primary-50 to-info-50 dark:from-primary-900/30 dark:to-info-900/20 flex items-center justify-center text-primary shadow-[0_12px_30px_rgba(63,130,244,0.12)]">
           {icon}
         </div>
       )}

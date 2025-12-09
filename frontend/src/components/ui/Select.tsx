@@ -43,13 +43,13 @@ export function Select({
         <div className="relative">
           <Listbox.Button
             className={cn(
-              'relative w-full py-2.5 pl-4 pr-10 text-left rounded-xl',
-              'bg-surface text-primary',
-              'shadow-[inset_2px_2px_4px_var(--shadow-dark),inset_-2px_-2px_4px_var(--shadow-light)]',
-              'border border-transparent',
-              'focus:outline-none focus:border-primary-400',
-              'disabled:opacity-50 disabled:cursor-not-allowed',
-              error && 'border-error-500'
+              'relative w-full py-3 pl-4 pr-10 text-left rounded-xl',
+              'bg-surface/85 text-primary',
+              'border border-subtle shadow-[0_1px_2px_rgba(15,23,42,0.06)]',
+              'transition-all duration-200',
+              'focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/15',
+              'disabled:opacity-60 disabled:cursor-not-allowed',
+              error && 'border-error-500 focus:border-error-500 focus:ring-error-500/20'
             )}
           >
             <span className={cn('block truncate', !selectedOption && 'text-muted')}>
@@ -69,8 +69,8 @@ export function Select({
             <Listbox.Options
               className={cn(
                 'absolute z-10 mt-2 w-full py-2 rounded-xl',
-                'bg-surface',
-                'shadow-[5px_5px_10px_var(--shadow-dark),-5px_-5px_10px_var(--shadow-light)]',
+                'bg-surface/95 border border-subtle',
+                'shadow-[0_18px_50px_rgba(15,23,42,0.14)] backdrop-blur-xl',
                 'max-h-60 overflow-auto scrollbar-thin',
                 'focus:outline-none'
               )}
@@ -82,10 +82,10 @@ export function Select({
                   disabled={option.disabled}
                   className={({ active, selected }) =>
                     cn(
-                      'relative cursor-pointer select-none py-2.5 pl-10 pr-4',
+                      'relative cursor-pointer select-none py-2.5 pl-10 pr-4 rounded-lg mx-1',
                       'transition-colors duration-150',
-                      active && 'bg-primary-50 dark:bg-primary-900/20',
-                      selected && 'text-primary-600 dark:text-primary-400',
+                      active && 'bg-primary-50/80 dark:bg-primary-900/15',
+                      selected && 'text-primary-600 dark:text-primary-400 bg-primary-50/70 dark:bg-primary-900/10',
                       option.disabled && 'opacity-50 cursor-not-allowed'
                     )
                   }

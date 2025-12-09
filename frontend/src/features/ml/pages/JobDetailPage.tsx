@@ -233,7 +233,7 @@ export function JobDetailPage() {
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-primary font-medium">{model.algorithm}</span>
+                          <span className="text-primary font-medium">{model.display_name}</span>
                           {model.is_best && (
                             <span className="flex items-center gap-1 text-xs text-success-600">
                               <TrophyIcon className="w-3.5 h-3.5" />
