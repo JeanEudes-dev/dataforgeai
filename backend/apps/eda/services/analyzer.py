@@ -102,10 +102,13 @@ class EDAAnalyzerService:
             self.eda_result.missing_analysis = self._analyze_missing_values()
             self.eda_result.outlier_analysis = self._detect_outliers()
 
-            # Generate insights
+            # Generate rule-based insights
             from .insights import EDAInsightsService
             insights_service = EDAInsightsService(self.eda_result, self.df)
             self.eda_result.insights = insights_service.generate_insights()
+
+            # Generate AI insights using Gemini
+            self._generate_ai_insights()
 
             # Update metadata
             self.eda_result.computation_time = time.time() - start_time
@@ -346,6 +349,33 @@ class EDAAnalyzerService:
             return round(val, 6)
         except (ValueError, TypeError):
             return None
+
+    def _generate_ai_insights(self) -> None:
+        """Generate AI-powered insights using Gemini."""
+        try:
+            from apps.assistant.services import GeminiService
+
+            gemini = GeminiService()
+            if not gemini.is_available:
+                logger.info('Gemini not available, skipping AI insights')
+                return
+
+            eda_data = {
+                'summary_stats': self.eda_result.summary_stats,
+                'missing_analysis': self.eda_result.missing_analysis,
+                'correlation_matrix': self.eda_result.correlation_matrix,
+                'outlier_analysis': self.eda_result.outlier_analysis,
+                'insights': self.eda_result.insights,
+            }
+
+            ai_insights = gemini.generate_eda_insights(eda_data)
+            self.eda_result.ai_insights = ai_insights
+            logger.info(f'Generated AI insights for dataset {self.dataset.id}')
+
+        except Exception as e:
+            logger.warning(f'Failed to generate AI insights: {e}')
+            # Don't fail the whole EDA if AI insights fail
+            self.eda_result.ai_insights = ''
 
     def _get_cached_result(self, cache_key: str) -> EDAResult | None:
         """
