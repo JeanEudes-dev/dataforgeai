@@ -37,14 +37,23 @@ export function DistributionChart({
   height = 200,
 }: DistributionChartProps) {
   const chartData = useMemo(() => {
+    if (!data?.bins || !data?.counts) return []
     return data.bins.map((bin, index) => ({
       name: bin.length > 12 ? `${bin.slice(0, 12)}...` : bin,
       fullName: bin,
-      value: data.counts[index],
+      value: data.counts[index] || 0,
     }))
   }, [data])
 
-  const maxValue = Math.max(...data.counts)
+  if (!data || chartData.length === 0) {
+    return (
+      <div className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
+        No distribution data available for {columnName}.
+      </div>
+    )
+  }
+
+  const maxValue = Math.max(...data.counts, 0)
   const colorScheme = COLORS[data.type]
   const barColor = color || colorScheme.primary
 

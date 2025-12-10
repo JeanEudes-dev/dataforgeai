@@ -134,6 +134,7 @@ class DatasetColumn(models.Model):
     class DataType(models.TextChoices):
         NUMERIC = 'numeric', 'Numeric'
         CATEGORICAL = 'categorical', 'Categorical'
+        ORDINAL = 'ordinal', 'Ordinal'
         DATETIME = 'datetime', 'DateTime'
         TEXT = 'text', 'Text'
         BOOLEAN = 'boolean', 'Boolean'

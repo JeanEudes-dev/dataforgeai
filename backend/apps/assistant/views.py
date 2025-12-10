@@ -58,6 +58,22 @@ class AskQuestionView(APIView):
                     'schema': dataset.schema,
                 }
                 sources.append(f'Dataset: {dataset.name}')
+
+                # Auto-fetch the latest EDA result for this dataset if eda_result_id not provided
+                if not eda_result_id:
+                    try:
+                        eda_result = EDAResult.objects.filter(
+                            dataset=dataset,
+                            status='completed'
+                        ).order_by('-created_at').first()
+                        if eda_result:
+                            eda_result_id = str(eda_result.id)
+                            logger.info(f'Auto-fetched EDA result {eda_result_id} for dataset {dataset.name}')
+                        else:
+                            logger.info(f'No completed EDA result found for dataset {dataset.name}')
+                    except Exception as e:
+                        logger.warning(f'Error fetching EDA result: {e}')
+
             except Dataset.DoesNotExist:
                 raise DatasetNotFoundError()
 
@@ -67,12 +83,54 @@ class AskQuestionView(APIView):
                 # Verify ownership through dataset
                 if eda_result.dataset.owner != request.user:
                     raise EDAResult.DoesNotExist
-                context['eda'] = {
-                    'summary_stats': eda_result.summary_stats,
-                    'insights': eda_result.insights,
-                    'missing_analysis': eda_result.missing_analysis,
-                    'correlation_matrix': eda_result.correlation_matrix,
+
+                # Build rich EDA context with summaries (not raw data)
+                eda_context = {
+                    'insights': eda_result.insights or [],
+                    'ai_insights': eda_result.ai_insights,  # Pre-generated AI insights
                 }
+
+                # Add compact summary stats (just key statistics per column)
+                if eda_result.summary_stats:
+                    column_summaries = []
+                    for col_name, stats in list(eda_result.summary_stats.items())[:15]:
+                        summary = f"{col_name}: "
+                        if 'mean' in stats:
+                            summary += f"mean={stats['mean']:.2f}, std={stats.get('std', 0):.2f}"
+                        elif 'unique' in stats:
+                            summary += f"{stats.get('unique', 0)} unique values"
+                        column_summaries.append(summary)
+                    eda_context['column_summaries'] = column_summaries
+
+                # Add top correlations as readable strings
+                if eda_result.top_correlations:
+                    eda_context['top_correlations'] = eda_result.top_correlations[:10]
+
+                # Add missing values summary
+                if eda_result.missing_analysis:
+                    missing_cols = [
+                        {'column': k, 'ratio': v.get('ratio', 0) * 100}
+                        for k, v in eda_result.missing_analysis.items()
+                        if v.get('ratio', 0) > 0
+                    ]
+                    missing_cols.sort(key=lambda x: x['ratio'], reverse=True)
+                    eda_context['missing_summary'] = missing_cols[:10]
+
+                # Add outlier summary
+                if eda_result.outlier_analysis:
+                    outlier_cols = [
+                        {'column': k, 'ratio': v.get('ratio', 0) * 100}
+                        for k, v in eda_result.outlier_analysis.items()
+                        if v.get('ratio', 0) > 0.01
+                    ]
+                    outlier_cols.sort(key=lambda x: x['ratio'], reverse=True)
+                    eda_context['outlier_summary'] = outlier_cols[:10]
+
+                # Add data quality score if available
+                if hasattr(eda_result, 'data_quality_score') and eda_result.data_quality_score:
+                    eda_context['data_quality_score'] = eda_result.data_quality_score
+
+                context['eda'] = eda_context
                 sources.append('EDA Analysis')
             except EDAResult.DoesNotExist:
                 return Response(
@@ -104,6 +162,12 @@ class AskQuestionView(APIView):
 
         # Get answer from Gemini
         gemini = GeminiService()
+
+        # Log context summary for debugging
+        context_keys = list(context.keys())
+        eda_keys = list(context.get('eda', {}).keys()) if 'eda' in context else []
+        logger.info(f'Q&A context for user {request.user.email}: top-level={context_keys}, eda={eda_keys}')
+
         answer = gemini.answer_question(question, context)
 
         logger.info(

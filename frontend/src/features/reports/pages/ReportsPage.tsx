@@ -7,10 +7,13 @@ import {
   PlusIcon,
   ArrowRightIcon,
   TrashIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline'
 import {
   Card,
   CardContent,
+  CardHeader,
+  CardTitle,
   Button,
   Modal,
   Select,
@@ -30,46 +33,41 @@ export function ReportsPage() {
   const [selectedReportType, setSelectedReportType] = useState<'eda' | 'model' | 'full'>('full')
   const [selectedModelId, setSelectedModelId] = useState('')
 
-  // Fetch reports
   const { data, isLoading, error } = useQuery({
     queryKey: ['reports'],
     queryFn: () => reportsApi.list(),
   })
 
-  // Fetch datasets for dropdown
   const { data: datasetsData } = useQuery({
     queryKey: ['datasets'],
     queryFn: () => datasetsApi.list(),
   })
 
-  // Fetch models for dropdown
   const { data: modelsData } = useQuery({
     queryKey: ['trained-models'],
     queryFn: () => mlApi.listModels(),
   })
 
-  // Generate mutation
   const generateMutation = useMutation({
     mutationFn: (params: GenerateReportParams) => reportsApi.generate(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reports'] })
-      toast.success('Report generating', 'Your report is being generated.')
+      toast.success('Report generating', 'Your report is being generated in the background.')
       closeGenerateModal()
     },
-    onError: (error) => {
-      toast.error('Generation failed', getErrorMessage(error))
+    onError: (err) => {
+      toast.error('Generation failed', getErrorMessage(err))
     },
   })
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: reportsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reports'] })
       toast.success('Report deleted', 'The report has been removed.')
     },
-    onError: (error) => {
-      toast.error('Delete failed', getErrorMessage(error))
+    onError: (err) => {
+      toast.error('Delete failed', getErrorMessage(err))
     },
   })
 
@@ -85,7 +83,6 @@ export function ReportsPage() {
       toast.error('Missing dataset', 'Please select a dataset.')
       return
     }
-
     generateMutation.mutate({
       dataset_id: selectedDatasetId,
       report_type: selectedReportType,
@@ -104,19 +101,25 @@ export function ReportsPage() {
   const models = modelsData?.results || []
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Reports</h1>
-          <p className="text-secondary mt-1">Generate and view analysis reports</p>
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50" />
+        <div className="relative px-6 py-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Insights</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Reports</h1>
+            <p className="text-sm text-gray-500 max-w-2xl">
+              Generate EDA summaries or model performance packs; cards show status and freshness.
+            </p>
+          </div>
+          <Button
+            leftIcon={<PlusIcon className="w-5 h-5" />}
+            onClick={() => setIsGenerateModalOpen(true)}
+          >
+            Generate report
+          </Button>
         </div>
-        <Button
-          leftIcon={<PlusIcon className="w-5 h-5" />}
-          onClick={() => setIsGenerateModalOpen(true)}
-        >
-          Generate Report
-        </Button>
       </div>
 
       {/* Content */}
@@ -138,7 +141,7 @@ export function ReportsPage() {
           title="No reports yet"
           description="Generate your first report to get a comprehensive summary of your data analysis."
           action={{
-            label: 'Generate Report',
+            label: 'Generate report',
             onClick: () => setIsGenerateModalOpen(true),
           }}
         />
@@ -152,23 +155,23 @@ export function ReportsPage() {
             {reports.map((report: ReportListItem) => (
               <motion.div
                 key={report.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
                 layout
               >
-                <Card hoverable className="h-full">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-3">
+                <Card hoverable className="h-full border border-gray-200 shadow-sm">
+                  <CardContent className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                          <DocumentTextIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                        <div className="w-11 h-11 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-700">
+                          <DocumentTextIcon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-primary truncate">
+                          <h3 className="font-semibold text-gray-900 truncate">
                             {report.title}
                           </h3>
-                          <p className="text-xs text-muted">
+                          <p className="text-xs text-gray-500">
                             {formatRelativeTime(report.created_at)}
                           </p>
                         </div>
@@ -176,14 +179,25 @@ export function ReportsPage() {
                       <StatusBadge status={report.status} />
                     </div>
 
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Dataset</span>
-                        <span className="text-primary truncate max-w-32">{report.dataset.name}</span>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 truncate max-w-[180px]">
+                        {report.dataset.name}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 capitalize">
+                        {report.report_type} report
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-xl border border-gray-200 bg-white">
+                        <p className="text-xs text-gray-500 mb-1">Status</p>
+                        <p className="text-sm font-semibold text-gray-900 capitalize">{report.status}</p>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Type</span>
-                        <span className="text-primary capitalize">{report.report_type}</span>
+                      <div className="p-3 rounded-xl border border-gray-200 bg-white">
+                        <p className="text-xs text-gray-500 mb-1">Updated</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatRelativeTime(report.updated_at || report.created_at)}
+                        </p>
                       </div>
                     </div>
 
@@ -220,8 +234,8 @@ export function ReportsPage() {
       <Modal
         isOpen={isGenerateModalOpen}
         onClose={closeGenerateModal}
-        title="Generate Report"
-        description="Create a comprehensive analysis report"
+        title="Generate report"
+        description="Select a dataset and report type. Generation runs in the background."
         footer={
           <div className="flex justify-end gap-3">
             <Button variant="secondary" onClick={closeGenerateModal}>
@@ -237,7 +251,15 @@ export function ReportsPage() {
           </div>
         }
       >
-        <div className="space-y-4">
+        <div className="space-y-5">
+          <div className="rounded-xl border border-gray-200 bg-gray-50/70 p-4 flex items-start gap-3 text-sm text-gray-600">
+            <SparklesIcon className="w-5 h-5 text-primary-500 mt-0.5" />
+            <div>
+              <p className="font-semibold text-gray-900">Background generation</p>
+              <p>We’ll notify you and update the list when the report is ready. You can navigate away safely.</p>
+            </div>
+          </div>
+
           <Select
             label="Dataset"
             value={selectedDatasetId}
@@ -249,24 +271,24 @@ export function ReportsPage() {
           />
 
           <Select
-            label="Report Type"
+            label="Report type"
             value={selectedReportType}
             onChange={(value) => setSelectedReportType(value as 'eda' | 'model' | 'full')}
             options={[
-              { value: 'eda', label: 'EDA Only - Data analysis summary' },
-              { value: 'model', label: 'Model Only - Model performance report' },
-              { value: 'full', label: 'Full Report - Complete analysis + model' },
+              { value: 'eda', label: 'EDA only — data analysis summary' },
+              { value: 'model', label: 'Model only — performance report' },
+              { value: 'full', label: 'Full report — analysis + model' },
             ]}
           />
 
           {(selectedReportType === 'model' || selectedReportType === 'full') && (
             <Select
-              label="Model (Optional)"
+              label="Model (optional)"
               value={selectedModelId}
               onChange={setSelectedModelId}
               options={models.map((m) => ({
                 value: m.id,
-                label: `${m.display_name} - ${m.target_column}`,
+                label: `${m.display_name} — ${m.target_column}`,
               }))}
               placeholder="Select a model..."
             />

@@ -5,7 +5,8 @@ Serializers for the Reports app.
 from rest_framework import serializers
 
 from apps.datasets.serializers import DatasetListSerializer
-from apps.ml.serializers import TrainedModelListSerializer
+from apps.ml.models import TrainedModel
+from apps.ml.serializers import TrainedModelListSerializer, TrainedModelDetailSerializer
 
 from .models import Report
 
@@ -14,6 +15,7 @@ class ReportListSerializer(serializers.ModelSerializer):
     """Serializer for report list view."""
 
     dataset_name = serializers.CharField(source='dataset.name', read_only=True)
+    is_public = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Report
@@ -24,6 +26,7 @@ class ReportListSerializer(serializers.ModelSerializer):
             'dataset',
             'dataset_name',
             'status',
+            'is_public',
             'created_at',
             'updated_at',
         ]
@@ -34,7 +37,9 @@ class ReportDetailSerializer(serializers.ModelSerializer):
     """Serializer for report detail view."""
 
     dataset = DatasetListSerializer(read_only=True)
-    trained_model = TrainedModelListSerializer(read_only=True)
+    trained_model = TrainedModelDetailSerializer(read_only=True)
+    all_models = serializers.SerializerMethodField()
+    share_url = serializers.ReadOnlyField()
 
     class Meta:
         model = Report
@@ -45,12 +50,52 @@ class ReportDetailSerializer(serializers.ModelSerializer):
             'dataset',
             'eda_result',
             'trained_model',
+            'all_models',
             'content',
+            'model_comparison',
             'ai_summary',
             'status',
             'error_message',
+            'share_token',
+            'share_url',
+            'is_public',
+            'report_metadata',
             'created_at',
             'updated_at',
+        ]
+        read_only_fields = fields
+
+    def get_all_models(self, obj):
+        """Get all trained models for the dataset for comparison."""
+        if obj.dataset:
+            models = TrainedModel.objects.filter(
+                dataset=obj.dataset
+            ).order_by('-is_best', '-created_at')
+            return TrainedModelListSerializer(models, many=True).data
+        return []
+
+
+class SharedReportSerializer(serializers.ModelSerializer):
+    """Serializer for publicly shared reports (limited fields, no sensitive data)."""
+
+    dataset_name = serializers.CharField(source='dataset.name', read_only=True)
+    dataset_row_count = serializers.IntegerField(source='dataset.row_count', read_only=True)
+    dataset_column_count = serializers.IntegerField(source='dataset.column_count', read_only=True)
+
+    class Meta:
+        model = Report
+        fields = [
+            'id',
+            'title',
+            'report_type',
+            'dataset_name',
+            'dataset_row_count',
+            'dataset_column_count',
+            'content',
+            'model_comparison',
+            'ai_summary',
+            'report_metadata',
+            'created_at',
         ]
         read_only_fields = fields
 

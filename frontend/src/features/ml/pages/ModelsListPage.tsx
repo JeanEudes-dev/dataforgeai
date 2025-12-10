@@ -27,19 +27,25 @@ export function ModelsListPage() {
   const models = data?.results || []
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Trained Models</h1>
-          <p className="text-secondary mt-1">View and use your trained machine learning models</p>
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50" />
+        <div className="relative px-6 py-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Model library</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Trained models</h1>
+            <p className="text-sm text-gray-500 max-w-2xl">
+              Browse, compare, and deploy the best models discovered by AutoML. Each card highlights task, target, top metric, and freshness.
+            </p>
+          </div>
+          <Link to="/datasets">
+            <Button>
+              <BeakerIcon className="w-5 h-5 mr-2" />
+              Train new model
+            </Button>
+          </Link>
         </div>
-        <Link to="/datasets">
-          <Button>
-            <BeakerIcon className="w-5 h-5 mr-2" />
-            Train New Model
-          </Button>
-        </Link>
       </div>
 
       {/* Content */}
@@ -72,98 +78,108 @@ export function ModelsListPage() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           <AnimatePresence>
-            {models.map((model: TrainedModelListItem) => (
-              <motion.div
-                key={model.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                layout
-              >
-                <Card hoverable className="h-full">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className={cn(
-                          'w-10 h-10 rounded-xl flex items-center justify-center',
-                          model.is_best
-                            ? 'bg-success-100 dark:bg-success-900/30'
-                            : 'bg-primary-100 dark:bg-primary-900/30'
-                        )}>
-                          {model.is_best ? (
-                            <TrophyIcon className="w-5 h-5 text-success-600 dark:text-success-400" />
-                          ) : (
-                            <BeakerIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                          )}
+            {models.map((model: TrainedModelListItem) => {
+              const isClassification = model.task_type === 'classification'
+              const primaryMetric = isClassification
+                ? (model.metrics?.f1_score ?? model.metrics?.accuracy ?? 0)
+                : (model.metrics?.r2_score ?? 0)
+
+              return (
+                <motion.div
+                  key={model.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  layout
+                >
+                  <Card hoverable className="h-full border border-gray-200 shadow-sm">
+                    <CardContent className="p-5 space-y-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            'w-11 h-11 rounded-xl flex items-center justify-center border',
+                            model.is_best
+                              ? 'border-primary-200 bg-primary-50 text-primary-700'
+                              : 'border-gray-200 bg-gray-50 text-gray-600'
+                          )}>
+                            {model.is_best ? (
+                              <TrophyIcon className="w-5 h-5" />
+                            ) : (
+                              <BeakerIcon className="w-5 h-5" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-gray-900 truncate">
+                              {model.display_name}
+                            </h3>
+                            <p className="text-xs text-gray-500">
+                              {formatRelativeTime(model.created_at)}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-primary">
-                            {model.display_name}
-                          </h3>
-                          <p className="text-xs text-muted">
-                            {formatRelativeTime(model.created_at)}
+                        {model.is_best && (
+                          <span className="px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-700">
+                            Best
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 capitalize">
+                          {model.task_type}
+                        </span>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 truncate max-w-[180px]">
+                          Target: {model.target_column}
+                        </span>
+                        {model.dataset?.name && (
+                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 truncate max-w-[180px]">
+                            {model.dataset.name}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 rounded-xl border border-gray-200 bg-white">
+                          <p className="text-xs text-gray-500 mb-1">Top metric</p>
+                          <p className="text-lg font-semibold text-gray-900">
+                            {isClassification
+                              ? `${formatNumber(primaryMetric * 100, 1)}%`
+                              : `${formatNumber(primaryMetric, 4)}`}
+                          </p>
+                        </div>
+                        <div className="p-3 rounded-xl border border-gray-200 bg-white">
+                          <p className="text-xs text-gray-500 mb-1">Features</p>
+                          <p className="text-lg font-semibold text-gray-900">
+                            {model.feature_columns?.length ?? '-'}
                           </p>
                         </div>
                       </div>
-                      {model.is_best && (
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-success-100 text-success-700 dark:bg-success-900/30 dark:text-success-400">
-                          Best
-                        </span>
-                      )}
-                    </div>
 
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Task</span>
-                        <span className="text-primary capitalize">{model.task_type}</span>
+                      <div className="flex gap-2">
+                        <Link to={`/models/${model.id}`} className="flex-1">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="w-full"
+                            rightIcon={<ArrowRightIcon className="w-4 h-4" />}
+                          >
+                            Details
+                          </Button>
+                        </Link>
+                        <Link to={`/models/${model.id}/predict`}>
+                          <Button
+                            size="sm"
+                            leftIcon={<PlayIcon className="w-4 h-4" />}
+                          >
+                            Predict
+                          </Button>
+                        </Link>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Target</span>
-                        <span className="text-primary truncate max-w-24">{model.target_column}</span>
-                      </div>
-
-                      {/* Key Metric */}
-                      {model.task_type === 'classification' ? (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-secondary">F1 Score</span>
-                          <span className="text-primary font-medium">
-                            {formatNumber(model.metrics?.f1_score, 4)}
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-secondary">R²</span>
-                          <span className="text-primary font-medium">
-                            {formatNumber(model.metrics?.r2_score, 4)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Link to={`/models/${model.id}`} className="flex-1">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="w-full"
-                          rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-                        >
-                          Details
-                        </Button>
-                      </Link>
-                      <Link to={`/models/${model.id}/predict`}>
-                        <Button
-                          size="sm"
-                          leftIcon={<PlayIcon className="w-4 h-4" />}
-                        >
-                          Predict
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )
+            })}
           </AnimatePresence>
         </motion.div>
       )}

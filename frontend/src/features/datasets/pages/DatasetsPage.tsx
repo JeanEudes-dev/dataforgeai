@@ -21,7 +21,7 @@ import { StatusBadge, EmptyState } from '@/components/shared'
 import { FileUpload } from '@/components/forms'
 import { datasetsApi, getErrorMessage } from '@/api'
 import { useToastActions } from '@/contexts'
-import { formatRelativeTime } from '@/utils'
+import { formatRelativeTime, formatNumber } from '@/utils'
 import type { DatasetListItem } from '@/types'
 
 export function DatasetsPage() {
@@ -32,13 +32,11 @@ export function DatasetsPage() {
   const [uploadDescription, setUploadDescription] = useState('')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
-  // Fetch datasets
   const { data, isLoading, error } = useQuery({
     queryKey: ['datasets'],
     queryFn: () => datasetsApi.list(),
   })
 
-  // Upload mutation
   const uploadMutation = useMutation({
     mutationFn: datasetsApi.upload,
     onSuccess: () => {
@@ -46,20 +44,19 @@ export function DatasetsPage() {
       toast.success('Dataset uploaded', 'Your dataset is being processed.')
       closeUploadModal()
     },
-    onError: (error) => {
-      toast.error('Upload failed', getErrorMessage(error))
+    onError: (uploadError) => {
+      toast.error('Upload failed', getErrorMessage(uploadError))
     },
   })
 
-  // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: datasetsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['datasets'] })
       toast.success('Dataset deleted', 'The dataset has been removed.')
     },
-    onError: (error) => {
-      toast.error('Delete failed', getErrorMessage(error))
+    onError: (deleteError) => {
+      toast.error('Delete failed', getErrorMessage(deleteError))
     },
   })
 
@@ -89,19 +86,25 @@ export function DatasetsPage() {
   const datasets = data?.results || []
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Datasets</h1>
-          <p className="text-secondary mt-1">Manage your uploaded datasets</p>
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50" />
+        <div className="relative px-6 py-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-2">
+            <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Data workspace</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Datasets</h1>
+            <p className="text-sm text-gray-500 max-w-2xl">
+              Upload, manage, and launch training from your datasets. Cards show freshness, size, and readiness status.
+            </p>
+          </div>
+          <Button
+            leftIcon={<PlusIcon className="w-5 h-5" />}
+            onClick={() => setIsUploadModalOpen(true)}
+          >
+            Upload dataset
+          </Button>
         </div>
-        <Button
-          leftIcon={<PlusIcon className="w-5 h-5" />}
-          onClick={() => setIsUploadModalOpen(true)}
-        >
-          Upload Dataset
-        </Button>
       </div>
 
       {/* Content */}
@@ -123,7 +126,7 @@ export function DatasetsPage() {
           title="No datasets yet"
           description="Upload your first dataset to start analyzing data and training models."
           action={{
-            label: 'Upload Dataset',
+            label: 'Upload dataset',
             onClick: () => setIsUploadModalOpen(true),
           }}
         />
@@ -137,23 +140,23 @@ export function DatasetsPage() {
             {datasets.map((dataset: DatasetListItem) => (
               <motion.div
                 key={dataset.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
                 layout
               >
-                <Card hoverable className="h-full">
-                  <CardContent className="p-5">
-                    <div className="flex items-start justify-between mb-3">
+                <Card hoverable className="h-full border border-gray-200 shadow-sm">
+                  <CardContent className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                          <DocumentIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                        <div className="w-11 h-11 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-700">
+                          <DocumentIcon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-primary truncate">
+                          <h3 className="font-semibold text-gray-900 truncate">
                             {dataset.name}
                           </h3>
-                          <p className="text-xs text-muted">
+                          <p className="text-xs text-gray-500">
                             {formatRelativeTime(dataset.created_at)}
                           </p>
                         </div>
@@ -161,27 +164,38 @@ export function DatasetsPage() {
                       <StatusBadge status={dataset.status} />
                     </div>
 
-                    <div className="space-y-2 mb-4">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-secondary">File</span>
-                        <span className="text-primary">{dataset.original_filename}</span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Size</span>
-                        <span className="text-primary">{dataset.file_size_display}</span>
-                      </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
+                        {dataset.original_filename}
+                      </span>
+                      {dataset.file_size_display && (
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                          {dataset.file_size_display}
+                        </span>
+                      )}
                       {dataset.row_count && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-secondary">Rows</span>
-                          <span className="text-primary">{dataset.row_count.toLocaleString()}</span>
-                        </div>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                          {formatNumber(dataset.row_count, 0)} rows
+                        </span>
                       )}
                       {dataset.column_count && (
-                        <div className="flex justify-between text-sm">
-                          <span className="text-secondary">Columns</span>
-                          <span className="text-primary">{dataset.column_count}</span>
-                        </div>
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-700">
+                          {dataset.column_count} cols
+                        </span>
                       )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-3 rounded-xl border border-gray-200 bg-white">
+                        <p className="text-xs text-gray-500 mb-1">Status</p>
+                        <p className="text-sm font-semibold text-gray-900 capitalize">{dataset.status}</p>
+                      </div>
+                      <div className="p-3 rounded-xl border border-gray-200 bg-white">
+                        <p className="text-xs text-gray-500 mb-1">Updated</p>
+                        <p className="text-sm font-semibold text-gray-900">
+                          {formatRelativeTime(dataset.updated_at || dataset.created_at)}
+                        </p>
+                      </div>
                     </div>
 
                     <div className="flex gap-2">
@@ -212,11 +226,10 @@ export function DatasetsPage() {
         </motion.div>
       )}
 
-      {/* Upload Modal */}
       <Modal
         isOpen={isUploadModalOpen}
         onClose={closeUploadModal}
-        title="Upload Dataset"
+        title="Upload dataset"
         description="Upload a CSV or Excel file to analyze"
         footer={
           <div className="flex justify-end gap-3">
@@ -236,7 +249,7 @@ export function DatasetsPage() {
         <div className="space-y-4">
           <FileUpload
             onFileSelect={setSelectedFile}
-            onError={(error) => toast.error('File error', error)}
+            onError={(uploadError) => toast.error('File error', uploadError)}
             isUploading={uploadMutation.isPending}
           />
 

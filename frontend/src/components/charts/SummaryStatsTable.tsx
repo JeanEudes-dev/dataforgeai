@@ -16,7 +16,7 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
   const [expandedColumn, setExpandedColumn] = useState<string | null>(null)
 
   const columns = useMemo(() => {
-    const entries = Object.entries(data).map(([column, stats]) => ({
+    const entries = Object.entries(data || {}).map(([column, stats]) => ({
       column,
       ...stats,
     }))
@@ -49,8 +49,8 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
     }
   }
 
-  const formatValue = (value: number | null, decimals = 2): string => {
-    if (value === null) return '-'
+  const formatValue = (value: number | null | undefined, decimals = 2): string => {
+    if (value === null || value === undefined || Number.isNaN(value)) return '-'
     if (Math.abs(value) >= 1000000) return (value / 1000000).toFixed(1) + 'M'
     if (Math.abs(value) >= 1000) return (value / 1000).toFixed(1) + 'K'
     return value.toFixed(decimals)
@@ -137,7 +137,7 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
 
       {/* Expanded details */}
       <AnimatePresence>
-        {expandedColumn && data[expandedColumn] && (
+        {expandedColumn && data?.[expandedColumn] && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}

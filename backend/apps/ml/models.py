@@ -111,6 +111,13 @@ class TrainingJob(models.Model):
     def __str__(self):
         return f'Training {self.id} ({self.dataset.name} -> {self.target_column})'
 
+    @property
+    def duration(self):
+        """Calculate training duration in seconds."""
+        if self.started_at and self.completed_at:
+            return (self.completed_at - self.started_at).total_seconds()
+        return None
+
 
 class TrainedModel(models.Model):
     """

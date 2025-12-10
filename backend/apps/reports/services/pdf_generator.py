@@ -178,7 +178,7 @@ class PDFGeneratorService:
             logger.error(f'PDF generation failed for report {report.id}: {e}')
             raise
 
-    def _generate_charts(self, report: Report) -> dict[str, str]:
+    def _generate_charts(self, report: Report) -> dict[str, Any]:
         """Generate all charts for the report."""
         charts = {}
         content = report.content or {}
@@ -186,8 +186,18 @@ class PDFGeneratorService:
         # EDA charts
         eda = content.get('eda', {})
         if eda:
-            # Correlation heatmap
-            if eda.get('correlations'):
+            # Data quality gauge
+            if eda.get('data_quality_score'):
+                charts['data_quality'] = self.chart_generator.generate_data_quality_chart(
+                    eda['data_quality_score']
+                )
+
+            # Correlation heatmap - prefer correlation_matrix if available
+            if eda.get('correlation_matrix'):
+                charts['correlation_heatmap'] = self.chart_generator.generate_correlation_heatmap(
+                    eda['correlation_matrix']
+                )
+            elif eda.get('correlations'):
                 corr_matrix = {}
                 for item in eda.get('correlations', []):
                     col1, col2 = item.get('column1'), item.get('column2')
@@ -239,11 +249,47 @@ class PDFGeneratorService:
                     labels=metrics.get('confusion_matrix_labels')
                 )
 
+            # Cross-validation scores
+            if metrics.get('cv_scores'):
+                charts['cv_scores'] = self.chart_generator.generate_cv_scores_chart(
+                    metrics['cv_scores']
+                )
+
+        # Model comparison chart
+        model_comparison = report.model_comparison or []
+        if len(model_comparison) >= 2:
+            charts['model_comparison'] = self.chart_generator.generate_model_comparison_chart(
+                model_comparison
+            )
+
+        # Distribution charts
+        distributions = eda.get('distributions', [])
+        if distributions:
+            charts['distribution_charts'] = self.chart_generator.generate_distribution_charts(
+                distributions,
+                max_charts=6
+            )
+
         return charts
 
     def _render_html(self, report: Report, charts: dict) -> str:
         """Render the report to HTML."""
         content = report.content or {}
+        model_comparison = report.model_comparison or []
+
+        # Extract distribution charts separately
+        distribution_charts = charts.pop('distribution_charts', [])
+
+        # Determine comparison metrics for table header
+        comparison_metrics = []
+        if model_comparison:
+            all_metrics = set()
+            for model in model_comparison:
+                metrics = model.get('metrics', {})
+                for key in metrics.keys():
+                    if key not in ['confusion_matrix', 'roc_curve', 'confusion_matrix_labels', 'cv_scores']:
+                        all_metrics.add(key)
+            comparison_metrics = list(all_metrics)[:5]
 
         # Prepare context
         context = {
@@ -255,6 +301,10 @@ class PDFGeneratorService:
             'eda': content.get('eda', {}),
             'model': content.get('model', {}),
             'charts': charts,
+            'distribution_charts': distribution_charts,
+            'model_comparison': model_comparison,
+            'comparison_metrics': comparison_metrics,
+            'report_metadata': report.report_metadata or {},
             'generated_at': report.updated_at,
         }
 

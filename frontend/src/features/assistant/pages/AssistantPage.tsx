@@ -7,6 +7,7 @@ import {
   UserIcon,
   InformationCircleIcon,
 } from '@heroicons/react/24/outline'
+import ReactMarkdown from 'react-markdown'
 import {
   Card,
   CardHeader,
@@ -188,18 +189,21 @@ export function AssistantPage() {
                     )}
                     <div
                       className={cn(
-                        'max-w-[70%] p-4 rounded-2xl',
+                        'max-w-[70%] p-4 rounded-2xl text-sm leading-relaxed',
                         message.role === 'user'
                           ? 'bg-primary-500 text-white'
-                          : 'neu-raised'
+                          : 'bg-white border border-gray-200 shadow-sm text-gray-900'
                       )}
                     >
-                      <p className={cn(
-                        'text-sm whitespace-pre-wrap',
-                        message.role === 'user' ? 'text-white' : 'text-primary'
-                      )}>
-                        {message.content}
-                      </p>
+                      {message.role === 'assistant' ? (
+                        <div className="prose prose-sm max-w-none">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap text-white">
+                          {message.content}
+                        </p>
+                      )}
                     </div>
                     {message.role === 'user' && (
                       <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center flex-shrink-0">
@@ -268,11 +272,11 @@ export function AssistantPage() {
 
       {/* Context Panel */}
       <div className="w-80 flex-shrink-0 space-y-4">
-        <Card>
-          <CardHeader>
+        <Card className="border border-gray-200 shadow-sm">
+          <CardHeader className="border-b border-gray-200 bg-gray-50">
             <CardTitle>Context</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             <Select
               label="Dataset"
               value={selectedDatasetId}
@@ -300,11 +304,9 @@ export function AssistantPage() {
               placeholder="Select a model..."
             />
 
-            <div className="flex items-start gap-2 p-3 rounded-lg bg-info-50 dark:bg-info-900/20">
-              <InformationCircleIcon className="w-5 h-5 text-info-500 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-info-700 dark:text-info-300">
-                Select a dataset or model to get more specific answers about your data.
-              </p>
+            <div className="p-3 rounded-xl border border-blue-100 bg-blue-50 text-xs text-blue-700 flex items-start gap-2">
+              <InformationCircleIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+              <p>Selecting context helps tailor answers to your dataset or model.</p>
             </div>
           </CardContent>
         </Card>

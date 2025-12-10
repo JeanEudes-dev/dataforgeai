@@ -1,11 +1,7 @@
 import { Link, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import {
-  ArrowLeftIcon,
-  TrophyIcon,
-  ChartBarIcon,
-} from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, TrophyIcon, ChartBarIcon, InformationCircleIcon } from '@heroicons/react/24/outline'
 import {
   Card,
   CardHeader,
@@ -14,6 +10,7 @@ import {
   Button,
   Skeleton,
 } from '@/components/ui'
+import { BenchmarkComparison } from '@/components/charts'
 import { StatusBadge } from '@/components/shared'
 import { mlApi } from '@/api'
 import { formatDateTime, formatDuration, formatNumber, cn } from '@/utils'
@@ -56,170 +53,242 @@ export function JobDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/training/jobs">
-            <Button variant="ghost" size="sm">
-              <ArrowLeftIcon className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50" />
+        <div className="relative px-6 py-6 flex flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-primary">
-                Training Job
-              </h1>
-              <StatusBadge status={job.status} />
+              <Link to="/training/jobs">
+                <Button variant="ghost" size="sm" className="text-gray-600 hover:bg-gray-100">
+                  <ArrowLeftIcon className="w-4 h-4" />
+                </Button>
+              </Link>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Training job</p>
+                  <StatusBadge status={job.status} />
+                </div>
+                <h1 className="text-2xl font-semibold text-gray-900">AutoML run</h1>
+                <p className="text-sm text-gray-500">
+                  {job.dataset_name || `Dataset: ${job.dataset?.id?.slice(0, 8) || 'Unknown'}`}
+                </p>
+              </div>
             </div>
-            <p className="text-secondary mt-1">
-              {job.dataset_name || `Dataset: ${job.dataset?.id?.slice(0, 8) || 'Unknown'}`}
-            </p>
+            {job.status === 'completed' && job.best_model && (
+              <Link to={`/models/${job.best_model.id}`}>
+                <Button>
+                  <TrophyIcon className="w-5 h-5 mr-2" />
+                  View best model
+                </Button>
+              </Link>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">01</div>
+              <div>
+                <p className="text-xs text-gray-500">Task</p>
+                <p className="text-base font-semibold text-gray-900 capitalize">{job.task_type}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">02</div>
+              <div>
+                <p className="text-xs text-gray-500">Target</p>
+                <p className="text-base font-semibold text-gray-900 truncate">{job.target_column}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">03</div>
+              <div>
+                <p className="text-xs text-gray-500">Progress</p>
+                <p className="text-base font-semibold text-gray-900">{job.progress ?? 0}%</p>
+              </div>
+            </div>
           </div>
         </div>
-        {job.status === 'completed' && job.best_model && (
-          <Link to={`/models/${job.best_model.id}`}>
-            <Button>
-              <TrophyIcon className="w-5 h-5 mr-2" />
-              View Best Model
-            </Button>
-          </Link>
-        )}
       </div>
 
-      {/* Progress for running jobs */}
+      {/* Progress */}
       {(job.status === 'running' || job.status === 'pending') && (
-        <Card>
-          <CardContent className="py-8">
-            <div className="max-w-lg mx-auto">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-secondary">
-                  {job.current_step || 'Initializing...'}
-                </span>
-                <span className="text-sm font-medium text-primary">
+        <Card className="border border-gray-200 shadow-sm">
+          <CardContent className="py-7">
+            <div className="max-w-3xl mx-auto space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Current step</p>
+                  <p className="text-sm font-semibold text-gray-900">{job.current_step || 'Initializing...'}</p>
+                </div>
+                <div className="rounded-full bg-primary-50 text-primary-700 px-3 py-1 text-sm font-semibold">
                   {job.progress || 0}%
-                </span>
+                </div>
               </div>
-              <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
+              <div className="h-3 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-primary-400 to-primary-600"
+                  className="h-full bg-gradient-to-r from-primary-500 to-primary-400"
                   initial={{ width: 0 }}
                   animate={{ width: `${job.progress || 0}%` }}
                   transition={{ duration: 0.5 }}
                 />
               </div>
-              <p className="text-center text-muted text-sm mt-4">
-                Training in progress. This page will update automatically.
+              <p className="text-center text-sm text-gray-500">
+                This page refreshes automatically while your models train.
               </p>
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Summary Stats */}
+      {/* Key stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border border-gray-200 shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-muted mb-1">Task Type</p>
-            <p className="text-2xl font-bold text-primary capitalize">{job.task_type}</p>
+            <p className="text-sm text-gray-500 mb-1">Task type</p>
+            <p className="text-2xl font-semibold text-gray-900 capitalize">{job.task_type}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-gray-200 shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-muted mb-1">Target Column</p>
-            <p className="text-2xl font-bold text-primary truncate">{job.target_column}</p>
+            <p className="text-sm text-gray-500 mb-1">Target column</p>
+            <p className="text-2xl font-semibold text-gray-900 truncate">{job.target_column}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-gray-200 shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-muted mb-1">Features</p>
-            <p className="text-2xl font-bold text-primary">{job.feature_columns?.length || 0}</p>
+            <p className="text-sm text-gray-500 mb-1">Features</p>
+            <p className="text-2xl font-semibold text-gray-900">{job.feature_columns?.length || 0}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="border border-gray-200 shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-muted mb-1">Duration</p>
-            <p className="text-2xl font-bold text-primary">
-              {job.duration ? formatDuration(job.duration) : '-'}
+            <p className="text-sm text-gray-500 mb-1">Duration</p>
+            <p className="text-2xl font-semibold text-gray-900">
+              {job.duration ? formatDuration(job.duration) : 'In progress'}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Job Details */}
+      {/* Benchmark Comparison */}
+      {job.status === 'completed' && (
+        <BenchmarkComparison
+          actualDuration={job.duration}
+          rowCount={job.dataset?.row_count ?? null}
+          columnCount={job.dataset?.column_count ?? null}
+          featureCount={job.feature_columns?.length}
+          taskType={job.task_type}
+        />
+      )}
+
+      {/* Details */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <CardHeader>
+        <Card className="lg:col-span-2 border border-gray-200 shadow-sm">
+          <CardHeader className="border-b border-gray-200 bg-gray-50">
             <CardTitle>Configuration</CardTitle>
           </CardHeader>
-          <CardContent>
-            <dl className="grid grid-cols-2 gap-4">
-              <div>
-                <dt className="text-sm text-secondary">Started</dt>
-                <dd className="text-primary font-medium">{formatDateTime(job.created_at)}</dd>
+          <CardContent className="p-6 space-y-5">
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                <dt className="text-xs uppercase tracking-[0.08em] text-gray-500">Started</dt>
+                <dd className="text-sm font-semibold text-gray-900">{formatDateTime(job.created_at)}</dd>
               </div>
               {job.completed_at && (
-                <div>
-                  <dt className="text-sm text-secondary">Completed</dt>
-                  <dd className="text-primary font-medium">{formatDateTime(job.completed_at)}</dd>
+                <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                  <dt className="text-xs uppercase tracking-[0.08em] text-gray-500">Completed</dt>
+                  <dd className="text-sm font-semibold text-gray-900">{formatDateTime(job.completed_at)}</dd>
                 </div>
               )}
-              <div className="col-span-2">
-                <dt className="text-sm text-secondary mb-2">Feature Columns</dt>
-                <dd className="flex flex-wrap gap-2">
-                  {job.feature_columns?.map((col) => (
-                    <span
-                      key={col}
-                      className="px-2 py-1 text-xs rounded-lg neu-raised text-secondary"
-                    >
-                      {col}
-                    </span>
-                  ))}
+              <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                <dt className="text-xs uppercase tracking-[0.08em] text-gray-500">Dataset rows</dt>
+                <dd className="text-sm font-semibold text-gray-900">
+                  {job.dataset?.row_count ? formatNumber(job.dataset.row_count, 0) : 'Unknown'}
+                </dd>
+              </div>
+              <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
+                <dt className="text-xs uppercase tracking-[0.08em] text-gray-500">Columns</dt>
+                <dd className="text-sm font-semibold text-gray-900">
+                  {job.dataset?.column_count ? formatNumber(job.dataset.column_count, 0) : 'Unknown'}
                 </dd>
               </div>
             </dl>
+
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Feature columns</p>
+              <div className="flex flex-wrap gap-2">
+                {job.feature_columns?.map((col) => (
+                  <span
+                    key={col}
+                    className="inline-flex items-center rounded-full bg-white border border-gray-200 px-3 py-1 text-sm text-gray-700 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+                  >
+                    {col}
+                  </span>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {job.status === 'error' && job.error_message && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-error-500">Error</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-error-500">{job.error_message}</p>
-            </CardContent>
-          </Card>
-        )}
+        <div className="space-y-4">
+          {job.status === 'error' && job.error_message && (
+            <Card className="border border-error-200 bg-error-50/60">
+              <CardHeader>
+                <CardTitle className="text-error-600">Training error</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-error-700">{job.error_message}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {job.status === 'completed' && job.best_model && (
+            <Card className="border border-primary-100 bg-primary-50/70">
+              <CardContent className="p-4 flex items-start gap-3">
+                <InformationCircleIcon className="w-5 h-5 text-primary-500 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-gray-700 space-y-1">
+                  <p className="font-semibold text-gray-900">Best model</p>
+                  <p>{job.best_model.display_name}</p>
+                  <Link to={`/models/${job.best_model.id}`}>
+                    <Button variant="ghost" size="sm" className="px-0 text-primary-600">
+                      View model details
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
 
-      {/* Trained Models */}
+      {/* Trained models */}
       {job.status === 'completed' && job.trained_models && job.trained_models.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Trained Models</CardTitle>
+        <Card className="border border-gray-200 shadow-sm">
+          <CardHeader className="border-b border-gray-200 bg-gray-50">
+            <CardTitle>Trained models</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-subtle">
-                    <th className="px-4 py-3 text-left">Algorithm</th>
+                  <tr className="border-b border-gray-200 bg-white">
+                    <th className="px-4 py-3 text-left text-gray-500 font-semibold">Algorithm</th>
                     {job.task_type === 'classification' ? (
                       <>
-                        <th className="px-4 py-3 text-left">Accuracy</th>
-                        <th className="px-4 py-3 text-left">Precision</th>
-                        <th className="px-4 py-3 text-left">Recall</th>
-                        <th className="px-4 py-3 text-left">F1 Score</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-semibold">Accuracy</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-semibold">Precision</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-semibold">Recall</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-semibold">F1 score</th>
                       </>
                     ) : (
                       <>
-                        <th className="px-4 py-3 text-left">MAE</th>
-                        <th className="px-4 py-3 text-left">RMSE</th>
-                        <th className="px-4 py-3 text-left">R²</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-semibold">MAE</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-semibold">RMSE</th>
+                        <th className="px-4 py-3 text-left text-gray-500 font-semibold">R^2</th>
                       </>
                     )}
-                    <th className="px-4 py-3 text-left"></th>
+                    <th className="px-4 py-3 text-left text-gray-500 font-semibold"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -227,15 +296,15 @@ export function JobDetailPage() {
                     <tr
                       key={model.id}
                       className={cn(
-                        'border-b border-subtle last:border-0',
-                        model.is_best && 'bg-success-50 dark:bg-success-900/10'
+                        'border-b border-gray-200 last:border-0',
+                        model.is_best && 'bg-primary-50'
                       )}
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-primary font-medium">{model.display_name}</span>
+                          <span className="font-semibold text-gray-900">{model.display_name}</span>
                           {model.is_best && (
-                            <span className="flex items-center gap-1 text-xs text-success-600">
+                            <span className="flex items-center gap-1 text-xs text-primary-600">
                               <TrophyIcon className="w-3.5 h-3.5" />
                               Best
                             </span>
@@ -244,28 +313,28 @@ export function JobDetailPage() {
                       </td>
                       {job.task_type === 'classification' ? (
                         <>
-                          <td className="px-4 py-3 text-secondary">
+                          <td className="px-4 py-3 text-gray-700">
                             {formatNumber(model.metrics?.accuracy, 4)}
                           </td>
-                          <td className="px-4 py-3 text-secondary">
+                          <td className="px-4 py-3 text-gray-700">
                             {formatNumber(model.metrics?.precision, 4)}
                           </td>
-                          <td className="px-4 py-3 text-secondary">
+                          <td className="px-4 py-3 text-gray-700">
                             {formatNumber(model.metrics?.recall, 4)}
                           </td>
-                          <td className="px-4 py-3 text-secondary">
+                          <td className="px-4 py-3 text-gray-700">
                             {formatNumber(model.metrics?.f1_score, 4)}
                           </td>
                         </>
                       ) : (
                         <>
-                          <td className="px-4 py-3 text-secondary">
+                          <td className="px-4 py-3 text-gray-700">
                             {formatNumber(model.metrics?.mae, 4)}
                           </td>
-                          <td className="px-4 py-3 text-secondary">
+                          <td className="px-4 py-3 text-gray-700">
                             {formatNumber(model.metrics?.rmse, 4)}
                           </td>
-                          <td className="px-4 py-3 text-secondary">
+                          <td className="px-4 py-3 text-gray-700">
                             {formatNumber(model.metrics?.r2_score, 4)}
                           </td>
                         </>

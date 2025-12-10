@@ -13,6 +13,7 @@ class TrainingJobListSerializer(serializers.ModelSerializer):
     """Serializer for training job list view."""
 
     dataset_name = serializers.CharField(source='dataset.name', read_only=True)
+    duration = serializers.ReadOnlyField()
 
     class Meta:
         model = TrainingJob
@@ -27,6 +28,7 @@ class TrainingJobListSerializer(serializers.ModelSerializer):
             'current_step',
             'started_at',
             'completed_at',
+            'duration',
             'created_at',
         ]
         read_only_fields = fields
@@ -67,12 +69,14 @@ class TrainedModelDetailSerializer(serializers.ModelSerializer):
     model_size_display = serializers.ReadOnlyField()
     primary_metric = serializers.ReadOnlyField()
     has_shap = serializers.SerializerMethodField()
+    training_job_duration = serializers.SerializerMethodField()
 
     class Meta:
         model = TrainedModel
         fields = [
             'id',
             'training_job',
+            'training_job_duration',
             'dataset',
             'name',
             'display_name',
@@ -100,6 +104,12 @@ class TrainedModelDetailSerializer(serializers.ModelSerializer):
         """Return whether SHAP values are available."""
         return bool(obj.shap_values)
 
+    def get_training_job_duration(self, obj):
+        """Return training job duration in seconds."""
+        if obj.training_job:
+            return obj.training_job.duration
+        return None
+
 
 class TrainingJobDetailSerializer(serializers.ModelSerializer):
     """Serializer for training job detail view."""
@@ -107,6 +117,7 @@ class TrainingJobDetailSerializer(serializers.ModelSerializer):
     dataset = DatasetListSerializer(read_only=True)
     models = TrainedModelListSerializer(many=True, read_only=True)
     best_model = TrainedModelListSerializer(read_only=True)
+    duration = serializers.ReadOnlyField()
 
     class Meta:
         model = TrainingJob
@@ -124,6 +135,7 @@ class TrainingJobDetailSerializer(serializers.ModelSerializer):
             'models',
             'started_at',
             'completed_at',
+            'duration',
             'error_message',
             'created_at',
             'updated_at',

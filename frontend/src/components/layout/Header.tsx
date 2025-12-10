@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu, Transition } from "@headlessui/react";
 import {
@@ -6,6 +6,8 @@ import {
   PlusIcon,
   Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
+  ArrowsPointingOutIcon,
+  ArrowsPointingInIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/contexts";
 import { cn } from "@/utils";
@@ -18,11 +20,40 @@ interface HeaderProps {
 export function Header({ onMenuClick, title }: HeaderProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
     navigate("/login");
   };
+
+  const toggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.();
+    } else {
+      document.documentElement.requestFullscreen?.();
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if ((event.key === "F" || event.key === "f") && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+        event.preventDefault();
+        toggleFullscreen();
+      }
+      if (event.key === "Escape" && document.fullscreenElement) {
+        document.exitFullscreen?.();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [toggleFullscreen]);
 
   return (
     <header className="sticky top-0 z-30 px-6 pt-4 pb-2">
@@ -56,6 +87,23 @@ export function Header({ onMenuClick, title }: HeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={toggleFullscreen}
+            className={cn(
+              "p-2 rounded-lg text-secondary",
+              "hover:text-primary hover:bg-sunken",
+              "transition-colors duration-200"
+            )}
+            title="Ctrl/Cmd + Shift + F to toggle fullscreen"
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          >
+            {isFullscreen ? (
+              <ArrowsPointingInIcon className="w-5 h-5" />
+            ) : (
+              <ArrowsPointingOutIcon className="w-5 h-5" />
+            )}
+          </button>
+
           {/* Quick Upload Button */}
           <button
             onClick={() => navigate("/datasets")}

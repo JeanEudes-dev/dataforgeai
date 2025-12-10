@@ -46,6 +46,9 @@ const ReportsPage = lazy(() => import("@/features/reports/pages/ReportsPage"));
 const ReportDetailPage = lazy(
   () => import("@/features/reports/pages/ReportDetailPage")
 );
+const SharedReportPage = lazy(
+  () => import("@/features/reports/pages/SharedReportPage")
+);
 const AssistantPage = lazy(
   () => import("@/features/assistant/pages/AssistantPage")
 );
@@ -83,6 +86,17 @@ export const router = createBrowserRouter([
         ),
       },
     ],
+  },
+
+  // Public shared report route (no auth required)
+  {
+    path: "/reports/shared/:shareToken",
+    element: (
+      <LazyPage>
+        <SharedReportPage />
+      </LazyPage>
+    ),
+    errorElement: <ErrorPage />,
   },
 
   // Protected routes

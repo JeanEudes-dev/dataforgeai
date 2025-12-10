@@ -48,8 +48,15 @@ class EDAResultDetailSerializer(serializers.ModelSerializer):
             'top_correlations',
             'missing_analysis',
             'outlier_analysis',
+            # Enhanced analysis fields
+            'associations',
+            'datetime_analysis',
+            'text_analysis',
+            'data_quality_score',
+            # Insights
             'insights',
             'ai_insights',
+            # Metadata
             'sampled',
             'sample_size',
             'computation_time',
@@ -90,3 +97,16 @@ class EDASummaryStatsSerializer(serializers.Serializer):
     """Serializer for summary statistics response."""
 
     summary_stats = serializers.DictField()
+
+
+class EDAAssociationsSerializer(serializers.Serializer):
+    """Serializer for cross-type associations response."""
+
+    associations = serializers.DictField()
+
+
+class EDADataQualitySerializer(serializers.Serializer):
+    """Serializer for data quality score response."""
+
+    data_quality_score = serializers.FloatField(allow_null=True)
+    insights = serializers.ListField(child=serializers.DictField())

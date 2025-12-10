@@ -51,7 +51,7 @@ export function Modal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm"
             aria-hidden="true"
           />
 
@@ -65,23 +65,28 @@ export function Modal({
             >
               <Dialog.Panel
                 className={cn(
-                  "w-full rounded-2xl bg-white",
-                  "border border-gray-200 shadow-2xl",
-                  "overflow-hidden",
+                  "w-full rounded-3xl bg-white",
+                  "border border-gray-200 shadow-[0_30px_120px_rgba(0,0,0,0.18)]",
+                  "overflow-hidden relative",
                   sizeStyles[size]
                 )}
               >
+                <div className="pointer-events-none absolute inset-0">
+                  <div className="absolute -right-12 -top-16 w-56 h-56 bg-primary-50 rounded-full blur-3xl" />
+                  <div className="absolute -left-16 bottom-0 w-48 h-48 bg-gray-100 rounded-full blur-3xl" />
+                </div>
+
                 {/* Header */}
                 {(title || showClose) && (
-                  <div className="flex items-start justify-between px-6 py-5">
+                  <div className="flex items-start justify-between px-8 py-6 bg-gradient-to-r from-gray-50 via-white to-gray-50 border-b border-gray-200 relative">
                     <div>
                       {title && (
-                        <Dialog.Title className="text-lg font-semibold text-gray-900">
+                        <Dialog.Title className="text-xl font-semibold text-gray-900">
                           {title}
                         </Dialog.Title>
                       )}
                       {description && (
-                        <Dialog.Description className="mt-1 text-sm text-gray-500">
+                        <Dialog.Description className="mt-2 text-sm text-gray-600 leading-relaxed">
                           {description}
                         </Dialog.Description>
                       )}
@@ -90,8 +95,8 @@ export function Modal({
                       <button
                         onClick={onClose}
                         className={cn(
-                          "p-1.5 rounded-lg text-muted",
-                          "hover:text-primary hover:bg-gray-100",
+                          "p-2 rounded-full text-gray-400",
+                          "hover:text-primary-700 hover:bg-gray-100",
                           "transition-colors duration-200",
                           "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         )}
@@ -103,13 +108,13 @@ export function Modal({
                 )}
 
                 {/* Content */}
-                <div className="px-6 py-4 max-h-[60vh] overflow-y-auto scrollbar-thin">
+                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto scrollbar-thin bg-white/90 backdrop-blur-sm relative">
                   {children}
                 </div>
 
                 {/* Footer */}
                 {footer && (
-                  <div className="px-6 py-4 border-t border-subtle bg-sunken/50">
+                  <div className="px-8 py-5 border-t border-gray-200 bg-gray-50/80">
                     {footer}
                   </div>
                 )}

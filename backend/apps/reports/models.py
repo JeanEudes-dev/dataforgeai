@@ -64,6 +64,25 @@ class Report(models.Model):
     content = models.JSONField(default=dict)
     ai_summary = models.TextField(blank=True)
 
+    # Model comparison data (stores all models metrics for comparison)
+    model_comparison = models.JSONField(default=list, blank=True)
+
+    # Report metadata for UI display
+    report_metadata = models.JSONField(default=dict, blank=True)
+
+    # Sharing functionality
+    share_token = models.CharField(
+        max_length=64,
+        blank=True,
+        null=True,
+        unique=True,
+        help_text="Unique token for sharing report publicly"
+    )
+    is_public = models.BooleanField(
+        default=False,
+        help_text="Whether report is publicly accessible via share link"
+    )
+
     # Status
     status = models.CharField(
         max_length=20,
@@ -82,7 +101,22 @@ class Report(models.Model):
             models.Index(fields=['owner', '-created_at']),
             models.Index(fields=['dataset']),
             models.Index(fields=['status']),
+            models.Index(fields=['share_token']),
         ]
 
     def __str__(self):
         return f"{self.title} ({self.report_type})"
+
+    @property
+    def share_url(self):
+        """Generate the share URL if report is public."""
+        if self.share_token and self.is_public:
+            return f"/reports/shared/{self.share_token}"
+        return None
+
+    def generate_share_token(self):
+        """Generate a unique share token for this report."""
+        import secrets
+        if not self.share_token:
+            self.share_token = secrets.token_urlsafe(32)
+        return self.share_token

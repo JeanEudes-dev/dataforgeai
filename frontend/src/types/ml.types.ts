@@ -60,6 +60,7 @@ export interface TrainedModelListItem {
 export interface TrainedModel extends Timestamps {
   id: string
   training_job: string
+  training_job_duration: number | null
   dataset: DatasetListItem
   name: string
   display_name: string

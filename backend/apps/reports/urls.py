@@ -9,6 +9,7 @@ from .views import (
     DatasetReportsView,
     GenerateReportView,
     ReportViewSet,
+    SharedReportView,
 )
 
 app_name = 'reports'
@@ -22,6 +23,9 @@ urlpatterns = [
 
     # Reports for a specific dataset
     path('dataset/<uuid:dataset_id>/', DatasetReportsView.as_view(), name='dataset-reports'),
+
+    # Publicly shared reports (no authentication required)
+    path('shared/<str:share_token>/', SharedReportView.as_view(), name='shared-report'),
 
     # Router URLs
     path('', include(router.urls)),

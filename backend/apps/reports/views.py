@@ -21,6 +21,7 @@ from .serializers import (
     ReportCreateSerializer,
     ReportDetailSerializer,
     ReportListSerializer,
+    SharedReportSerializer,
 )
 from .services import ReportGeneratorService
 from .services.pdf_generator import PDFGeneratorService
@@ -132,6 +133,85 @@ class ReportViewSet(ReadOnlyModelViewSet):
                     'meta': {'error': str(e)}
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    @action(detail=True, methods=['post'])
+    def share(self, request, pk=None):
+        """
+        Toggle sharing for a report.
+
+        POST /api/v1/reports/{id}/share/
+        Body: { "enable": true/false }
+
+        Returns share token and URL when enabled.
+        """
+        report = self.get_object()
+        enable = request.data.get('enable', True)
+
+        if enable:
+            # Generate share token if not exists
+            report.generate_share_token()
+            report.is_public = True
+            report.save()
+
+            logger.info(f'Report {report.id} shared by user {request.user.email}')
+
+            return Response({
+                'share_token': report.share_token,
+                'share_url': report.share_url,
+                'is_public': True,
+                'detail': 'Report is now publicly accessible via the share link.',
+            })
+        else:
+            # Disable sharing (keep token for potential re-enable)
+            report.is_public = False
+            report.save()
+
+            logger.info(f'Report {report.id} unshared by user {request.user.email}')
+
+            return Response({
+                'share_token': None,
+                'share_url': None,
+                'is_public': False,
+                'detail': 'Report is no longer publicly accessible.',
+            })
+
+
+class SharedReportView(APIView):
+    """
+    Public view for shared reports.
+
+    GET /api/v1/reports/shared/{share_token}/
+
+    No authentication required - uses share token for access.
+    """
+
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, share_token):
+        """Retrieve a publicly shared report."""
+        try:
+            report = Report.objects.select_related(
+                'dataset'
+            ).get(
+                share_token=share_token,
+                is_public=True,
+                status=Report.Status.COMPLETED
+            )
+
+            serializer = SharedReportSerializer(report)
+
+            logger.info(f'Shared report {report.id} accessed via token')
+
+            return Response(serializer.data)
+
+        except Report.DoesNotExist:
+            return Response(
+                {
+                    'detail': 'Report not found or not publicly shared.',
+                    'code': 'REPORT_NOT_FOUND',
+                },
+                status=status.HTTP_404_NOT_FOUND
             )
 
 

@@ -3,163 +3,906 @@
 <head>
     <meta charset="utf-8">
     <title>{{ title }}</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: white;
+        }
+
+        /* Cover Page */
+        .cover-page {
+            page-break-after: always;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #007aff 0%, #5856d6 100%);
+            color: white;
+            padding: 2rem;
+        }
+
+        .cover-logo {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .cover-logo-subtitle {
+            font-size: 1rem;
+            opacity: 0.85;
+            margin-bottom: 3rem;
+        }
+
+        .cover-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            max-width: 80%;
+        }
+
+        .cover-meta {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 2rem;
+        }
+
+        .cover-meta-item {
+            margin: 0.5rem 0;
+        }
+
+        /* Table of Contents */
+        .toc {
+            page-break-after: always;
+            padding: 2rem;
+        }
+
+        .toc h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #007aff;
+            border-bottom: 2px solid #007aff;
+            padding-bottom: 0.5rem;
+        }
+
+        .toc-list {
+            list-style: none;
+        }
+
+        .toc-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px dotted #d4d4d8;
+        }
+
+        .toc-item:last-child {
+            border-bottom: none;
+        }
+
+        .toc-number {
+            color: #007aff;
+            font-weight: 600;
+            margin-right: 0.75rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            border-bottom: 1px solid #e4e4e7;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header-title {
+            font-size: 0.85rem;
+            color: #71717a;
+        }
+
+        .page-header-logo {
+            font-size: 0.85rem;
+            color: #007aff;
+            font-weight: 600;
+        }
+
+        /* Section Styles */
+        .section {
+            page-break-inside: avoid;
+            margin-bottom: 2rem;
+        }
+
+        .section-page {
+            page-break-before: always;
+            padding: 1.5rem 2rem;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            color: #007aff;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #007aff;
+            padding-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            color: #18181b;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1rem;
+            color: #3f3f46;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 0.75rem;
+        }
+
+        /* Executive Summary */
+        .executive-summary {
+            background: #f4f4f5;
+            border-left: 4px solid #007aff;
+            padding: 1.25rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .executive-summary h3 {
+            color: #007aff;
+            margin-top: 0;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat-card {
+            background: #f4f4f5;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #007aff;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #71717a;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        /* Quality Indicators */
+        .quality-good { color: #34c759; }
+        .quality-fair { color: #ff9500; }
+        .quality-poor { color: #ff3b30; }
+
+        .quality-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .quality-badge-good {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .quality-badge-fair {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .quality-badge-poor {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        th {
+            background: #f4f4f5;
+            font-weight: 600;
+            color: #18181b;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .table-compact th,
+        .table-compact td {
+            padding: 0.5rem 0.75rem;
+        }
+
+        /* Metric Grid */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .metric-box {
+            background: #f4f4f5;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #007aff;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #71717a;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        /* Charts */
+        .chart-container {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .chart-grid .chart-container {
+            margin: 0;
+        }
+
+        /* Insights */
+        .insight {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin: 0.5rem 0;
+            background: #f4f4f5;
+            border-left: 4px solid #007aff;
+        }
+
+        .insight-info {
+            border-left-color: #5856d6;
+        }
+
+        .insight-warning {
+            background: #fffbeb;
+            border-left-color: #ff9500;
+        }
+
+        .insight-error {
+            background: #fef2f2;
+            border-left-color: #ff3b30;
+        }
+
+        .insight-success {
+            background: #f0fdf4;
+            border-left-color: #34c759;
+        }
+
+        /* Model Comparison */
+        .comparison-table {
+            margin: 1.5rem 0;
+        }
+
+        .best-model-badge {
+            background: #34c759;
+            color: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        /* Footer */
+        .page-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 0.75rem 2rem;
+            font-size: 0.75rem;
+            color: #71717a;
+            border-top: 1px solid #e4e4e7;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                font-size: 10pt;
+            }
+
+            .section-page {
+                page-break-before: always;
+            }
+
+            .no-break {
+                page-break-inside: avoid;
+            }
+
+            .cover-page {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
+        @page {
+            margin: 1.5cm;
+            size: A4 portrait;
+        }
+
+        @page :first {
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ title }}</h1>
-    <div class="header-meta">
-        Generated: {{ generated_at|date:"F j, Y, g:i a" }}
+    <!-- Cover Page -->
+    <div class="cover-page">
+        <div class="cover-logo">DataForge AI</div>
+        <div class="cover-logo-subtitle">Automated Data Analytics & Machine Learning</div>
+
+        <div class="cover-title">{{ title }}</div>
+
+        <div class="cover-meta">
+            <div class="cover-meta-item">Generated: {{ generated_at|date:"F j, Y" }} at {{ generated_at|date:"g:i A" }}</div>
+            {% if dataset %}
+            <div class="cover-meta-item">Dataset: {{ dataset.name|default:"Untitled Dataset" }}</div>
+            <div class="cover-meta-item">{{ dataset.row_count|default:0|floatformat:0 }} rows &times; {{ dataset.column_count|default:0 }} columns</div>
+            {% endif %}
+            {% if model %}
+            <div class="cover-meta-item">Best Model: {{ model.display_name|default:model.name }}</div>
+            {% endif %}
+        </div>
     </div>
 
-    {% if ai_summary %}
-    <div class="summary">
-        <strong>Executive Summary</strong><br>
-        {{ ai_summary }}
+    <!-- Table of Contents -->
+    <div class="toc">
+        <h2>Table of Contents</h2>
+        <ul class="toc-list">
+            <li class="toc-item">
+                <span><span class="toc-number">1.</span> Executive Summary</span>
+            </li>
+            {% if dataset %}
+            <li class="toc-item">
+                <span><span class="toc-number">2.</span> Dataset Overview</span>
+            </li>
+            {% endif %}
+            {% if eda %}
+            <li class="toc-item">
+                <span><span class="toc-number">3.</span> Exploratory Data Analysis</span>
+            </li>
+            {% endif %}
+            {% if model %}
+            <li class="toc-item">
+                <span><span class="toc-number">4.</span> Model Performance</span>
+            </li>
+            {% endif %}
+            {% if model_comparison %}
+            <li class="toc-item">
+                <span><span class="toc-number">5.</span> Model Comparison</span>
+            </li>
+            {% endif %}
+            {% if eda.insights or ai_summary %}
+            <li class="toc-item">
+                <span><span class="toc-number">6.</span> Key Insights & Recommendations</span>
+            </li>
+            {% endif %}
+        </ul>
     </div>
-    {% endif %}
 
-    {% if dataset %}
-    <h2>Dataset Overview</h2>
-    <table>
-        <tr><th>Property</th><th>Value</th></tr>
-        <tr><td>Name</td><td>{{ dataset.name|default:"N/A" }}</td></tr>
-        <tr><td>Rows</td><td>{{ dataset.row_count|default:"N/A" }}</td></tr>
-        <tr><td>Columns</td><td>{{ dataset.column_count|default:"N/A" }}</td></tr>
-        {% if dataset.file_size_display %}
-        <tr><td>File Size</td><td>{{ dataset.file_size_display }}</td></tr>
-        {% endif %}
-        {% if dataset.created_at %}
-        <tr><td>Uploaded</td><td>{{ dataset.created_at }}</td></tr>
-        {% endif %}
-    </table>
+    <!-- Section 1: Executive Summary -->
+    <div class="section-page">
+        <div class="page-header">
+            <span class="page-header-title">{{ title }}</span>
+            <span class="page-header-logo">DataForge AI</span>
+        </div>
 
-    {% if dataset.columns %}
-    <h3>Columns</h3>
-    <table>
-        <tr><th>Column Name</th><th>Type</th></tr>
-        {% for col in dataset.columns|slice:":20" %}
-        <tr>
-            <td>{{ col.name }}</td>
-            <td>{{ col.dtype|default:"unknown" }}</td>
-        </tr>
-        {% endfor %}
-        {% if dataset.columns|length > 20 %}
-        <tr><td colspan="2"><em>... and {{ dataset.columns|length|add:"-20" }} more columns</em></td></tr>
-        {% endif %}
-    </table>
-    {% endif %}
-    {% endif %}
+        <h1>1. Executive Summary</h1>
 
-    {% if eda %}
-    <h2>Exploratory Data Analysis</h2>
-
-    {% if eda.insights %}
-    <h3>Key Insights</h3>
-    {% for insight in eda.insights|slice:":10" %}
-    <div class="insight {% if insight.severity == 'warning' %}insight-warning{% elif insight.severity == 'error' %}insight-error{% endif %}">
-        {{ insight.message }}
-    </div>
-    {% endfor %}
-    {% endif %}
-
-    {% if charts.missing_values %}
-    <h3>Missing Values</h3>
-    <div class="chart">
-        <img src="{{ charts.missing_values }}" alt="Missing Values Chart">
-    </div>
-    {% elif eda.missing_values %}
-    <h3>Missing Values</h3>
-    <table>
-        <tr><th>Column</th><th>Missing Count</th><th>Missing %</th></tr>
-        {% for item in eda.missing_values|slice:":15" %}
-        <tr>
-            <td>{{ item.column }}</td>
-            <td>{{ item.count|default:0 }}</td>
-            <td>{{ item.ratio|floatformat:2 }}%</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
-
-    {% if charts.correlation_heatmap %}
-    <h3>Correlation Analysis</h3>
-    <div class="chart">
-        <img src="{{ charts.correlation_heatmap }}" alt="Correlation Heatmap">
-    </div>
-    {% elif eda.correlations %}
-    <h3>Strong Correlations</h3>
-    <table>
-        <tr><th>Column 1</th><th>Column 2</th><th>Correlation</th></tr>
-        {% for item in eda.correlations|slice:":10" %}
-        <tr>
-            <td>{{ item.column1 }}</td>
-            <td>{{ item.column2 }}</td>
-            <td>{{ item.correlation|floatformat:4 }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
-    {% endif %}
-
-    {% if model %}
-    <h2>Model Performance</h2>
-
-    <h3>Model Information</h3>
-    <table>
-        <tr><th>Property</th><th>Value</th></tr>
-        <tr><td>Algorithm</td><td>{{ model.display_name|default:model.name }}</td></tr>
-        <tr><td>Task Type</td><td>{{ model.task_type }}</td></tr>
-        {% if model.is_best %}
-        <tr><td>Status</td><td><strong>Best Model</strong></td></tr>
-        {% endif %}
-    </table>
-
-    <h3>Metrics</h3>
-    <div class="metric-grid">
-        {% for key, value in model.metrics.items %}
-        {% if key != 'confusion_matrix' and key != 'roc_curve' and key != 'confusion_matrix_labels' %}
-        <div class="metric-box">
-            <div class="metric-value">{{ value|floatformat:4 }}</div>
-            <div class="metric-label">{{ key }}</div>
+        {% if ai_summary %}
+        <div class="executive-summary">
+            <h3>AI-Generated Analysis</h3>
+            <p>{{ ai_summary|linebreaks }}</p>
         </div>
         {% endif %}
-        {% endfor %}
+
+        <!-- Quick Stats -->
+        <h2>Report Highlights</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ dataset.row_count|default:0|floatformat:0 }}</div>
+                <div class="stat-label">Rows Analyzed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ dataset.column_count|default:0 }}</div>
+                <div class="stat-label">Features</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ report_metadata.models_count|default:0 }}</div>
+                <div class="stat-label">Models Trained</div>
+            </div>
+            <div class="stat-card">
+                {% if eda.data_quality_score %}
+                <div class="stat-value {% if eda.data_quality_score >= 80 %}quality-good{% elif eda.data_quality_score >= 60 %}quality-fair{% else %}quality-poor{% endif %}">
+                    {{ eda.data_quality_score|floatformat:0 }}%
+                </div>
+                {% else %}
+                <div class="stat-value">N/A</div>
+                {% endif %}
+                <div class="stat-label">Data Quality</div>
+            </div>
+        </div>
+
+        {% if model %}
+        <h2>Best Model Performance</h2>
+        <div class="metric-grid">
+            {% for key, value in model.metrics.items %}
+            {% if key != 'confusion_matrix' and key != 'roc_curve' and key != 'confusion_matrix_labels' %}
+            <div class="metric-box">
+                <div class="metric-value">{{ value|floatformat:4 }}</div>
+                <div class="metric-label">{{ key }}</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 
-    {% if charts.confusion_matrix %}
-    <h3>Confusion Matrix</h3>
-    <div class="chart">
-        <img src="{{ charts.confusion_matrix }}" alt="Confusion Matrix">
+    <!-- Section 2: Dataset Overview -->
+    {% if dataset %}
+    <div class="section-page">
+        <div class="page-header">
+            <span class="page-header-title">{{ title }}</span>
+            <span class="page-header-logo">DataForge AI</span>
+        </div>
+
+        <h1>2. Dataset Overview</h1>
+
+        <div class="section">
+            <h2>Dataset Information</h2>
+            <table>
+                <tr><th>Property</th><th>Value</th></tr>
+                <tr><td>Name</td><td>{{ dataset.name|default:"N/A" }}</td></tr>
+                <tr><td>Total Rows</td><td>{{ dataset.row_count|default:"N/A"|floatformat:0 }}</td></tr>
+                <tr><td>Total Columns</td><td>{{ dataset.column_count|default:"N/A" }}</td></tr>
+                {% if dataset.file_size_display %}
+                <tr><td>File Size</td><td>{{ dataset.file_size_display }}</td></tr>
+                {% endif %}
+                {% if dataset.created_at %}
+                <tr><td>Uploaded</td><td>{{ dataset.created_at }}</td></tr>
+                {% endif %}
+                {% if eda.data_quality_score %}
+                <tr>
+                    <td>Data Quality Score</td>
+                    <td>
+                        <span class="quality-badge {% if eda.data_quality_score >= 80 %}quality-badge-good{% elif eda.data_quality_score >= 60 %}quality-badge-fair{% else %}quality-badge-poor{% endif %}">
+                            {{ eda.data_quality_score|floatformat:0 }}/100
+                        </span>
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+
+        {% if charts.data_quality %}
+        <div class="chart-container">
+            <img src="{{ charts.data_quality }}" alt="Data Quality Score">
+        </div>
+        {% endif %}
+
+        {% if dataset.columns %}
+        <div class="section">
+            <h2>Column Schema</h2>
+            <table class="table-compact">
+                <tr>
+                    <th>Column Name</th>
+                    <th>Data Type</th>
+                    {% if eda.missing_values %}<th>Missing %</th>{% endif %}
+                </tr>
+                {% for col in dataset.columns|slice:":25" %}
+                <tr>
+                    <td>{{ col.name }}</td>
+                    <td>{{ col.dtype|default:"unknown" }}</td>
+                    {% if eda.missing_values %}
+                    <td>
+                        {% for mv in eda.missing_values %}
+                            {% if mv.column == col.name %}
+                                {{ mv.ratio|floatformat:1 }}%
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+                {% if dataset.columns|length > 25 %}
+                <tr>
+                    <td colspan="{% if eda.missing_values %}3{% else %}2{% endif %}">
+                        <em>... and {{ dataset.columns|length|add:"-25" }} more columns</em>
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 
-    {% if charts.roc_curve %}
-    <h3>ROC Curve</h3>
-    <div class="chart">
-        <img src="{{ charts.roc_curve }}" alt="ROC Curve">
+    <!-- Section 3: Exploratory Data Analysis -->
+    {% if eda %}
+    <div class="section-page">
+        <div class="page-header">
+            <span class="page-header-title">{{ title }}</span>
+            <span class="page-header-logo">DataForge AI</span>
+        </div>
+
+        <h1>3. Exploratory Data Analysis</h1>
+
+        <!-- Missing Values -->
+        {% if charts.missing_values %}
+        <div class="section">
+            <h2>Missing Values Analysis</h2>
+            <div class="chart-container">
+                <img src="{{ charts.missing_values }}" alt="Missing Values Chart">
+            </div>
+        </div>
+        {% elif eda.missing_values %}
+        <div class="section">
+            <h2>Missing Values</h2>
+            <table class="table-compact">
+                <tr><th>Column</th><th>Missing Count</th><th>Missing %</th></tr>
+                {% for item in eda.missing_values|slice:":15" %}
+                {% if item.ratio > 0 %}
+                <tr>
+                    <td>{{ item.column }}</td>
+                    <td>{{ item.count|default:0|floatformat:0 }}</td>
+                    <td>
+                        <span class="{% if item.ratio > 20 %}quality-poor{% elif item.ratio > 5 %}quality-fair{% else %}quality-good{% endif %}">
+                            {{ item.ratio|floatformat:2 }}%
+                        </span>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Correlation Analysis -->
+        {% if charts.correlation_heatmap %}
+        <div class="section no-break">
+            <h2>Correlation Analysis</h2>
+            <div class="chart-container">
+                <img src="{{ charts.correlation_heatmap }}" alt="Correlation Heatmap">
+            </div>
+        </div>
+        {% elif eda.correlations %}
+        <div class="section">
+            <h2>Strong Correlations</h2>
+            <table class="table-compact">
+                <tr><th>Column 1</th><th>Column 2</th><th>Correlation</th></tr>
+                {% for item in eda.correlations|slice:":10" %}
+                <tr>
+                    <td>{{ item.column1 }}</td>
+                    <td>{{ item.column2 }}</td>
+                    <td>
+                        <span class="{% if item.correlation > 0.7 %}quality-good{% elif item.correlation > 0.5 %}quality-fair{% endif %}">
+                            {{ item.correlation|floatformat:4 }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Distribution Charts -->
+        {% if distribution_charts %}
+        <div class="section">
+            <h2>Feature Distributions</h2>
+            <div class="chart-grid">
+                {% for dist in distribution_charts|slice:":6" %}
+                <div class="chart-container">
+                    <h3>{{ dist.column }}</h3>
+                    <img src="{{ dist.chart }}" alt="{{ dist.column }} Distribution">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 
-    {% if charts.feature_importance %}
-    <h3>Feature Importance</h3>
-    <div class="chart">
-        <img src="{{ charts.feature_importance }}" alt="Feature Importance">
+    <!-- Section 4: Model Performance -->
+    {% if model %}
+    <div class="section-page">
+        <div class="page-header">
+            <span class="page-header-title">{{ title }}</span>
+            <span class="page-header-logo">DataForge AI</span>
+        </div>
+
+        <h1>4. Model Performance</h1>
+
+        <div class="section">
+            <h2>Model Information</h2>
+            <table>
+                <tr><th>Property</th><th>Value</th></tr>
+                <tr><td>Algorithm</td><td>{{ model.display_name|default:model.name }}</td></tr>
+                <tr><td>Task Type</td><td>{{ model.task_type|title }}</td></tr>
+                {% if model.target_column %}
+                <tr><td>Target Variable</td><td>{{ model.target_column }}</td></tr>
+                {% endif %}
+                {% if model.is_best %}
+                <tr><td>Status</td><td><span class="best-model-badge">BEST MODEL</span></td></tr>
+                {% endif %}
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Performance Metrics</h2>
+            <div class="metric-grid">
+                {% for key, value in model.metrics.items %}
+                {% if key != 'confusion_matrix' and key != 'roc_curve' and key != 'confusion_matrix_labels' and key != 'cv_scores' %}
+                <div class="metric-box">
+                    <div class="metric-value">{{ value|floatformat:4 }}</div>
+                    <div class="metric-label">{{ key }}</div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Confusion Matrix -->
+        {% if charts.confusion_matrix %}
+        <div class="section no-break">
+            <h2>Confusion Matrix</h2>
+            <div class="chart-container">
+                <img src="{{ charts.confusion_matrix }}" alt="Confusion Matrix">
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ROC Curve -->
+        {% if charts.roc_curve %}
+        <div class="section no-break">
+            <h2>ROC Curve</h2>
+            <div class="chart-container">
+                <img src="{{ charts.roc_curve }}" alt="ROC Curve">
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Cross-Validation Scores -->
+        {% if charts.cv_scores %}
+        <div class="section no-break">
+            <h2>Cross-Validation Scores</h2>
+            <div class="chart-container">
+                <img src="{{ charts.cv_scores }}" alt="Cross-Validation Scores">
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Feature Importance -->
+        {% if charts.feature_importance %}
+        <div class="section no-break">
+            <h2>Feature Importance</h2>
+            <div class="chart-container">
+                <img src="{{ charts.feature_importance }}" alt="Feature Importance">
+            </div>
+        </div>
+        {% elif model.feature_importance %}
+        <div class="section">
+            <h2>Top Features</h2>
+            <table class="table-compact">
+                <tr><th>Feature</th><th>Importance</th></tr>
+                {% for item in model.feature_importance|slice:":15" %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.importance|floatformat:4 }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
     </div>
-    {% elif model.feature_importance %}
-    <h3>Top Features</h3>
-    <table>
-        <tr><th>Feature</th><th>Importance</th></tr>
-        {% for item in model.feature_importance|slice:":15" %}
-        <tr>
-            <td>{{ item.name }}</td>
-            <td>{{ item.importance|floatformat:4 }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
     {% endif %}
 
-    <div class="footer">
-        Generated by DataForge AI
+    <!-- Section 5: Model Comparison -->
+    {% if model_comparison and model_comparison|length > 1 %}
+    <div class="section-page">
+        <div class="page-header">
+            <span class="page-header-title">{{ title }}</span>
+            <span class="page-header-logo">DataForge AI</span>
+        </div>
+
+        <h1>5. Model Comparison</h1>
+
+        {% if charts.model_comparison %}
+        <div class="section">
+            <h2>Performance Comparison</h2>
+            <div class="chart-container">
+                <img src="{{ charts.model_comparison }}" alt="Model Comparison Chart">
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <h2>Comparison Table</h2>
+            <table class="comparison-table">
+                <tr>
+                    <th>Model</th>
+                    <th>Task Type</th>
+                    {% for metric in comparison_metrics|slice:":5" %}
+                    <th>{{ metric }}</th>
+                    {% endfor %}
+                </tr>
+                {% for m in model_comparison %}
+                <tr>
+                    <td>
+                        {{ m.display_name|default:m.name }}
+                        {% if m.is_best %}<span class="best-model-badge">BEST</span>{% endif %}
+                    </td>
+                    <td>{{ m.task_type|title }}</td>
+                    {% for metric in comparison_metrics|slice:":5" %}
+                    <td>
+                        {% with m.metrics|default:'' as metrics %}
+                            {% if metrics %}
+                                {{ metrics|get:metric|floatformat:4|default:"-" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Section 6: Key Insights -->
+    {% if eda.insights or ai_summary %}
+    <div class="section-page">
+        <div class="page-header">
+            <span class="page-header-title">{{ title }}</span>
+            <span class="page-header-logo">DataForge AI</span>
+        </div>
+
+        <h1>{% if model_comparison and model_comparison|length > 1 %}6{% else %}5{% endif %}. Key Insights & Recommendations</h1>
+
+        {% if eda.ai_insights and eda.ai_insights != ai_summary %}
+        <div class="section">
+            <h2>AI Analysis Insights</h2>
+            <div class="executive-summary">
+                <p>{{ eda.ai_insights|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if eda.insights %}
+        <div class="section">
+            <h2>Automated Findings</h2>
+            {% for insight in eda.insights|slice:":15" %}
+            <div class="insight {% if insight.severity == 'warning' %}insight-warning{% elif insight.severity == 'error' %}insight-error{% elif insight.severity == 'success' %}insight-success{% else %}insight-info{% endif %}">
+                <strong>{{ insight.type|title|default:"Finding" }}:</strong> {{ insight.message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Summary Statistics -->
+        <div class="section">
+            <h2>Analysis Summary</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">{{ dataset.row_count|default:0|floatformat:0 }}</div>
+                    <div class="stat-label">Rows Processed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ dataset.column_count|default:0 }}</div>
+                    <div class="stat-label">Features Analyzed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ report_metadata.models_count|default:0 }}</div>
+                    <div class="stat-label">Models Evaluated</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ eda.insights|length|default:0 }}</div>
+                    <div class="stat-label">Insights Generated</div>
+                </div>
+            </div>
+        </div>
+
+        {% if eda.data_quality_score %}
+        <div class="section">
+            <h2>Data Quality Assessment</h2>
+            <p>
+                {% if eda.data_quality_score >= 80 %}
+                <span class="quality-badge quality-badge-good">Excellent Quality ({{ eda.data_quality_score|floatformat:0 }}/100)</span>
+                <br><br>
+                The dataset demonstrates excellent quality with minimal missing values and clean data structure.
+                It is well-suited for machine learning applications.
+                {% elif eda.data_quality_score >= 60 %}
+                <span class="quality-badge quality-badge-fair">Moderate Quality ({{ eda.data_quality_score|floatformat:0 }}/100)</span>
+                <br><br>
+                The dataset has moderate quality. Consider addressing missing values and potential data inconsistencies
+                to improve model performance.
+                {% else %}
+                <span class="quality-badge quality-badge-poor">Needs Improvement ({{ eda.data_quality_score|floatformat:0 }}/100)</span>
+                <br><br>
+                The dataset quality is below optimal. Significant data cleaning is recommended before using this data
+                for production machine learning models.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="page-footer">
+        <span>Generated by DataForge AI</span>
+        <span>{{ generated_at|date:"F j, Y" }}</span>
     </div>
 </body>
 </html>

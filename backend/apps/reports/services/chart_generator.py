@@ -339,3 +339,189 @@ class ChartGeneratorService:
         except Exception as e:
             logger.error(f'Failed to generate missing values chart: {e}')
             return ''
+
+    def generate_model_comparison_chart(
+        self,
+        models: list,
+        metrics: list = None,
+        title: str = 'Model Comparison'
+    ) -> str:
+        """
+        Generate a grouped bar chart comparing multiple models.
+
+        Args:
+            models: List of dicts with 'name' and 'metrics' keys
+            metrics: List of metric names to compare (auto-detected if None)
+            title: Chart title
+
+        Returns:
+            Base64-encoded PNG image
+        """
+        try:
+            if not models or len(models) < 2:
+                return ''
+
+            # Auto-detect metrics if not provided
+            if metrics is None:
+                all_metrics = set()
+                for model in models:
+                    model_metrics = model.get('metrics', {})
+                    for key in model_metrics.keys():
+                        if key not in ['confusion_matrix', 'roc_curve', 'confusion_matrix_labels']:
+                            all_metrics.add(key)
+                metrics = list(all_metrics)[:6]  # Limit to 6 metrics
+
+            if not metrics:
+                return ''
+
+            # Prepare data
+            model_names = [m.get('display_name', m.get('name', 'Unknown'))[:15] for m in models[:6]]
+            n_models = len(model_names)
+            n_metrics = len(metrics)
+
+            # Create figure
+            fig, ax = plt.subplots(figsize=(max(10, n_metrics * 1.5), 6))
+
+            x = np.arange(n_metrics)
+            width = 0.8 / n_models
+            colors = plt.cm.Set2(np.linspace(0, 1, n_models))
+
+            for i, model in enumerate(models[:6]):
+                model_metrics = model.get('metrics', {})
+                values = [model_metrics.get(m, 0) for m in metrics]
+                offset = width * i - width * (n_models - 1) / 2
+                ax.bar(x + offset, values, width, label=model_names[i], color=colors[i], alpha=0.85)
+
+            ax.set_xlabel('Metrics')
+            ax.set_ylabel('Score')
+            ax.set_title(title, fontsize=12, fontweight='bold')
+            ax.set_xticks(x)
+            ax.set_xticklabels(metrics, rotation=30, ha='right')
+            ax.legend(loc='upper right', fontsize=8)
+            ax.set_ylim([0, 1.1])
+
+            plt.tight_layout()
+            return self._fig_to_base64(fig)
+
+        except Exception as e:
+            logger.error(f'Failed to generate model comparison chart: {e}')
+            return ''
+
+    def generate_distribution_charts(
+        self,
+        distributions: list,
+        max_charts: int = 6
+    ) -> list:
+        """
+        Generate multiple distribution charts.
+
+        Args:
+            distributions: List of distribution data dicts
+            max_charts: Maximum number of charts to generate
+
+        Returns:
+            List of base64-encoded PNG images
+        """
+        charts = []
+        for dist in distributions[:max_charts]:
+            column_name = dist.get('column', 'Distribution')
+            chart = self.generate_distribution_chart(dist, title=f'{column_name} Distribution')
+            if chart:
+                charts.append({'column': column_name, 'chart': chart})
+        return charts
+
+    def generate_data_quality_chart(
+        self,
+        quality_score: float,
+        title: str = 'Data Quality Score'
+    ) -> str:
+        """
+        Generate a gauge-style chart for data quality score.
+
+        Args:
+            quality_score: Score from 0 to 100
+            title: Chart title
+
+        Returns:
+            Base64-encoded PNG image
+        """
+        try:
+            fig, ax = plt.subplots(figsize=(6, 4))
+
+            # Create a simple horizontal gauge
+            ax.barh([0], [100], color='#e0e0e0', height=0.5)
+
+            # Determine color based on score
+            if quality_score >= 80:
+                color = self.COLOR_ACCENT  # Green
+            elif quality_score >= 60:
+                color = '#f39c12'  # Orange
+            else:
+                color = self.COLOR_SECONDARY  # Red
+
+            ax.barh([0], [quality_score], color=color, height=0.5)
+
+            # Add score text
+            ax.text(quality_score / 2, 0, f'{quality_score:.0f}/100',
+                    ha='center', va='center', fontsize=16, fontweight='bold', color='white')
+
+            ax.set_xlim([0, 100])
+            ax.set_ylim([-0.5, 0.5])
+            ax.axis('off')
+            ax.set_title(title, fontsize=12, fontweight='bold', pad=10)
+
+            plt.tight_layout()
+            return self._fig_to_base64(fig)
+
+        except Exception as e:
+            logger.error(f'Failed to generate data quality chart: {e}')
+            return ''
+
+    def generate_cv_scores_chart(
+        self,
+        cv_scores: list,
+        title: str = 'Cross-Validation Scores'
+    ) -> str:
+        """
+        Generate a bar chart for cross-validation scores.
+
+        Args:
+            cv_scores: List of CV fold scores
+            title: Chart title
+
+        Returns:
+            Base64-encoded PNG image
+        """
+        try:
+            if not cv_scores:
+                return ''
+
+            fig, ax = plt.subplots(figsize=self.FIGURE_SIZE)
+
+            x = range(1, len(cv_scores) + 1)
+            mean_score = np.mean(cv_scores)
+            std_score = np.std(cv_scores)
+
+            # Bar chart
+            bars = ax.bar(x, cv_scores, color=self.COLOR_PRIMARY, alpha=0.7, edgecolor='white')
+
+            # Mean line
+            ax.axhline(y=mean_score, color=self.COLOR_ACCENT, linestyle='--', linewidth=2,
+                       label=f'Mean: {mean_score:.4f}')
+
+            # Std band
+            ax.axhspan(mean_score - std_score, mean_score + std_score,
+                       alpha=0.2, color=self.COLOR_ACCENT, label=f'±1 Std: {std_score:.4f}')
+
+            ax.set_xlabel('Fold')
+            ax.set_ylabel('Score')
+            ax.set_title(title, fontsize=12, fontweight='bold')
+            ax.set_xticks(x)
+            ax.legend(loc='lower right', fontsize=9)
+
+            plt.tight_layout()
+            return self._fig_to_base64(fig)
+
+        except Exception as e:
+            logger.error(f'Failed to generate CV scores chart: {e}')
+            return ''

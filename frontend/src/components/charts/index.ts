@@ -5,3 +5,13 @@ export { OutliersChart } from './OutliersChart'
 export { StatCard } from './StatCard'
 export { InsightsPanel } from './InsightsPanel'
 export { SummaryStatsTable } from './SummaryStatsTable'
+export { BenchmarkComparison } from './BenchmarkComparison'
+
+// New chart components for enhanced reports
+export { ConfusionMatrixChart } from './ConfusionMatrixChart'
+export { ROCCurveChart } from './ROCCurveChart'
+export { FeatureImportanceChart } from './FeatureImportanceChart'
+export { ModelComparisonChart } from './ModelComparisonChart'
+export { MetricsRadarChart } from './MetricsRadarChart'
+export { DataQualityGauge } from './DataQualityGauge'
+export { CrossValidationChart } from './CrossValidationChart'

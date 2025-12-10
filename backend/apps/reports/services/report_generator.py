@@ -1,11 +1,11 @@
 """
 Report Generator Service.
 
-Handles generation of analysis reports.
+Handles generation of analysis reports with comprehensive data.
 """
 
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from django.utils import timezone
 
@@ -34,7 +34,7 @@ class ReportGeneratorService:
 
     def generate_report(self, report: Report) -> Report:
         """
-        Generate a complete report.
+        Generate a complete report with comprehensive data.
 
         Args:
             report: Report instance with dataset, eda_result, trained_model set
@@ -51,16 +51,23 @@ class ReportGeneratorService:
             # Generate dataset section
             content['dataset'] = self._generate_dataset_section(report.dataset)
 
-            # Generate EDA section if available
+            # Generate EDA section if available (with enhanced data)
             if report.eda_result:
-                content['eda'] = self._generate_eda_section(report.eda_result)
+                content['eda'] = self._generate_enhanced_eda_section(report.eda_result)
 
             # Generate model section if available
             if report.trained_model:
                 content['model'] = self._generate_model_section(report.trained_model)
 
+            # Generate model comparison section (all models for this dataset)
+            if report.report_type in [Report.ReportType.MODEL, Report.ReportType.FULL]:
+                report.model_comparison = self._generate_model_comparison(report.dataset)
+
             # Store content
             report.content = content
+
+            # Generate report metadata for UI
+            report.report_metadata = self._generate_metadata(report)
 
             # Generate AI summary
             if report.report_type == Report.ReportType.FULL:
@@ -111,7 +118,7 @@ class ReportGeneratorService:
         return columns
 
     def _generate_eda_section(self, eda_result: EDAResult) -> dict:
-        """Generate EDA results section."""
+        """Generate EDA results section (basic version)."""
         return {
             'summary_stats': self._summarize_stats(eda_result.summary_stats),
             'missing_values': self._summarize_missing(eda_result.missing_analysis),
@@ -121,6 +128,113 @@ class ReportGeneratorService:
             'sampled': eda_result.sampled,
             'sample_size': eda_result.sample_size,
             'computation_time': eda_result.computation_time,
+        }
+
+    def _generate_enhanced_eda_section(self, eda_result: EDAResult) -> dict:
+        """Generate comprehensive EDA results section with all visualization data."""
+        return {
+            # Summary statistics (full data for charts)
+            'summary_stats': eda_result.summary_stats,
+            'summary_stats_formatted': self._summarize_stats(eda_result.summary_stats),
+
+            # Distributions (full data for distribution charts)
+            'distributions': eda_result.distributions or {},
+
+            # Correlations (full matrix for heatmap)
+            'correlation_matrix': eda_result.correlation_matrix or {},
+            'top_correlations': eda_result.top_correlations or [],
+
+            # Missing values (full analysis)
+            'missing_analysis': eda_result.missing_analysis or {},
+            'missing_values_summary': self._summarize_missing(eda_result.missing_analysis),
+
+            # Outliers (full analysis)
+            'outlier_analysis': eda_result.outlier_analysis or {},
+            'outliers_summary': self._summarize_outliers(eda_result.outlier_analysis),
+
+            # Data quality
+            'data_quality_score': eda_result.data_quality_score,
+
+            # Insights
+            'insights': eda_result.insights or [],
+            'ai_insights': eda_result.ai_insights,
+
+            # Additional analysis
+            'datetime_analysis': eda_result.datetime_analysis or {},
+            'text_analysis': eda_result.text_analysis or {},
+            'associations': eda_result.associations or {},
+
+            # Metadata
+            'sampled': eda_result.sampled,
+            'sample_size': eda_result.sample_size,
+            'computation_time': eda_result.computation_time,
+        }
+
+    def _generate_model_comparison(self, dataset: Dataset) -> list:
+        """Generate comparison data for all trained models on this dataset."""
+        if not dataset:
+            return []
+
+        models = TrainedModel.objects.filter(
+            dataset=dataset
+        ).order_by('-is_best', '-created_at')
+
+        comparison = []
+        for model in models:
+            comparison.append({
+                'id': str(model.id),
+                'name': model.name,
+                'display_name': model.display_name,
+                'algorithm_type': model.algorithm_type,
+                'task_type': model.task_type,
+                'is_best': model.is_best,
+                'metrics': model.metrics or {},
+                'primary_metric': model.primary_metric,
+                'feature_importance': self._top_features(model.feature_importance, limit=10),
+                'cross_val_scores': model.cross_val_scores or [],
+                'hyperparameters': model.hyperparameters or {},
+                'model_size_display': self._format_file_size(model.model_size or 0),
+                'created_at': model.created_at.isoformat() if model.created_at else None,
+            })
+
+        return comparison
+
+    def _generate_metadata(self, report: Report) -> dict:
+        """Generate report metadata for UI display."""
+        content = report.content
+        eda = content.get('eda', {})
+        model = content.get('model', {})
+
+        # Determine which chart types are available
+        chart_types = []
+
+        if eda.get('distributions'):
+            chart_types.append('distribution')
+        if eda.get('correlation_matrix'):
+            chart_types.append('correlation')
+        if eda.get('missing_analysis') or eda.get('missing_values_summary'):
+            chart_types.append('missing_values')
+        if eda.get('outlier_analysis') or eda.get('outliers_summary'):
+            chart_types.append('outliers')
+
+        if model:
+            metrics = model.get('metrics', {})
+            if metrics.get('confusion_matrix'):
+                chart_types.append('confusion_matrix')
+            if metrics.get('roc_curve') or metrics.get('fpr'):
+                chart_types.append('roc_curve')
+            if model.get('feature_importance'):
+                chart_types.append('feature_importance')
+
+        return {
+            'data_quality_score': eda.get('data_quality_score'),
+            'total_insights': len(eda.get('insights', [])),
+            'computation_time': eda.get('computation_time'),
+            'chart_types_included': chart_types,
+            'models_count': len(report.model_comparison or []),
+            'has_ai_insights': bool(eda.get('ai_insights')),
+            'has_model': bool(model),
+            'has_eda': bool(eda),
         }
 
     def _summarize_stats(self, summary_stats: dict) -> dict:
@@ -215,7 +329,7 @@ class ReportGeneratorService:
             'model_size_display': self._format_file_size(model.model_size or 0),
         }
 
-    def _top_features(self, feature_importance: dict) -> list:
+    def _top_features(self, feature_importance: dict, limit: int = 10) -> list:
         """Get top N important features."""
         if not feature_importance:
             return []
@@ -225,7 +339,7 @@ class ReportGeneratorService:
             for k, v in feature_importance.items()
         ]
         features.sort(key=lambda x: x['importance'], reverse=True)
-        return features[:10]
+        return features[:limit]
 
     def _generate_summary(self, report: Report) -> str:
         """Generate full report AI summary."""

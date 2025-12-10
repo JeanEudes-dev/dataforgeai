@@ -67,6 +67,21 @@ class EDAResult(models.Model):
     # Format: {column_name: {method, count, ratio, bounds}}
     outlier_analysis = models.JSONField(default=dict, blank=True)
 
+    # Cross-type associations (categorical-categorical, categorical-numeric)
+    # Format: {categorical_categorical: {}, categorical_numeric: {}, numeric_numeric: {}}
+    associations = models.JSONField(default=dict, blank=True)
+
+    # DateTime column analysis
+    # Format: {column_name: {min_date, max_date, weekday_dist, month_dist, etc.}}
+    datetime_analysis = models.JSONField(default=dict, blank=True)
+
+    # Text column analysis (high cardinality strings)
+    # Format: {column_name: {avg_length, word_count, contains_numbers, etc.}}
+    text_analysis = models.JSONField(default=dict, blank=True)
+
+    # Data quality score (0-100)
+    data_quality_score = models.FloatField(null=True, blank=True)
+
     # Rule-based generated insights
     # Format: [{type, message, severity, column, value}]
     insights = models.JSONField(default=list, blank=True)

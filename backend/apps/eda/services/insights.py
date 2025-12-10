@@ -7,6 +7,7 @@ Generates rule-based insights from EDA results.
 import logging
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from apps.eda.models import EDAResult
@@ -45,6 +46,8 @@ class EDAInsightsService:
         DATA_QUALITY = 'data_quality'
         DISTRIBUTION = 'distribution'
         GENERAL = 'general'
+        ML_READINESS = 'ml_readiness'
+        ASSOCIATION = 'association'
 
     def __init__(self, eda_result: EDAResult, df: pd.DataFrame):
         self.eda_result = eda_result
@@ -59,6 +62,15 @@ class EDAInsightsService:
         self._check_potential_id_columns()
         self._check_constant_columns()
         self._check_data_types()
+
+        # Enhanced insights
+        self._check_class_imbalance()
+        self._check_high_cardinality()
+        self._check_categorical_associations()
+        self._check_categorical_numeric_associations()
+        self._suggest_target_columns()
+        self._compute_ml_readiness_insight()
+
         self._generate_summary_insights()
 
         # Sort by severity
@@ -264,3 +276,207 @@ class EDAInsightsService:
                 self.Severity.INFO,
                 value=self.eda_result.sample_size
             )
+
+    def _check_class_imbalance(self) -> None:
+        """Detect class imbalance in potential target columns (binary/categorical)."""
+        summary_stats = self.eda_result.summary_stats
+
+        for col, stats in summary_stats.items():
+            # Check for binary columns with severe imbalance
+            if stats.get('is_binary', False):
+                dominance = stats.get('dominance', 0)
+                if dominance >= 0.9:
+                    self._add_insight(
+                        self.InsightType.DATA_QUALITY,
+                        f"Column '{col}' shows severe class imbalance "
+                        f"({dominance*100:.0f}% dominant class). "
+                        f"Consider resampling or weighted training if used as target.",
+                        self.Severity.WARNING,
+                        column=col,
+                        value=dominance
+                    )
+                elif dominance >= 0.8:
+                    self._add_insight(
+                        self.InsightType.DATA_QUALITY,
+                        f"Column '{col}' shows class imbalance "
+                        f"({dominance*100:.0f}% dominant class).",
+                        self.Severity.INFO,
+                        column=col,
+                        value=dominance
+                    )
+
+    def _check_high_cardinality(self) -> None:
+        """Warn about high cardinality categorical columns."""
+        summary_stats = self.eda_result.summary_stats
+
+        for col, stats in summary_stats.items():
+            # Only check categorical columns (those with mode)
+            if stats.get('mode') is not None and stats.get('mean') is None:
+                cardinality_ratio = stats.get('cardinality_ratio', 0)
+                unique_count = stats.get('unique_count', 0)
+
+                if cardinality_ratio >= 0.5 and unique_count > 50:
+                    self._add_insight(
+                        self.InsightType.DATA_QUALITY,
+                        f"Column '{col}' has high cardinality ({unique_count} unique values). "
+                        f"Consider binning, encoding, or removing for ML.",
+                        self.Severity.WARNING,
+                        column=col,
+                        value=unique_count
+                    )
+                elif unique_count > 20:
+                    self._add_insight(
+                        self.InsightType.DATA_QUALITY,
+                        f"Column '{col}' has {unique_count} unique categories. "
+                        f"One-hot encoding will create many features.",
+                        self.Severity.INFO,
+                        column=col,
+                        value=unique_count
+                    )
+
+    def _check_categorical_associations(self) -> None:
+        """Check for strong categorical-categorical associations."""
+        associations = getattr(self.eda_result, 'associations', {})
+        cat_cat = associations.get('categorical_categorical', {})
+
+        for pair, info in cat_cat.items():
+            if info.get('strength') == 'strong':
+                col1, col2 = pair.split('|')
+                self._add_insight(
+                    self.InsightType.ASSOCIATION,
+                    f"'{col1}' and '{col2}' are strongly associated "
+                    f"(Cramer's V = {info['cramers_v']:.2f}). "
+                    f"These may be redundant features.",
+                    self.Severity.INFO,
+                    column=f"{col1}, {col2}",
+                    value=info['cramers_v']
+                )
+
+    def _check_categorical_numeric_associations(self) -> None:
+        """Check for significant categorical-numeric relationships."""
+        associations = getattr(self.eda_result, 'associations', {})
+        cat_num = associations.get('categorical_numeric', {})
+
+        for pair, info in cat_num.items():
+            if info.get('significant', False) and info.get('strength') in ['strong', 'moderate']:
+                col1, col2 = pair.split('|')
+
+                if info['method'] == 'point_biserial':
+                    corr = info.get('correlation', 0)
+                    self._add_insight(
+                        self.InsightType.ASSOCIATION,
+                        f"'{col1}' shows {info['strength']} relationship with '{col2}' "
+                        f"(r = {corr:.2f}).",
+                        self.Severity.INFO,
+                        column=f"{col1}, {col2}",
+                        value=corr
+                    )
+                elif info['method'] == 'anova':
+                    eta_sq = info.get('eta_squared', 0)
+                    self._add_insight(
+                        self.InsightType.ASSOCIATION,
+                        f"'{col1}' significantly affects '{col2}' values "
+                        f"(eta² = {eta_sq:.2f}, {info['strength']} effect).",
+                        self.Severity.INFO,
+                        column=f"{col1}, {col2}",
+                        value=eta_sq
+                    )
+
+    def _suggest_target_columns(self) -> None:
+        """Suggest potential target columns for ML."""
+        summary_stats = self.eda_result.summary_stats
+
+        classification_targets = []
+        regression_targets = []
+
+        for col, stats in summary_stats.items():
+            unique_count = stats.get('unique_count', 0)
+            null_ratio = stats.get('null_ratio', 1)
+
+            # Skip columns with many nulls
+            if null_ratio > 0.1:
+                continue
+
+            # Classification target: categorical with 2-20 classes
+            if 2 <= unique_count <= 20 and stats.get('mode') is not None and stats.get('mean') is None:
+                classification_targets.append((col, unique_count))
+
+            # Regression target: numeric with many unique values
+            elif stats.get('mean') is not None and unique_count > 20:
+                regression_targets.append((col, unique_count))
+
+        # Report top suggestions
+        if classification_targets:
+            targets = classification_targets[:3]
+            target_names = [f"'{t[0]}' ({t[1]} classes)" for t in targets]
+            self._add_insight(
+                self.InsightType.ML_READINESS,
+                f"Potential classification targets: {', '.join(target_names)}",
+                self.Severity.INFO,
+                value=[t[0] for t in targets]
+            )
+
+        if regression_targets:
+            targets = regression_targets[:3]
+            target_names = [f"'{t[0]}'" for t in targets]
+            self._add_insight(
+                self.InsightType.ML_READINESS,
+                f"Potential regression targets: {', '.join(target_names)}",
+                self.Severity.INFO,
+                value=[t[0] for t in targets]
+            )
+
+    def _compute_ml_readiness_insight(self) -> None:
+        """Generate ML readiness score insight."""
+        score = getattr(self.eda_result, 'data_quality_score', None)
+
+        if score is None:
+            return
+
+        issues = []
+
+        # Check for issues
+        missing = self.eda_result.missing_analysis
+        if missing:
+            cols_with_high_missing = sum(1 for v in missing.values() if v.get('ratio', 0) > 0.1)
+            if cols_with_high_missing > 0:
+                issues.append(f"{cols_with_high_missing} columns with >10% missing")
+
+        summary_stats = self.eda_result.summary_stats
+        constant_cols = sum(1 for s in summary_stats.values() if s.get('unique_count') == 1)
+        if constant_cols > 0:
+            issues.append(f"{constant_cols} constant columns")
+
+        high_cardinality = sum(
+            1 for s in summary_stats.values()
+            if s.get('cardinality_ratio', 0) > 0.5 and s.get('mode') is not None and s.get('mean') is None
+        )
+        if high_cardinality > 0:
+            issues.append(f"{high_cardinality} high-cardinality categorical columns")
+
+        # Determine severity and message
+        if score >= 85:
+            message = f"ML Readiness Score: {score:.0f}/100 - Data is well-prepared for modeling."
+            severity = self.Severity.INFO
+        elif score >= 70:
+            message = f"ML Readiness Score: {score:.0f}/100 - Data quality is acceptable."
+            if issues:
+                message += f" Minor issues: {', '.join(issues)}."
+            severity = self.Severity.INFO
+        elif score >= 50:
+            message = f"ML Readiness Score: {score:.0f}/100 - Data needs some cleaning."
+            if issues:
+                message += f" Issues: {', '.join(issues)}."
+            severity = self.Severity.WARNING
+        else:
+            message = f"ML Readiness Score: {score:.0f}/100 - Significant data quality issues."
+            if issues:
+                message += f" Issues: {', '.join(issues)}."
+            severity = self.Severity.WARNING
+
+        self._add_insight(
+            self.InsightType.ML_READINESS,
+            message,
+            severity,
+            value=score
+        )

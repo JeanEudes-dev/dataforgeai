@@ -72,6 +72,27 @@ export function formatDuration(seconds: number): string {
   return `${minutes}m ${remainingSeconds}s`
 }
 
+// Long duration formatting (human-readable)
+export function formatDurationLong(seconds: number): string {
+  if (seconds < 60) {
+    const roundedSeconds = Math.round(seconds)
+    return `${roundedSeconds} second${roundedSeconds !== 1 ? 's' : ''}`
+  }
+
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+
+  if (hours === 0) {
+    return `${minutes} minute${minutes !== 1 ? 's' : ''}`
+  }
+
+  if (minutes === 0) {
+    return `${hours} hour${hours !== 1 ? 's' : ''}`
+  }
+
+  return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} min`
+}
+
 // Metric formatting
 export function formatMetric(value: number | null | undefined, metricName: string): string {
   if (value === null || value === undefined) {

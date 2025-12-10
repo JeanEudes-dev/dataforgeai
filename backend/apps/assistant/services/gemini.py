@@ -302,42 +302,98 @@ Instructions:
         return prompt
 
     def _summarize_context(self, context: dict) -> str:
-        """Create a compact summary of context for the AI."""
+        """Create a compact but rich summary of context for the AI."""
         parts = []
 
         # Dataset info
         if 'dataset' in context:
             ds = context['dataset']
             parts.append(f"Dataset: {ds.get('name', 'Unknown')}, {ds.get('row_count', '?')} rows, {ds.get('column_count', '?')} columns")
-            if ds.get('columns'):
-                cols = ds['columns'][:15]  # Max 15 column names
-                parts.append(f"Columns: {', '.join(cols)}")
 
-        # EDA summary (very compact)
+            # Include column names from schema if available
+            schema = ds.get('schema', {})
+            if schema and isinstance(schema, dict):
+                col_names = list(schema.keys())[:15]
+                if col_names:
+                    parts.append(f"Columns: {', '.join(col_names)}")
+
+        # EDA summary - now much richer
         if 'eda' in context:
             eda = context['eda']
-            if eda.get('insights'):
-                # Only first 3 insight messages
-                insights = [i.get('message', '')[:100] for i in eda['insights'][:3]]
-                parts.append(f"Key insights: {'; '.join(insights)}")
-            if eda.get('top_correlations'):
-                corrs = eda['top_correlations'][:3]
-                corr_strs = [f"{c['column1']}-{c['column2']}:{c['correlation']:.2f}" for c in corrs]
-                parts.append(f"Top correlations: {', '.join(corr_strs)}")
 
-        # Model summary (very compact)
+            # Include AI-generated insights if available (these are pre-summarized)
+            if eda.get('ai_insights'):
+                parts.append(f"\nAI Analysis Summary:\n{eda['ai_insights'][:500]}")
+
+            # Column statistics summaries
+            if eda.get('column_summaries'):
+                summaries = eda['column_summaries'][:10]
+                parts.append(f"\nColumn Statistics:\n" + '\n'.join(f"- {s}" for s in summaries))
+
+            # Rule-based insights
+            if eda.get('insights'):
+                insights = [i.get('message', '')[:100] for i in eda['insights'][:5]]
+                parts.append(f"\nKey Findings:\n" + '\n'.join(f"- {i}" for i in insights))
+
+            # Top correlations
+            if eda.get('top_correlations'):
+                corrs = eda['top_correlations'][:5]
+                corr_strs = [f"{c['column1']} & {c['column2']}: {c['correlation']:.2f} ({c.get('strength', 'moderate')})" for c in corrs]
+                parts.append(f"\nTop Correlations:\n" + '\n'.join(f"- {s}" for s in corr_strs))
+
+            # Missing values
+            if eda.get('missing_summary'):
+                missing = eda['missing_summary'][:5]
+                if missing:
+                    missing_strs = [f"{m['column']}: {m['ratio']:.1f}% missing" for m in missing]
+                    parts.append(f"\nMissing Values:\n" + '\n'.join(f"- {s}" for s in missing_strs))
+
+            # Outliers
+            if eda.get('outlier_summary'):
+                outliers = eda['outlier_summary'][:5]
+                if outliers:
+                    outlier_strs = [f"{o['column']}: {o['ratio']:.1f}% outliers" for o in outliers]
+                    parts.append(f"\nOutliers Detected:\n" + '\n'.join(f"- {s}" for s in outlier_strs))
+
+            # Data quality score
+            if eda.get('data_quality_score'):
+                score = eda['data_quality_score']
+                quality = "excellent" if score >= 80 else "good" if score >= 60 else "needs improvement"
+                parts.append(f"\nData Quality Score: {score}/100 ({quality})")
+
+        # Model summary
         if 'model' in context:
             m = context['model']
-            parts.append(f"Model: {m.get('display_name', m.get('algorithm', 'Unknown'))}, Task: {m.get('task_type', '?')}")
+            model_name = m.get('name', m.get('display_name', m.get('algorithm', 'Unknown')))
+            parts.append(f"\nModel: {model_name}")
+            parts.append(f"Task Type: {m.get('task_type', 'Unknown')}")
+
             metrics = m.get('metrics', {})
             if metrics:
-                # Only key metrics
-                key_metrics = []
-                for k in ['accuracy', 'f1_weighted', 'rmse', 'r2']:
-                    if k in metrics:
-                        key_metrics.append(f"{k}={metrics[k]:.3f}")
-                if key_metrics:
-                    parts.append(f"Metrics: {', '.join(key_metrics[:4])}")
+                # Format metrics nicely
+                metric_lines = []
+                for k, v in list(metrics.items())[:8]:
+                    if k not in ['confusion_matrix', 'roc_curve', 'confusion_matrix_labels', 'cv_scores']:
+                        if isinstance(v, float):
+                            if k in ['accuracy', 'f1', 'f1_weighted', 'precision', 'recall', 'r2', 'roc_auc']:
+                                metric_lines.append(f"- {k}: {v*100:.1f}%")
+                            else:
+                                metric_lines.append(f"- {k}: {v:.4f}")
+                if metric_lines:
+                    parts.append(f"\nModel Performance:\n" + '\n'.join(metric_lines))
+
+            # Feature importance
+            fi = m.get('feature_importance', {})
+            if fi:
+                if isinstance(fi, dict):
+                    top_features = sorted(fi.items(), key=lambda x: x[1], reverse=True)[:5]
+                    fi_strs = [f"{name}: {imp:.3f}" for name, imp in top_features]
+                elif isinstance(fi, list):
+                    fi_strs = [f"{f.get('name', '?')}: {f.get('importance', 0):.3f}" for f in fi[:5]]
+                else:
+                    fi_strs = []
+                if fi_strs:
+                    parts.append(f"\nTop Important Features:\n" + '\n'.join(f"- {s}" for s in fi_strs))
 
         return '\n'.join(parts) if parts else "No context available."
 

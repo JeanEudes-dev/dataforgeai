@@ -13,7 +13,7 @@ import {
   SparklesIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline'
-import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton } from '@/components/ui'
+import { Card, CardHeader, CardTitle, CardContent, Button, Skeleton, MarkdownRenderer } from '@/components/ui'
 import { StatusBadge, EmptyState } from '@/components/shared'
 import {
   StatCard,
@@ -75,6 +75,7 @@ export function EDAPage() {
   })
 
   const isRunning = edaResult?.status === 'running' || edaResult?.status === 'pending'
+  const isRequesting = triggerMutation.isPending || isRunning
 
   // Calculate data quality score
   const dataQualityScore = useMemo(() => {
@@ -83,13 +84,13 @@ export function EDAPage() {
     if (columns.length === 0) return 100
     const avgMissing = columns.reduce((sum, col) => sum + col.ratio, 0) / columns.length
     return Math.round((1 - avgMissing) * 100)
-  }, [edaResult?.missing_analysis])
+  }, [edaResult])
 
   // Get distribution columns for preview
   const distributionColumns = useMemo(() => {
     if (!edaResult?.distributions) return []
     return Object.keys(edaResult.distributions).slice(0, 6)
-  }, [edaResult?.distributions])
+  }, [edaResult])
 
   if (isLoading) {
     return (
@@ -133,6 +134,31 @@ export function EDAPage() {
           </Button>
         </div>
       </div>
+
+      {isRequesting && (
+        <Card className="border border-gray-200 shadow-sm">
+          <CardContent className="py-6 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center text-primary-600">
+                <ArrowPathIcon className="w-5 h-5 animate-spin" />
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Analysis in progress</p>
+                <p className="text-sm text-gray-600">
+                  EDA is running in the background. You can stay on this page; we’ll refresh results automatically.
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+              <span className="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50">Profiling columns</span>
+              <span className="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50">Computing stats</span>
+              <span className="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50">Detecting outliers</span>
+              <span className="px-3 py-2 rounded-xl border border-gray-200 bg-gray-50">Building visuals</span>
+            </div>
+          </CardContent>
+        </Card>
+      )
+      }
 
       {!edaResult || error ? (
         <EmptyState
@@ -286,9 +312,10 @@ export function EDAPage() {
                         </div>
                       </div>
                       <CardContent className="p-6">
-                        <p className="text-secondary whitespace-pre-wrap leading-relaxed">
-                          {edaResult.ai_insights}
-                        </p>
+                        <MarkdownRenderer
+                          content={edaResult.ai_insights}
+                          className="text-secondary"
+                        />
                       </CardContent>
                     </Card>
                   )}
@@ -507,9 +534,10 @@ export function EDAPage() {
                         </div>
                       </div>
                       <CardContent className="p-6">
-                        <p className="text-secondary whitespace-pre-wrap leading-relaxed text-base">
-                          {edaResult.ai_insights}
-                        </p>
+                        <MarkdownRenderer
+                          content={edaResult.ai_insights}
+                          className="text-secondary"
+                        />
                       </CardContent>
                     </Card>
                   )}
