@@ -54,7 +54,7 @@ export function ROCCurveChart({
 
   if (!data?.fpr || !data?.tpr || chartData.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No ROC curve data available.
       </div>
     )
@@ -62,11 +62,11 @@ export function ROCCurveChart({
 
   // Determine AUC quality
   const getAucQuality = (value: number) => {
-    if (value >= 0.9) return { label: 'Excellent', color: 'text-green-600 dark:text-green-400' }
-    if (value >= 0.8) return { label: 'Good', color: 'text-blue-600 dark:text-blue-400' }
-    if (value >= 0.7) return { label: 'Fair', color: 'text-yellow-600 dark:text-yellow-400' }
-    if (value >= 0.6) return { label: 'Poor', color: 'text-orange-600 dark:text-orange-400' }
-    return { label: 'Fail', color: 'text-red-600 dark:text-red-400' }
+    if (value >= 0.9) return { label: 'Excellent', color: 'text-success' }
+    if (value >= 0.8) return { label: 'Good', color: 'text-primary' }
+    if (value >= 0.7) return { label: 'Fair', color: 'text-warning' }
+    if (value >= 0.6) return { label: 'Poor', color: 'text-warning' }
+    return { label: 'Fail', color: 'text-error' }
   }
 
   const aucQuality = calculatedAuc !== null ? getAucQuality(calculatedAuc) : null
@@ -82,31 +82,31 @@ export function ROCCurveChart({
         <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 30 }}>
           <defs>
             <linearGradient id="rocGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.05} />
+              <stop offset="5%" stopColor="var(--color-primary-500)" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="var(--color-primary-500)" stopOpacity={0.05} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-subtle)" />
           <XAxis
             dataKey="fpr"
             type="number"
             domain={[0, 1]}
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
-            axisLine={{ stroke: '#e4e4e7' }}
+            axisLine={{ stroke: 'var(--color-subtle)' }}
             tickFormatter={(value) => value.toFixed(1)}
             label={{
               value: 'False Positive Rate',
               position: 'bottom',
               offset: 10,
-              style: { fontSize: 12, fill: '#71717a' },
+              style: { fontSize: 12, fill: 'var(--color-muted)' },
             }}
           />
           <YAxis
             dataKey="tpr"
             type="number"
             domain={[0, 1]}
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => value.toFixed(1)}
@@ -115,7 +115,7 @@ export function ROCCurveChart({
               angle: -90,
               position: 'insideLeft',
               offset: 10,
-              style: { fontSize: 12, fill: '#71717a' },
+              style: { fontSize: 12, fill: 'var(--color-muted)' },
             }}
           />
           <Tooltip
@@ -123,15 +123,15 @@ export function ROCCurveChart({
               if (!active || !payload?.length) return null
               const item = payload[0].payload
               return (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="bg-surface rounded-lg shadow-lg border border-subtle px-3 py-2">
+                  <p className="text-xs text-muted-foreground">
                     FPR: {item.fpr.toFixed(3)}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     TPR: {item.tpr.toFixed(3)}
                   </p>
                   {item.threshold !== null && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       Threshold: {item.threshold.toFixed(3)}
                     </p>
                   )}
@@ -145,7 +145,7 @@ export function ROCCurveChart({
               { x: 0, y: 0 },
               { x: 1, y: 1 },
             ]}
-            stroke="#9ca3af"
+            stroke="var(--color-muted)"
             strokeDasharray="5 5"
             strokeWidth={1}
           />
@@ -153,7 +153,7 @@ export function ROCCurveChart({
           <Area
             type="monotone"
             dataKey="tpr"
-            stroke="#3b82f6"
+            stroke="var(--color-primary-500)"
             strokeWidth={2}
             fillOpacity={1}
             fill="url(#rocGradient)"
@@ -165,9 +165,9 @@ export function ROCCurveChart({
       {/* AUC Display */}
       {calculatedAuc !== null && (
         <div className="flex items-center justify-center gap-4 mt-4">
-          <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-            <span className="text-sm text-gray-600 dark:text-gray-400">AUC Score: </span>
-            <span className="text-lg font-bold text-primary-600 dark:text-primary-400">
+          <div className="px-4 py-2 bg-muted rounded-lg border border-subtle">
+            <span className="text-sm text-muted-foreground">AUC Score: </span>
+            <span className="text-lg font-bold text-primary">
               {calculatedAuc.toFixed(4)}
             </span>
             {aucQuality && (
@@ -180,13 +180,13 @@ export function ROCCurveChart({
       )}
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 mt-3 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center gap-6 mt-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-0.5 bg-blue-500" />
+          <div className="w-4 h-0.5 bg-primary-500" />
           <span>ROC Curve</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-0.5 bg-gray-400 border-dashed border-t-2 border-gray-400" style={{ height: 0 }} />
+          <div className="w-4 h-0.5 bg-muted border-dashed border-t-2 border-muted" style={{ height: 0 }} />
           <span>Random Classifier</span>
         </div>
       </div>

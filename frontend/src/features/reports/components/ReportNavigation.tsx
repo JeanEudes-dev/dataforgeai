@@ -68,7 +68,7 @@ export function ReportNavigation({
   const availableItems = navItems.filter((item) => item.available)
 
   return (
-    <nav className="sticky top-0 z-10 bg-white py-3 -mx-1 px-1 border-b border-gray-200">
+    <nav className="sticky top-0 z-10 bg-white dark:bg-gray-900 py-3 -mx-1 px-1 border-b border-gray-200 dark:border-gray-800">
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
         {availableItems.map((item) => {
           const Icon = item.icon
@@ -81,8 +81,8 @@ export function ReportNavigation({
               className={cn(
                 'relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors',
                 isActive
-                  ? 'text-primary-700 bg-primary-50 border border-primary-100 shadow-sm'
-                  : 'text-gray-600 border border-transparent hover:border-gray-200 hover:bg-gray-50'
+                  ? 'text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
               )}
               whileHover={{ y: -1 }}
               whileTap={{ scale: 0.99 }}

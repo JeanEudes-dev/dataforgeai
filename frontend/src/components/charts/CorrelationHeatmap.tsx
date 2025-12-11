@@ -14,17 +14,19 @@ function getCorrelationColor(value: number): string {
     // Positive correlations - blue
     if (absValue >= 0.7) return 'bg-primary-500 text-white'
     if (absValue >= 0.5) return 'bg-primary-400 text-white'
-    if (absValue >= 0.3) return 'bg-primary-300 text-primary-800'
-    return 'bg-primary-100 text-primary-700'
+    if (absValue >= 0.3)
+      return 'bg-primary-300 text-primary-800 dark:bg-primary-700 dark:text-primary-100'
+    return 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-200'
   } else if (value < 0) {
     // Negative correlations - red/orange
     if (absValue >= 0.7) return 'bg-error-500 text-white'
     if (absValue >= 0.5) return 'bg-error-400 text-white'
-    if (absValue >= 0.3) return 'bg-warning-400 text-warning-900'
-    return 'bg-warning-100 text-warning-700'
+    if (absValue >= 0.3)
+      return 'bg-warning-400 text-warning-900 dark:bg-warning-700 dark:text-warning-100'
+    return 'bg-warning-100 text-warning-700 dark:bg-warning-900 dark:text-warning-200'
   }
 
-  return 'bg-gray-100 text-gray-500'
+  return 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
 }
 
 function getStrengthLabel(value: number): string {
@@ -42,7 +44,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
 
   if (columns.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-muted-foreground">
         No correlation data available
       </div>
     )
@@ -68,7 +70,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
               className="w-16 h-24 flex items-end justify-center pb-2"
             >
               <span
-                className="text-xs text-gray-600 font-medium transform -rotate-45 origin-bottom-left whitespace-nowrap truncate max-w-[80px]"
+                className="text-xs text-muted-foreground font-medium transform -rotate-45 origin-bottom-left whitespace-nowrap truncate max-w-[80px]"
                 title={col}
               >
                 {col.length > 10 ? `${col.slice(0, 10)}...` : col}
@@ -89,7 +91,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
             {/* Row label */}
             <div className="w-24 shrink-0 pr-2 text-right">
               <span
-                className="text-xs text-gray-600 font-medium truncate block"
+                className="text-xs text-muted-foreground font-medium truncate block"
                 title={row}
               >
                 {row.length > 12 ? `${row.slice(0, 12)}...` : row}
@@ -110,7 +112,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
                   whileHover={{ scale: 1.1, zIndex: 10 }}
                   className={cn(
                     'w-16 h-12 flex items-center justify-center m-0.5 rounded-md cursor-pointer transition-all',
-                    isDiagonal ? 'bg-gray-200 text-gray-400' : getCorrelationColor(value)
+                    isDiagonal ? 'bg-muted text-muted-foreground' : getCorrelationColor(value)
                   )}
                   title={`${row} × ${col}: ${value.toFixed(3)} (${getStrengthLabel(value)})`}
                 >
@@ -127,7 +129,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
       {/* Legend */}
       <div className="mt-6 flex items-center justify-center gap-6">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Negative</span>
+          <span className="text-xs text-muted-foreground">Negative</span>
           <div className="flex gap-1">
             <div className="w-4 h-4 rounded bg-error-500" />
             <div className="w-4 h-4 rounded bg-error-400" />
@@ -135,7 +137,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
             <div className="w-4 h-4 rounded bg-warning-100" />
           </div>
         </div>
-        <div className="w-px h-4 bg-gray-300" />
+        <div className="w-px h-4 bg-subtle" />
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
             <div className="w-4 h-4 rounded bg-primary-100" />
@@ -143,7 +145,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
             <div className="w-4 h-4 rounded bg-primary-400" />
             <div className="w-4 h-4 rounded bg-primary-500" />
           </div>
-          <span className="text-xs text-gray-500">Positive</span>
+          <span className="text-xs text-muted-foreground">Positive</span>
         </div>
       </div>
     </motion.div>

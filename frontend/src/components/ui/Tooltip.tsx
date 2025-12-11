@@ -49,10 +49,10 @@ export function Tooltip({
   }
 
   const arrowClasses = {
-    top: 'top-full left-1/2 -translate-x-1/2 border-t-gray-800 dark:border-t-gray-700 border-x-transparent border-b-transparent',
-    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-gray-800 dark:border-b-gray-700 border-x-transparent border-t-transparent',
-    left: 'left-full top-1/2 -translate-y-1/2 border-l-gray-800 dark:border-l-gray-700 border-y-transparent border-r-transparent',
-    right: 'right-full top-1/2 -translate-y-1/2 border-r-gray-800 dark:border-r-gray-700 border-y-transparent border-l-transparent',
+    top: 'top-full left-1/2 -translate-x-1/2 border-t-gray-200 dark:border-t-gray-700 border-x-transparent border-b-transparent',
+    bottom: 'bottom-full left-1/2 -translate-x-1/2 border-b-gray-200 dark:border-b-gray-700 border-x-transparent border-t-transparent',
+    left: 'left-full top-1/2 -translate-y-1/2 border-l-gray-200 dark:border-l-gray-700 border-y-transparent border-r-transparent',
+    right: 'right-full top-1/2 -translate-y-1/2 border-r-gray-200 dark:border-r-gray-700 border-y-transparent border-l-transparent',
   }
 
   return (
@@ -74,7 +74,7 @@ export function Tooltip({
             transition={{ duration: 0.15 }}
             className={`absolute z-50 ${positionClasses[position]}`}
           >
-            <div className="relative bg-gray-800 dark:bg-gray-700 text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs whitespace-normal">
+            <div className="relative bg-white dark:bg-gray-800 text-gray-700 dark:text-white text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs whitespace-normal border border-gray-200 dark:border-gray-700">
               {content}
               <div
                 className={`absolute w-0 h-0 border-4 ${arrowClasses[position]}`}
@@ -107,7 +107,7 @@ export function MetricTooltip({
       content={
         <div className="min-w-[150px]">
           <div className="font-semibold mb-1">{title}</div>
-          <div className="text-gray-300 dark:text-gray-400 text-[11px] leading-relaxed">
+          <div className="text-gray-500 dark:text-gray-400 text-[11px] leading-relaxed">
             {description}
           </div>
         </div>

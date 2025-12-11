@@ -20,11 +20,11 @@ interface MetricsRadarChartProps {
 }
 
 const COLORS = [
-  '#3b82f6', // Blue
-  '#22c55e', // Green
-  '#f59e0b', // Amber
-  '#ef4444', // Red
-  '#8b5cf6', // Purple
+  'var(--color-primary-500)', // Blue
+  'var(--color-success-500)', // Green
+  'var(--color-warning-500)', // Amber
+  'var(--color-error-500)', // Red
+  'var(--color-purple-500)', // Purple
 ]
 
 export function MetricsRadarChart({
@@ -106,7 +106,7 @@ export function MetricsRadarChart({
 
   if (!models || models.length === 0 || chartData.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No metrics data available for radar chart.
       </div>
     )
@@ -140,15 +140,15 @@ export function MetricsRadarChart({
     >
       <ResponsiveContainer width="100%" height={height}>
         <RadarChart data={chartData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
-          <PolarGrid stroke="#e4e4e7" />
+          <PolarGrid stroke="var(--color-subtle)" />
           <PolarAngleAxis
             dataKey="metric"
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
           />
           <PolarRadiusAxis
             angle={90}
             domain={[0, 100]}
-            tick={{ fontSize: 9, fill: '#a1a1aa' }}
+            tick={{ fontSize: 9, fill: 'var(--color-muted)' }}
             tickFormatter={(value) => `${value}%`}
           />
           {displayModels.map((model, index) => (
@@ -181,8 +181,8 @@ export function MetricsRadarChart({
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null
               return (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">{label}</p>
+                <div className="bg-surface rounded-lg shadow-lg border border-subtle px-3 py-2">
+                  <p className="text-sm font-medium text-foreground mb-1">{label}</p>
                   {payload.map((entry, index) => (
                     <p key={index} className="text-xs" style={{ color: entry.color }}>
                       {entry.name}: {typeof entry.value === 'number' ? entry.value.toFixed(1) : entry.value}%
@@ -197,7 +197,7 @@ export function MetricsRadarChart({
 
       {/* Note about inverted metrics */}
       {selectedMetrics.some((m) => ['rmse', 'mae', 'mse', 'mape'].includes(m.toLowerCase())) && (
-        <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
+        <p className="text-xs text-center text-muted-foreground mt-2">
           Note: Error metrics (RMSE, MAE) are inverted so higher is better on the chart.
         </p>
       )}

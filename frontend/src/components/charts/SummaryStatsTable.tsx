@@ -65,8 +65,8 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
       <span
         className={cn(
           sortKey === column && sortOrder === "asc"
-            ? "text-primary-500"
-            : "text-gray-300 dark:text-gray-600"
+            ? "text-primary"
+            : "text-muted-foreground"
         )}
       >
         ▲
@@ -74,8 +74,8 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
       <span
         className={cn(
           sortKey === column && sortOrder === "desc"
-            ? "text-primary-500"
-            : "text-gray-300 dark:text-gray-600"
+            ? "text-primary"
+            : "text-muted-foreground"
         )}
       >
         ▼
@@ -85,7 +85,7 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
 
   if (columns.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+      <div className="text-center py-8 text-muted-foreground">
         No summary statistics available
       </div>
     );
@@ -95,12 +95,12 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="overflow-hidden rounded-xl border border-gray-200 dark:border-gray-700"
+      className="overflow-hidden rounded-xl border border-subtle"
     >
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <tr className="bg-muted border-b border-subtle">
               {(
                 ["column", "count", "mean", "std", "min", "max"] as SortKey[]
               ).map((key) => (
@@ -108,9 +108,9 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
                   key={key}
                   onClick={() => handleSort(key)}
                   className={cn(
-                    "px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-400 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors",
+                    "px-4 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:bg-subtle transition-colors",
                     key === "column"
-                      ? "sticky left-0 bg-gray-50 dark:bg-gray-800 z-10"
+                      ? "sticky left-0 bg-muted z-10"
                       : ""
                   )}
                 >
@@ -122,7 +122,7 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <tbody className="divide-y divide-subtle">
             {columns.map((row, index) => (
               <motion.tr
                 key={row.column}
@@ -137,17 +137,17 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
                 className={cn(
                   "cursor-pointer transition-colors",
                   expandedColumn === row.column
-                    ? "bg-primary-50 dark:bg-primary-900/20"
-                    : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                    ? "bg-primary-muted"
+                    : "hover:bg-muted"
                 )}
               >
-                <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 sticky left-0 bg-inherit">
+                <td className="px-4 py-3 font-medium text-foreground sticky left-0 bg-inherit">
                   <div className="flex items-center gap-2">
                     <motion.span
                       animate={{
                         rotate: expandedColumn === row.column ? 90 : 0,
                       }}
-                      className="text-gray-400"
+                      className="text-muted-foreground"
                     >
                       ›
                     </motion.span>
@@ -156,19 +156,19 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
                     </span>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono">
+                <td className="px-4 py-3 text-muted-foreground font-mono">
                   {row.count.toLocaleString()}
                 </td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono">
+                <td className="px-4 py-3 text-muted-foreground font-mono">
                   {formatValue(row.mean)}
                 </td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono">
+                <td className="px-4 py-3 text-muted-foreground font-mono">
                   {formatValue(row.std)}
                 </td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono">
+                <td className="px-4 py-3 text-muted-foreground font-mono">
                   {formatValue(row.min)}
                 </td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400 font-mono">
+                <td className="px-4 py-3 text-muted-foreground font-mono">
                   {formatValue(row.max)}
                 </td>
               </motion.tr>

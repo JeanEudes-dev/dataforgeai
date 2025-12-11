@@ -109,28 +109,28 @@ export function ModelDetailPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50" />
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
         <div className="relative px-6 py-6 flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <Link to="/models">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:bg-gray-100">
+                <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800">
                   <ArrowLeftIcon className="w-4 h-4" />
                 </Button>
               </Link>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Best model</p>
+                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">Best model</p>
                   {model.is_best && (
-                    <span className="flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-700">
+                    <span className="flex items-center gap-1 px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-200">
                       <TrophyIcon className="w-3.5 h-3.5" />
                       Top pick
                     </span>
                   )}
                 </div>
-                <h1 className="text-2xl font-semibold text-gray-900">{model.display_name}</h1>
-                <p className="text-sm text-gray-500">
+                <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{model.display_name}</h1>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {isClassification ? 'Classification' : 'Regression'} • Target: {model.target_column}
                 </p>
               </div>
@@ -143,27 +143,27 @@ export function ModelDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">Task</div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-semibold">Task</div>
               <div>
-                <p className="text-xs text-gray-500">Type</p>
-                <p className="text-base font-semibold text-gray-900 capitalize">{model.task_type}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Type</p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100 capitalize">{model.task_type}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">Data</div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-semibold">Data</div>
               <div>
-                <p className="text-xs text-gray-500">Rows / Columns</p>
-                <p className="text-base font-semibold text-gray-900">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Rows / Columns</p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
                   {formatNumber(model.dataset?.row_count ?? 0, 0)} / {formatNumber(model.dataset?.column_count ?? 0, 0)}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">Created</div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-semibold">Created</div>
               <div>
-                <p className="text-xs text-gray-500">Timestamp</p>
-                <p className="text-base font-semibold text-gray-900">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Timestamp</p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
                   {formatDateTime(model.created_at)}
                 </p>
               </div>
@@ -204,7 +204,7 @@ export function ModelDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {isClassification && confusionMatrix && confusionLabels && (
           <Card className="border border-gray-200 shadow-sm">
-            <CardHeader className="border-b border-gray-200 bg-gray-50">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
               <CardTitle className="flex items-center gap-2">
                 <TableCellsIcon className="w-5 h-5" />
                 Confusion matrix
@@ -247,10 +247,10 @@ export function ModelDetailPage() {
                                 className={cn(
                                   'p-3 text-center font-semibold rounded-lg m-0.5',
                                   isCorrect
-                                    ? 'bg-primary-50 text-primary-700'
+                                    ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-200'
                                     : val > 0
-                                      ? 'bg-gray-100 text-gray-700'
-                                      : 'bg-white text-gray-400 border border-dashed border-gray-200'
+                                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
+                                      : 'bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 border border-dashed border-gray-200 dark:border-gray-700'
                                 )}
                                 style={{
                                   opacity: val > 0 ? Math.max(0.45, intensity) : 1
@@ -277,7 +277,7 @@ export function ModelDetailPage() {
 
         {isClassification && rocData.length > 0 && model.metrics?.roc_auc && (
           <Card className="border border-gray-200 shadow-sm">
-            <CardHeader className="border-b border-gray-200 bg-gray-50">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
               <CardTitle className="flex items-center gap-2">
                 <ChartBarIcon className="w-5 h-5" />
                 ROC curve (AUC: {formatNumber(model.metrics.roc_auc, 3)})
@@ -339,7 +339,7 @@ export function ModelDetailPage() {
 
         {!isClassification && cvScoresData.length > 0 && (
           <Card className="border border-gray-200 shadow-sm lg:col-span-2">
-            <CardHeader className="border-b border-gray-200 bg-gray-50">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
               <CardTitle>
                 Cross-validation scores
                 <span className="ml-2 text-sm font-normal text-gray-500">
@@ -386,7 +386,7 @@ export function ModelDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {featureImportanceData.length > 0 && (
           <Card className="border border-gray-200 shadow-sm">
-            <CardHeader className="border-b border-gray-200 bg-gray-50">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
               <CardTitle>Feature importance</CardTitle>
             </CardHeader>
             <CardContent>
@@ -423,7 +423,7 @@ export function ModelDetailPage() {
 
         {shapData.length > 0 && (
           <Card className="border border-gray-200 shadow-sm">
-            <CardHeader className="border-b border-gray-200 bg-gray-50">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
               <CardTitle>SHAP feature impact</CardTitle>
             </CardHeader>
             <CardContent>
@@ -461,7 +461,7 @@ export function ModelDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
             <CardTitle>Model information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -477,7 +477,7 @@ export function ModelDetailPage() {
 
         {model.hyperparameters && Object.keys(model.hyperparameters).length > 0 && (
           <Card className="border border-gray-200 shadow-sm">
-            <CardHeader className="border-b border-gray-200 bg-gray-50">
+            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
               <CardTitle className="flex items-center gap-2">
                 <Cog6ToothIcon className="w-5 h-5" />
                 Hyperparameters
@@ -501,7 +501,7 @@ export function ModelDetailPage() {
 
       {inputSchema && Object.keys(inputSchema).length > 0 && (
         <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
             <CardTitle className="flex items-center gap-2">
               <TableCellsIcon className="w-5 h-5" />
               Input schema
@@ -551,7 +551,7 @@ export function ModelDetailPage() {
       )}
 
       <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b border-gray-200 bg-gray-50">
+        <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
           <CardTitle>Feature columns ({model.feature_columns?.length || 0})</CardTitle>
         </CardHeader>
         <CardContent>
@@ -559,7 +559,7 @@ export function ModelDetailPage() {
             {model.feature_columns?.map((col) => (
               <span
                 key={col}
-                className="px-3 py-1.5 text-sm rounded-full border border-gray-200 bg-white text-gray-700 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+                className="px-3 py-1.5 text-sm rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
               >
                 {col}
               </span>
@@ -570,7 +570,7 @@ export function ModelDetailPage() {
 
       {model.metrics && (
         <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
             <CardTitle>All metrics</CardTitle>
           </CardHeader>
           <CardContent>
@@ -578,7 +578,7 @@ export function ModelDetailPage() {
               {Object.entries(model.metrics)
                 .filter(([key]) => !['confusion_matrix', 'confusion_matrix_labels', 'roc_curve'].includes(key))
                 .map(([key, value]) => (
-                <div key={key} className="p-3 rounded-lg border border-gray-200 bg-white">
+                <div key={key} className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                   <p className="text-xs text-gray-500 uppercase tracking-wide">
                     {key.replace(/_/g, ' ')}
                   </p>
@@ -616,3 +616,4 @@ function InfoRow({ label, value }: { label: string, value: string }) {
 }
 
 export default ModelDetailPage
+

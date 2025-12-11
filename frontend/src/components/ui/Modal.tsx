@@ -108,13 +108,13 @@ export function Modal({
                 )}
 
                 {/* Content */}
-                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto scrollbar-thin bg-white/90 backdrop-blur-sm relative">
+                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto scrollbar-thin bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm relative">
                   {children}
                 </div>
 
                 {/* Footer */}
                 {footer && (
-                  <div className="px-8 py-5 border-t border-gray-200 bg-gray-50/80">
+                  <div className="px-8 py-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50/80 dark:bg-gray-900/80">
                     {footer}
                   </div>
                 )}

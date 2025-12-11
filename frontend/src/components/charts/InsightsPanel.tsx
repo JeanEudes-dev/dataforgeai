@@ -9,30 +9,30 @@ interface InsightsPanelProps {
 
 const typeConfig: Record<string, { bg: string; icon: string; iconPath: string }> = {
   info: {
-    bg: 'bg-info-50 border-info-200',
-    icon: 'bg-info-100 text-info-600',
+    bg: 'bg-info-50 border-info-200 dark:bg-info-900/30 dark:border-info-800',
+    icon: 'bg-info-100 text-info-600 dark:bg-info-800 dark:text-info-300',
     iconPath: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
   },
   warning: {
-    bg: 'bg-warning-50 border-warning-200',
-    icon: 'bg-warning-100 text-warning-600',
+    bg: 'bg-warning-50 border-warning-200 dark:bg-warning-900/30 dark:border-warning-800',
+    icon: 'bg-warning-100 text-warning-600 dark:bg-warning-800 dark:text-warning-300',
     iconPath: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
   },
   success: {
-    bg: 'bg-success-50 border-success-200',
-    icon: 'bg-success-100 text-success-600',
+    bg: 'bg-success-50 border-success-200 dark:bg-success-900/30 dark:border-success-800',
+    icon: 'bg-success-100 text-success-600 dark:bg-success-800 dark:text-success-300',
     iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
   },
   error: {
-    bg: 'bg-error-50 border-error-200',
-    icon: 'bg-error-100 text-error-600',
+    bg: 'bg-error-50 border-error-200 dark:bg-error-900/30 dark:border-error-800',
+    icon: 'bg-error-100 text-error-600 dark:bg-error-800 dark:text-error-300',
     iconPath: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
   },
 }
 
 const defaultConfig = {
-  bg: 'bg-gray-50 border-gray-200',
-  icon: 'bg-gray-100 text-gray-600',
+  bg: 'bg-gray-50 border-gray-200 dark:bg-gray-800/30 dark:border-gray-700',
+  icon: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300',
   iconPath: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
 }
 
@@ -46,7 +46,7 @@ export function InsightsPanel({ insights, maxItems = 10 }: InsightsPanelProps) {
 
   if (sortedInsights.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-muted-foreground">
         No insights available yet
       </div>
     )
@@ -94,10 +94,10 @@ export function InsightsPanel({ insights, maxItems = 10 }: InsightsPanelProps) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-800">{insight.message}</p>
+              <p className="text-sm text-foreground">{insight.message}</p>
               <div className="flex items-center gap-2 mt-2">
                 {insight.column && (
-                  <span className="text-xs px-2 py-0.5 rounded bg-white/60 text-gray-600">
+                  <span className="text-xs px-2 py-0.5 rounded bg-surface text-muted-foreground">
                     {insight.column}
                   </span>
                 )}
@@ -105,10 +105,10 @@ export function InsightsPanel({ insights, maxItems = 10 }: InsightsPanelProps) {
                   className={cn(
                     'text-xs px-2 py-0.5 rounded font-medium',
                     insight.severity === 'high'
-                      ? 'bg-error-100 text-error-700'
+                      ? 'bg-error-muted text-error'
                       : insight.severity === 'medium'
-                      ? 'bg-warning-100 text-warning-700'
-                      : 'bg-gray-100 text-gray-600'
+                      ? 'bg-warning-muted text-warning'
+                      : 'bg-muted text-muted-foreground'
                   )}
                 >
                   {insight.severity}
@@ -120,7 +120,7 @@ export function InsightsPanel({ insights, maxItems = 10 }: InsightsPanelProps) {
       })}
 
       {insights.length > maxItems && (
-        <p className="text-center text-sm text-gray-500 pt-2">
+        <p className="text-center text-sm text-muted-foreground pt-2">
           +{insights.length - maxItems} more insights
         </p>
       )}

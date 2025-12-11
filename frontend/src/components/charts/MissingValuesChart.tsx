@@ -16,11 +16,11 @@ function getBarColor(ratio: number): string {
 }
 
 function getStatusText(ratio: number): { text: string; color: string } {
-  if (ratio >= 0.5) return { text: 'Critical', color: 'text-error-600' }
-  if (ratio >= 0.2) return { text: 'High', color: 'text-warning-600' }
-  if (ratio >= 0.05) return { text: 'Moderate', color: 'text-primary-600' }
-  if (ratio > 0) return { text: 'Low', color: 'text-success-600' }
-  return { text: 'Complete', color: 'text-success-600' }
+  if (ratio >= 0.5) return { text: 'Critical', color: 'text-error-600 dark:text-error-400' }
+  if (ratio >= 0.2) return { text: 'High', color: 'text-warning-600 dark:text-warning-400' }
+  if (ratio >= 0.05) return { text: 'Moderate', color: 'text-primary-600 dark:text-primary-400' }
+  if (ratio > 0) return { text: 'Low', color: 'text-success-600 dark:text-success-400' }
+  return { text: 'Complete', color: 'text-success-600 dark:text-success-400' }
 }
 
 export function MissingValuesChart({ data, totalRows }: MissingValuesChartProps) {
@@ -39,7 +39,7 @@ export function MissingValuesChart({ data, totalRows }: MissingValuesChartProps)
 
   if (sortedData.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-muted-foreground">
         No missing value data available
       </div>
     )
@@ -54,26 +54,26 @@ export function MissingValuesChart({ data, totalRows }: MissingValuesChartProps)
     >
       {/* Summary stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
-          <p className="text-2xl font-bold text-gray-900">
+        <div className="text-center p-3 bg-muted rounded-lg">
+          <p className="text-2xl font-bold text-foreground">
             {columnsWithMissing}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Columns with missing</p>
+          <p className="text-xs text-muted-foreground mt-1">Columns with missing</p>
         </div>
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
-          <p className="text-2xl font-bold text-gray-900">
+        <div className="text-center p-3 bg-muted rounded-lg">
+          <p className="text-2xl font-bold text-foreground">
             {totalMissing.toLocaleString()}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Total missing values</p>
+          <p className="text-xs text-muted-foreground mt-1">Total missing values</p>
         </div>
-        <div className="text-center p-3 bg-gray-50 rounded-lg">
+        <div className="text-center p-3 bg-muted rounded-lg">
           <p className={cn(
             'text-2xl font-bold',
-            hasAnyMissing ? 'text-warning-600' : 'text-success-600'
+            hasAnyMissing ? 'text-warning' : 'text-success'
           )}>
             {hasAnyMissing ? 'Incomplete' : 'Complete'}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Dataset status</p>
+          <p className="text-xs text-muted-foreground mt-1">Dataset status</p>
         </div>
       </div>
 
@@ -93,7 +93,7 @@ export function MissingValuesChart({ data, totalRows }: MissingValuesChartProps)
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2 min-w-0 flex-1">
                   <span
-                    className="text-sm font-medium text-gray-700 truncate"
+                    className="text-sm font-medium text-foreground truncate"
                     title={item.column}
                   >
                     {item.column}
@@ -103,17 +103,17 @@ export function MissingValuesChart({ data, totalRows }: MissingValuesChartProps)
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-right shrink-0">
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-muted-foreground">
                     {item.count.toLocaleString()} {totalRows && `/ ${totalRows.toLocaleString()}`}
                   </span>
-                  <span className="text-sm font-semibold text-gray-900 w-14">
+                  <span className="text-sm font-semibold text-foreground w-14">
                     {(item.ratio * 100).toFixed(1)}%
                   </span>
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${Math.max(item.ratio * 100, item.ratio > 0 ? 1 : 0)}%` }}
@@ -131,22 +131,22 @@ export function MissingValuesChart({ data, totalRows }: MissingValuesChartProps)
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 pt-4 border-t border-gray-100">
+      <div className="flex items-center justify-center gap-4 pt-4 border-t border-subtle">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-success-500" />
-          <span className="text-xs text-gray-500">&lt;5%</span>
+          <span className="text-xs text-muted-foreground">&lt;5%</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-primary-400" />
-          <span className="text-xs text-gray-500">5-20%</span>
+          <span className="text-xs text-muted-foreground">5-20%</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-warning-500" />
-          <span className="text-xs text-gray-500">20-50%</span>
+          <span className="text-xs text-muted-foreground">20-50%</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-error-500" />
-          <span className="text-xs text-gray-500">&gt;50%</span>
+          <span className="text-xs text-muted-foreground">&gt;50%</span>
         </div>
       </div>
     </motion.div>

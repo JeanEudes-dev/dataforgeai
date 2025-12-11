@@ -35,8 +35,8 @@ export function InsightsSection({ report }: InsightsSectionProps) {
     >
       {/* AI Summary */}
       {aiSummary && (
-        <Card className="border border-gray-200 shadow-sm overflow-hidden">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
             <CardTitle className="text-base flex items-center gap-2">
               <span className="w-9 h-9 rounded-full bg-primary-500 flex items-center justify-center text-white text-sm">
                 AI
@@ -54,8 +54,8 @@ export function InsightsSection({ report }: InsightsSectionProps) {
 
       {/* AI Insights from EDA */}
       {aiInsights && aiInsights !== aiSummary && (
-        <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
             <CardTitle className="text-base">AI analysis insights</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -68,11 +68,11 @@ export function InsightsSection({ report }: InsightsSectionProps) {
 
       {/* Automated Insights */}
       {insights.length > 0 && (
-        <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">Key findings</CardTitle>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 {insights.length} insight{insights.length !== 1 ? 's' : ''}
               </span>
             </div>
@@ -84,8 +84,8 @@ export function InsightsSection({ report }: InsightsSectionProps) {
       )}
 
       {/* Summary Statistics */}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="border-b border-gray-200 bg-gray-50">
+      <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+        <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
           <CardTitle className="text-base">Report summary</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
@@ -104,10 +104,10 @@ export function InsightsSection({ report }: InsightsSectionProps) {
           <div
             className={`px-4 py-3 rounded-xl border ${
               eda.data_quality_score >= 80
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
                 : eda.data_quality_score >= 60
-                ? 'bg-amber-50 border-amber-200 text-amber-700'
-                : 'bg-red-50 border-red-200 text-red-700'
+                ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300'
+                : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
             }`}
           >
             <p
@@ -131,9 +131,9 @@ export default InsightsSection
 
 function SummaryTile({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="p-3 rounded-xl border border-gray-200 bg-white shadow-[0_4px_12px_-8px_rgba(0,0,0,0.12)] text-center">
-      <div className="text-2xl font-semibold text-gray-900">{value}</div>
-      <div className="text-xs text-gray-500 mt-1">{label}</div>
+    <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.12)] text-center">
+      <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{value}</div>
+      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{label}</div>
     </div>
   )
 }

@@ -192,7 +192,7 @@ export function AssistantPage() {
                         'max-w-[70%] p-4 rounded-2xl text-sm leading-relaxed',
                         message.role === 'user'
                           ? 'bg-primary-500 text-white'
-                          : 'bg-white border border-gray-200 shadow-sm text-gray-900'
+                          : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-gray-100'
                       )}
                     >
                       {message.role === 'assistant' ? (
@@ -273,7 +273,7 @@ export function AssistantPage() {
       {/* Context Panel */}
       <div className="w-80 flex-shrink-0 space-y-4">
         <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
             <CardTitle>Context</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
@@ -304,9 +304,9 @@ export function AssistantPage() {
               placeholder="Select a model..."
             />
 
-            <div className="p-3 rounded-xl border border-blue-100 bg-blue-50 text-xs text-blue-700 flex items-start gap-2">
-              <InformationCircleIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-              <p>Selecting context helps tailor answers to your dataset or model.</p>
+            <div className="p-3 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/30 text-xs text-blue-700 dark:text-blue-200 flex items-start gap-2">
+              <InformationCircleIcon className="w-5 h-5 text-blue-500 dark:text-blue-300 flex-shrink-0 mt-0.5" />
+              <p className="text-blue-700 dark:text-blue-200">Selecting context helps tailor answers to your dataset or model.</p>
             </div>
           </CardContent>
         </Card>

@@ -122,7 +122,7 @@ export function SettingsPage() {
                   : 'border-subtle hover:border-primary-300'
               )}
             >
-              <div className="w-full h-20 rounded-lg bg-white shadow-sm mb-3" />
+              <div className="w-full h-20 rounded-lg bg-white dark:bg-gray-800 shadow-sm mb-3" />
               <p className="text-sm font-medium text-primary">Light</p>
             </button>
             <button

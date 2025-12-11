@@ -65,7 +65,7 @@ export function DatasetOverviewSection({ report }: DatasetOverviewSectionProps) 
 
         {/* Quick Stats */}
         <Card className={eda?.data_quality_score !== undefined ? 'lg:col-span-2' : 'lg:col-span-3'}>
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
             <CardTitle className="text-base">Quick statistics</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
@@ -81,19 +81,19 @@ export function DatasetOverviewSection({ report }: DatasetOverviewSectionProps) 
 
       {/* Column Schema */}
       {dataset.columns && dataset.columns.length > 0 && (
-        <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 bg-gray-50">
+        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
             <CardTitle className="text-base">Column schema</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="px-4 py-3 text-left text-gray-600 font-semibold">Column</th>
-                    <th className="px-4 py-3 text-left text-gray-600 font-semibold">Type</th>
-                    <th className="px-4 py-3 text-left text-gray-600 font-semibold">Missing %</th>
-                    <th className="px-4 py-3 text-left text-gray-600 font-semibold">Unique</th>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-400 font-semibold">Column</th>
+                    <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-400 font-semibold">Type</th>
+                    <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-400 font-semibold">Missing %</th>
+                    <th className="px-4 py-3 text-left text-gray-600 dark:text-gray-400 font-semibold">Unique</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -103,33 +103,33 @@ export function DatasetOverviewSection({ report }: DatasetOverviewSectionProps) 
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.02 }}
-                      className="border-b border-gray-100 last:border-0 hover:bg-gray-50"
+                      className="border-b border-gray-100 dark:border-gray-800 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                     >
-                      <td className="px-4 py-3 text-gray-900 font-medium truncate max-w-[220px]" title={col.name}>
+                      <td className="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium truncate max-w-[220px]" title={col.name}>
                         {col.name}
                       </td>
                       <td className="px-4 py-3">
                         <span className={cn(
                           'px-2.5 py-1 rounded-full text-xs font-semibold',
                           col.dtype === 'numeric'
-                            ? 'bg-blue-50 text-blue-700'
+                            ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                             : col.dtype === 'categorical'
-                            ? 'bg-emerald-50 text-emerald-700'
+                            ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
                             : col.dtype === 'datetime'
-                            ? 'bg-purple-50 text-purple-700'
+                            ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
                             : col.dtype === 'text'
-                            ? 'bg-amber-50 text-amber-700'
-                            : 'bg-gray-100 text-gray-700'
+                            ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                         )}>
                           {col.dtype}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
-                        <span className={col.null_ratio > 20 ? 'text-red-500' : col.null_ratio > 5 ? 'text-amber-600' : 'text-gray-700'}>
+                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                        <span className={col.null_ratio > 20 ? 'text-red-500' : col.null_ratio > 5 ? 'text-amber-600 dark:text-amber-500' : 'text-gray-700 dark:text-gray-300'}>
                           {col.null_ratio?.toFixed(1)}%
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-gray-700">
+                      <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
                         {formatNumber(col.unique_count)}
                       </td>
                     </motion.tr>
@@ -137,7 +137,7 @@ export function DatasetOverviewSection({ report }: DatasetOverviewSectionProps) 
                 </tbody>
               </table>
               {dataset.columns.length > 15 && (
-                <p className="text-xs text-gray-500 text-center mt-3 pb-3">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-3 pb-3">
                   Showing 15 of {dataset.columns.length} columns
                 </p>
               )}
@@ -159,14 +159,14 @@ function TileStat({
   icon: React.ReactNode
 }) {
   return (
-    <Card className="border border-gray-200 shadow-sm">
+    <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
       <CardContent className="p-4 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
           {icon}
         </div>
         <div>
-          <p className="text-xs text-gray-500">{label}</p>
-          <p className="text-lg font-semibold text-gray-900">{value ?? '-'}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{value ?? '-'}</p>
         </div>
       </CardContent>
     </Card>
@@ -182,10 +182,10 @@ function StatTile({
   value: string | number
   tone?: 'warning'
 }) {
-  const toneClass = tone === 'warning' ? 'text-amber-700' : 'text-gray-900'
+  const toneClass = tone === 'warning' ? 'text-amber-700 dark:text-amber-500' : 'text-gray-900 dark:text-gray-100'
   return (
-    <div className="p-3 rounded-xl border border-gray-200 bg-white shadow-[0_4px_12px_-8px_rgba(0,0,0,0.12)]">
-      <div className="text-xs text-gray-500 mb-1">{label}</div>
+    <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.12)]">
+      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</div>
       <div className={cn('text-lg font-semibold', toneClass)}>{value}</div>
     </div>
   )

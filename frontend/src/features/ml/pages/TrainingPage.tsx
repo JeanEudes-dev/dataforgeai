@@ -193,7 +193,7 @@ export function TrainingPage() {
     <div className="space-y-8 relative">
       {trainMutation.isPending && (
         <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-gray-200 bg-white shadow-2xl p-6 space-y-4">
+          <div className="w-full max-w-lg rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-2xl p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary-50 flex items-center justify-center text-primary-600">
                 <ArrowPathIcon className="w-5 h-5 animate-spin" />
@@ -215,8 +215,8 @@ export function TrainingPage() {
         </div>
       )}
       {/* Notion-inspired header */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50" />
+      <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
         <div className="relative px-6 py-6 flex flex-col gap-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -234,32 +234,32 @@ export function TrainingPage() {
                 <p className="text-sm text-gray-500">{dataset.name}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/70 px-4 py-2 text-sm text-gray-600 dark:text-gray-300">
               <SparklesIcon className="w-4 h-4 text-primary-500" />
               <span>AutoML explores multiple model families for you.</span>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">01</div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-semibold">01</div>
               <div>
-                <p className="text-xs text-gray-500">Rows</p>
-                <p className="text-base font-semibold text-gray-900">{dataset.row_count?.toLocaleString()}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Rows</p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{dataset.row_count?.toLocaleString()}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">02</div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-semibold">02</div>
               <div>
-                <p className="text-xs text-gray-500">Columns available</p>
-                <p className="text-base font-semibold text-gray-900">{availableColumns}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Columns available</p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100">{availableColumns}</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 text-sm font-semibold">03</div>
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/70 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-200 text-sm font-semibold">03</div>
               <div>
-                <p className="text-xs text-gray-500">Progress</p>
-                <p className="text-base font-semibold text-gray-900">
+                <p className="text-xs text-gray-500 dark:text-gray-400">Progress</p>
+                <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
                   {((targetColumn ? 50 : 0) + (selectedFeatures.length > 0 ? 50 : 0))}% ready
                 </p>
               </div>
@@ -272,16 +272,18 @@ export function TrainingPage() {
                 key={step.title}
                 className={cn(
                   'flex items-center gap-3 rounded-xl border px-4 py-3 text-sm transition-colors',
-                  step.done ? 'border-primary-200 bg-primary-50 text-primary-800' : 'border-gray-200 bg-white text-gray-600'
+                  step.done
+                    ? 'border-primary-200 dark:border-primary-800/60 bg-primary-50 dark:bg-primary-900/20 text-primary-800 dark:text-primary-200'
+                    : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300'
                 )}
               >
                 <span className="text-xs font-semibold text-gray-400">0{idx + 1}</span>
                 <div className="flex flex-col">
-                  <span className="font-semibold text-gray-900">{step.title}</span>
-                  <span className="text-xs text-gray-500">{step.detail}</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{step.title}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{step.detail}</span>
                 </div>
                 {step.done && (
-                  <span className="ml-auto h-6 w-6 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                  <span className="ml-auto h-6 w-6 rounded-full bg-primary-500 text-white dark:bg-primary-400 dark:text-gray-900 flex items-center justify-center">
                     <CheckIcon className="w-4 h-4" />
                   </span>
                 )}
@@ -295,20 +297,20 @@ export function TrainingPage() {
         {/* Configuration Panel */}
         <div className="lg:col-span-2 space-y-6">
           {/* Task Type */}
-          <Card className="overflow-hidden border border-gray-200 shadow-sm">
-            <CardHeader className="bg-gray-50 border-b border-gray-200">
+          <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
+            <CardHeader className="bg-gray-50 dark:bg-gray-900/60 border-b border-gray-200 dark:border-gray-800">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                  <AdjustmentsHorizontalIcon className="w-4 h-4 text-gray-600" />
+                <div className="w-9 h-9 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                  <AdjustmentsHorizontalIcon className="w-4 h-4 text-gray-600 dark:text-gray-200" />
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Step 1</p>
+                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">Step 1</p>
                   <CardTitle>Task type</CardTitle>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              <p className="text-sm text-gray-500">Tell us what you want to predict. We will adapt the pipeline automatically.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Tell us what you want to predict. We will adapt the pipeline automatically.</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <motion.button
                   whileHover={{ y: -2 }}
@@ -317,19 +319,21 @@ export function TrainingPage() {
                   className={cn(
                     'flex items-start gap-3 rounded-xl border px-4 py-4 text-left transition-all shadow-[0_1px_0_rgba(0,0,0,0.04)]',
                     taskType === 'classification'
-                      ? 'border-primary-300 bg-primary-50/80'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? 'border-primary-300 dark:border-primary-700 bg-primary-50/80 dark:bg-primary-900/25'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
                   )}
                 >
                   <div className={cn(
                     'h-10 w-10 rounded-lg flex items-center justify-center border',
-                    taskType === 'classification' ? 'border-primary-300 bg-white text-primary-700' : 'border-gray-200 text-gray-600'
+                    taskType === 'classification'
+                      ? 'border-primary-300 dark:border-primary-700 bg-white dark:bg-gray-900 text-primary-700 dark:text-primary-200'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
                   )}>
                     <TagIcon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900">Classification</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">Classification</p>
                       {taskType === 'classification' && (
                         <span className="rounded-full bg-primary-500 text-white text-[10px] px-2 py-0.5 flex items-center gap-1">
                           <CheckIcon className="w-3 h-3" />
@@ -337,7 +341,7 @@ export function TrainingPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Predict categories or labels (e.g., churn, sentiment, intent).
                     </p>
                   </div>
@@ -349,19 +353,21 @@ export function TrainingPage() {
                   className={cn(
                     'flex items-start gap-3 rounded-xl border px-4 py-4 text-left transition-all shadow-[0_1px_0_rgba(0,0,0,0.04)]',
                     taskType === 'regression'
-                      ? 'border-primary-300 bg-primary-50/80'
-                      : 'border-gray-200 bg-white hover:border-gray-300'
+                      ? 'border-primary-300 dark:border-primary-700 bg-primary-50/80 dark:bg-primary-900/25'
+                      : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-gray-300 dark:hover:border-gray-600'
                   )}
                 >
                   <div className={cn(
                     'h-10 w-10 rounded-lg flex items-center justify-center border',
-                    taskType === 'regression' ? 'border-primary-300 bg-white text-primary-700' : 'border-gray-200 text-gray-600'
+                    taskType === 'regression'
+                      ? 'border-primary-300 dark:border-primary-700 bg-white dark:bg-gray-900 text-primary-700 dark:text-primary-200'
+                      : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300'
                   )}>
                     <HashtagIcon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-gray-900">Regression</p>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">Regression</p>
                       {taskType === 'regression' && (
                         <span className="rounded-full bg-primary-500 text-white text-[10px] px-2 py-0.5 flex items-center gap-1">
                           <CheckIcon className="w-3 h-3" />
@@ -369,7 +375,7 @@ export function TrainingPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
                       Predict numeric values (e.g., revenue, score, time-to-close).
                     </p>
                   </div>
@@ -379,22 +385,22 @@ export function TrainingPage() {
           </Card>
 
           {/* Target Column */}
-          <Card className="overflow-hidden border border-gray-200 shadow-sm">
-            <CardHeader className="bg-gray-50 border-b border-gray-200">
+          <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
+            <CardHeader className="bg-gray-50 dark:bg-gray-900/60 border-b border-gray-200 dark:border-gray-800">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="w-9 h-9 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-gray-600 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Step 2</p>
+                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">Step 2</p>
                   <CardTitle>Target column</CardTitle>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              <p className="text-sm text-gray-500">Pick the column you want the model to predict.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pick the column you want the model to predict.</p>
               <Select
                 value={targetColumn}
                 onChange={(value) => {
@@ -409,28 +415,28 @@ export function TrainingPage() {
                 }
                 placeholder="Search or select a target column..."
               />
-              <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+              <div className="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/70 px-4 py-3 text-sm text-gray-600 dark:text-gray-300">
                 <InformationCircleIcon className="w-4 h-4 text-primary-500 mt-0.5" />
                 <span>We will keep this column out of your feature set to prevent leakage.</span>
               </div>
             </CardContent>
           </Card>
 
-          <Card className="overflow-hidden border border-gray-200 shadow-sm">
-            <CardHeader className="bg-gray-50 border-b border-gray-200">
+          <Card className="overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm">
+            <CardHeader className="bg-gray-50 dark:bg-gray-900/60 border-b border-gray-200 dark:border-gray-800">
               <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-2">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                    <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <div className="w-9 h-9 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                    <svg className="w-4 h-4 text-gray-600 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
                     </svg>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.08em] text-gray-500">Step 3</p>
+                    <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">Step 3</p>
                     <CardTitle>Feature set</CardTitle>
                   </div>
                 </div>
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
                   {selectedFeatures.length} / {availableColumns} selected
                 </span>
               </div>
@@ -462,7 +468,7 @@ export function TrainingPage() {
                     variant="ghost"
                     size="sm"
                     onClick={handleSelectNumeric}
-                    className="border border-gray-200 bg-white hover:border-primary-300 flex items-center gap-2"
+                    className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary-300 dark:hover:border-primary-500 flex items-center gap-2"
                   >
                     <HashtagIcon className="w-4 h-4 text-gray-600" />
                     Add numeric
@@ -471,7 +477,7 @@ export function TrainingPage() {
                     variant="ghost"
                     size="sm"
                     onClick={handleSelectCategorical}
-                    className="border border-gray-200 bg-white hover:border-primary-300 flex items-center gap-2"
+                    className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:border-primary-300 dark:hover:border-primary-500 flex items-center gap-2"
                   >
                     <TagIcon className="w-4 h-4 text-gray-600" />
                     Add categorical
@@ -479,18 +485,18 @@ export function TrainingPage() {
                 </div>
 
                 {selectedFeatures.length > 0 && (
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-                    <p className="text-xs uppercase tracking-[0.08em] text-gray-500 mb-2">Selected</p>
+                  <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/70 px-4 py-3">
+                    <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400 mb-2">Selected</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedFeatures.map((feature) => (
                         <span
                           key={feature}
-                          className="inline-flex items-center gap-1 rounded-full bg-white border border-gray-200 px-3 py-1 text-sm text-gray-700 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+                          className="inline-flex items-center gap-1 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-200 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
                         >
                           {feature}
                           <button
                             onClick={() => handleFeatureToggle(feature)}
-                            className="text-gray-400 hover:text-gray-600"
+                            className="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                             aria-label={`Remove ${feature}`}
                           >
                             <XMarkIcon className="w-4 h-4" />
@@ -627,11 +633,11 @@ export function TrainingPage() {
         {/* Summary Panel */}
         <div className="space-y-6">
           {/* Training Summary Card */}
-          <Card className="overflow-hidden sticky top-6 border border-gray-200 shadow-sm">
-            <CardHeader className="bg-gray-50 border-b border-gray-200">
+          <Card className="overflow-hidden sticky top-6 border border-gray-200 dark:border-gray-800 shadow-sm">
+            <CardHeader className="bg-gray-50 dark:bg-gray-900/60 border-b border-gray-200 dark:border-gray-800">
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-                  <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="w-9 h-9 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-gray-600 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                   </svg>
                 </div>
@@ -640,19 +646,19 @@ export function TrainingPage() {
             </CardHeader>
             <CardContent className="p-5 space-y-4">
               <dl className="space-y-3">
-                <div className="flex justify-between items-center rounded-lg border border-gray-200 bg-white px-3 py-2">
+                <div className="flex justify-between items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2">
                   <dt className="text-secondary text-sm">Dataset</dt>
                   <dd className="text-primary font-medium text-sm truncate max-w-[160px] text-right">{dataset.name}</dd>
                 </div>
-                <div className="flex justify-between items-center rounded-lg border border-gray-200 bg-white px-3 py-2">
+                <div className="flex justify-between items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2">
                   <dt className="text-secondary text-sm">Rows</dt>
                   <dd className="text-primary font-medium">{dataset.row_count?.toLocaleString()}</dd>
                 </div>
-                <div className="flex justify-between items-center rounded-lg border border-gray-200 bg-white px-3 py-2">
+                <div className="flex justify-between items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2">
                   <dt className="text-secondary text-sm">Task type</dt>
                   <dd className="font-medium text-sm capitalize text-gray-900">{taskType}</dd>
                 </div>
-                <div className="flex justify-between items-center rounded-lg border border-gray-200 bg-white px-3 py-2">
+                <div className="flex justify-between items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2">
                   <dt className="text-secondary text-sm">Target</dt>
                   <dd className={cn(
                     "font-medium text-sm truncate max-w-[160px] text-right",
@@ -661,7 +667,7 @@ export function TrainingPage() {
                     {targetColumn || 'Not selected'}
                   </dd>
                 </div>
-                <div className="flex justify-between items-center rounded-lg border border-gray-200 bg-white px-3 py-2">
+                <div className="flex justify-between items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2">
                   <dt className="text-secondary text-sm">Features</dt>
                   <dd className={cn(
                     "font-semibold",

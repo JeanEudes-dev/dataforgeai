@@ -138,20 +138,20 @@ export function DatasetDetailPage() {
               <CardContent>
                 <dl className="space-y-3">
                   <div className="flex justify-between">
-                    <dt className="text-secondary">Original Filename</dt>
-                    <dd className="text-primary font-medium">{dataset.original_filename}</dd>
+                    <dt className="text-secondary dark:text-gray-400">Original Filename</dt>
+                    <dd className="text-primary dark:text-gray-100 font-medium">{dataset.original_filename}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-secondary">File Type</dt>
-                    <dd className="text-primary font-medium uppercase">{dataset.file_type}</dd>
+                    <dt className="text-secondary dark:text-gray-400">File Type</dt>
+                    <dd className="text-primary dark:text-gray-100 font-medium uppercase">{dataset.file_type}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-secondary">File Size</dt>
-                    <dd className="text-primary font-medium">{dataset.file_size_display}</dd>
+                    <dt className="text-secondary dark:text-gray-400">File Size</dt>
+                    <dd className="text-primary dark:text-gray-100 font-medium">{dataset.file_size_display}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-secondary">Uploaded</dt>
-                    <dd className="text-primary font-medium">{formatDateTime(dataset.created_at)}</dd>
+                    <dt className="text-secondary dark:text-gray-400">Uploaded</dt>
+                    <dd className="text-primary dark:text-gray-100 font-medium">{formatDateTime(dataset.created_at)}</dd>
                   </div>
                 </dl>
               </CardContent>
@@ -164,17 +164,17 @@ export function DatasetDetailPage() {
               <CardContent>
                 <dl className="space-y-3">
                   <div className="flex justify-between">
-                    <dt className="text-secondary">Rows</dt>
-                    <dd className="text-primary font-medium">
+                    <dt className="text-secondary dark:text-gray-400">Rows</dt>
+                    <dd className="text-primary dark:text-gray-100 font-medium">
                       {dataset.row_count?.toLocaleString() || '-'}
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-secondary">Columns</dt>
-                    <dd className="text-primary font-medium">{dataset.column_count || '-'}</dd>
+                    <dt className="text-secondary dark:text-gray-400">Columns</dt>
+                    <dd className="text-primary dark:text-gray-100 font-medium">{dataset.column_count || '-'}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-secondary">Status</dt>
+                    <dt className="text-secondary dark:text-gray-400">Status</dt>
                     <dd><StatusBadge status={dataset.status} /></dd>
                   </div>
                 </dl>
@@ -194,9 +194,9 @@ export function DatasetDetailPage() {
               ) : preview ? (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-subtle">
+                    <tr className="border-b border-subtle dark:border-subtle">
                       {preview.columns.map((col) => (
-                        <th key={col} className="px-4 py-3 text-left font-semibold text-primary">
+                        <th key={col} className="px-4 py-3 text-left font-semibold text-primary dark:text-primary">
                           {col}
                         </th>
                       ))}
@@ -204,9 +204,9 @@ export function DatasetDetailPage() {
                   </thead>
                   <tbody>
                     {preview.rows.map((row, i) => (
-                      <tr key={i} className="border-b border-subtle last:border-0">
+                      <tr key={i} className="border-b border-subtle dark:border-subtle last:border-0">
                         {preview.columns.map((col) => (
-                          <td key={col} className="px-4 py-3 text-secondary">
+                          <td key={col} className="px-4 py-3 text-secondary dark:text-secondary">
                             {String(row[col] ?? '-')}
                           </td>
                         ))}
@@ -215,7 +215,7 @@ export function DatasetDetailPage() {
                   </tbody>
                 </table>
               ) : (
-                <p className="text-secondary text-center py-8">
+                <p className="text-secondary dark:text-secondary text-center py-8">
                   Preview not available
                 </p>
               )}
@@ -232,32 +232,32 @@ export function DatasetDetailPage() {
               {dataset.columns.length > 0 ? (
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-subtle">
-                      <th className="px-4 py-3 text-left font-semibold text-primary">#</th>
-                      <th className="px-4 py-3 text-left font-semibold text-primary">Column</th>
-                      <th className="px-4 py-3 text-left font-semibold text-primary">Type</th>
-                      <th className="px-4 py-3 text-left font-semibold text-primary">Nullable</th>
-                      <th className="px-4 py-3 text-left font-semibold text-primary">Null %</th>
-                      <th className="px-4 py-3 text-left font-semibold text-primary">Unique</th>
+                    <tr className="border-b border-subtle dark:border-subtle">
+                      <th className="px-4 py-3 text-left font-semibold text-primary dark:text-primary">#</th>
+                      <th className="px-4 py-3 text-left font-semibold text-primary dark:text-primary">Column</th>
+                      <th className="px-4 py-3 text-left font-semibold text-primary dark:text-primary">Type</th>
+                      <th className="px-4 py-3 text-left font-semibold text-primary dark:text-primary">Nullable</th>
+                      <th className="px-4 py-3 text-left font-semibold text-primary dark:text-primary">Null %</th>
+                      <th className="px-4 py-3 text-left font-semibold text-primary dark:text-primary">Unique</th>
                     </tr>
                   </thead>
                   <tbody>
                     {dataset.columns.map((col) => (
-                      <tr key={col.id} className="border-b border-subtle last:border-0">
-                        <td className="px-4 py-3 text-muted">{col.position + 1}</td>
-                        <td className="px-4 py-3 text-primary font-medium">{col.name}</td>
-                        <td className="px-4 py-3 text-secondary">{formatColumnType(col.dtype)}</td>
-                        <td className="px-4 py-3 text-secondary">{col.nullable ? 'Yes' : 'No'}</td>
-                        <td className="px-4 py-3 text-secondary">
+                      <tr key={col.id} className="border-b border-subtle dark:border-subtle last:border-0">
+                        <td className="px-4 py-3 text-muted dark:text-muted">{col.position + 1}</td>
+                        <td className="px-4 py-3 text-primary dark:text-primary font-medium">{col.name}</td>
+                        <td className="px-4 py-3 text-secondary dark:text-secondary">{formatColumnType(col.dtype)}</td>
+                        <td className="px-4 py-3 text-secondary dark:text-secondary">{col.nullable ? 'Yes' : 'No'}</td>
+                        <td className="px-4 py-3 text-secondary dark:text-secondary">
                           {(col.null_ratio * 100).toFixed(1)}%
                         </td>
-                        <td className="px-4 py-3 text-secondary">{col.unique_count}</td>
+                        <td className="px-4 py-3 text-secondary dark:text-secondary">{col.unique_count}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <p className="text-secondary text-center py-8">
+                <p className="text-secondary dark:text-secondary text-center py-8">
                   Schema not available
                 </p>
               )}

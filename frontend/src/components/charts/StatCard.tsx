@@ -17,34 +17,34 @@ interface StatCardProps {
 
 const colorStyles = {
   default: {
-    bg: "bg-gray-50 dark:bg-gray-800",
-    icon: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300",
-    accent: "text-gray-900 dark:text-gray-100",
+    bg: "bg-muted",
+    icon: "bg-muted text-muted-foreground",
+    accent: "text-foreground",
   },
   primary: {
-    bg: "bg-primary-50 dark:bg-primary-900/20",
-    icon: "bg-primary-100 dark:bg-primary-800/30 text-primary-600 dark:text-primary-400",
-    accent: "text-primary-600 dark:text-primary-400",
+    bg: "bg-primary-muted",
+    icon: "bg-primary-muted text-primary",
+    accent: "text-primary",
   },
   success: {
-    bg: "bg-success-50 dark:bg-success-900/20",
-    icon: "bg-success-100 dark:bg-success-800/30 text-success-600 dark:text-success-400",
-    accent: "text-success-600 dark:text-success-400",
+    bg: "bg-success-muted",
+    icon: "bg-success-muted text-success",
+    accent: "text-success",
   },
   warning: {
-    bg: "bg-warning-50 dark:bg-warning-900/20",
-    icon: "bg-warning-100 dark:bg-warning-800/30 text-warning-600 dark:text-warning-400",
-    accent: "text-warning-600 dark:text-warning-400",
+    bg: "bg-warning-muted",
+    icon: "bg-warning-muted text-warning",
+    accent: "text-warning",
   },
   error: {
-    bg: "bg-error-50 dark:bg-error-900/20",
-    icon: "bg-error-100 dark:bg-error-800/30 text-error-600 dark:text-error-400",
-    accent: "text-error-600 dark:text-error-400",
+    bg: "bg-error-muted",
+    icon: "bg-error-muted text-error",
+    accent: "text-error",
   },
   info: {
-    bg: "bg-info-50 dark:bg-info-900/20",
-    icon: "bg-info-100 dark:bg-info-800/30 text-info-600 dark:text-info-400",
-    accent: "text-info-600 dark:text-info-400",
+    bg: "bg-info-muted",
+    icon: "bg-info-muted text-info",
+    accent: "text-info",
   },
 };
 
@@ -91,7 +91,7 @@ export function StatCard({
       whileHover={{ y: -2, boxShadow: "0 8px 25px -5px rgb(0 0 0 / 0.1)" }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800",
+        "rounded-xl border border-subtle bg-surface",
         sizes.padding,
         "transition-all duration-200"
       )}
@@ -100,7 +100,7 @@ export function StatCard({
         <div className="flex-1 min-w-0">
           <p
             className={cn(
-              "font-medium text-gray-500 dark:text-gray-400 mb-1",
+              "font-medium text-muted-foreground mb-1",
               sizes.title
             )}
           >
@@ -108,14 +108,14 @@ export function StatCard({
           </p>
           <p
             className={cn(
-              "font-bold text-gray-900 dark:text-gray-100 truncate",
+              "font-bold text-foreground truncate",
               sizes.value
             )}
           >
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {subtitle}
             </p>
           )}
@@ -124,13 +124,13 @@ export function StatCard({
               <span
                 className={cn(
                   "text-xs font-medium",
-                  trend.value >= 0 ? "text-success-600" : "text-error-600"
+                  trend.value >= 0 ? "text-success" : "text-error"
                 )}
               >
                 {trend.value >= 0 ? "↑" : "↓"} {Math.abs(trend.value)}%
               </span>
               {trend.label && (
-                <span className="text-xs text-gray-400">{trend.label}</span>
+                <span className="text-xs text-muted-foreground">{trend.label}</span>
               )}
             </div>
           )}

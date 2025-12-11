@@ -81,33 +81,33 @@ export function BenchmarkComparison({
     {
       name: "DataForge AI",
       value: actualDuration || 0,
-      fill: "#2563eb", // primary blue
+      fill: "var(--color-primary-500)",
     },
     {
       name: "Manual effort",
       value: benchmark.manualEstimate,
-      fill: "#cbd5e1", // soft slate
+      fill: "var(--color-subtle)",
     },
   ];
 
   // Color palette for breakdown steps
   const stepColors = [
-    "#3b82f6", // blue
-    "#8b5cf6", // purple
-    "#ec4899", // pink
-    "#f59e0b", // amber
-    "#14b8a6", // teal
-    "#6366f1", // indigo
+    "var(--color-primary-500)",
+    "var(--color-purple-500)",
+    "var(--color-pink-500)",
+    "var(--color-amber-500)",
+    "var(--color-teal-500)",
+    "var(--color-indigo-500)",
   ];
 
   return (
     <Card
       className={cn(
-        "overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm",
+        "overflow-hidden border border-subtle shadow-sm",
         className
       )}
     >
-      <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <CardHeader className="border-b border-subtle bg-sunken">
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="flex items-center gap-2">
             <BoltIcon className="w-5 h-5 text-primary-500" />
@@ -116,7 +116,7 @@ export function BenchmarkComparison({
           <Button
             size="sm"
             variant="ghost"
-            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            className="text-sm text-muted-foreground hover:text-foreground"
             onClick={() => setCollapsed((prev) => !prev)}
           >
             {collapsed ? "Expand" : "Collapse"}
@@ -126,7 +126,7 @@ export function BenchmarkComparison({
       {!collapsed && (
         <CardContent className="space-y-8">
           {/* Hero highlight */}
-          <div className="rounded-2xl overflow-hidden border border-primary-100 dark:border-primary-900 bg-gradient-to-r from-primary-500 via-indigo-500 to-sky-500 text-white shadow-lg">
+          <div className="rounded-2xl overflow-hidden border border-primary-subtle bg-gradient-to-r from-primary-500 via-indigo-500 to-sky-500 text-white shadow-lg">
             <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <div className="md:col-span-2 space-y-2">
                 <p className="text-xs uppercase tracking-[0.08em] text-white/80">
@@ -177,51 +177,51 @@ export function BenchmarkComparison({
 
           {/* Compact stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+            <div className="p-4 rounded-xl border border-subtle bg-surface shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
               <div className="flex items-center gap-2 mb-2">
-                <ClockIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <ClockIcon className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">
                   Actual time
                 </span>
               </div>
-              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <p className="text-xl font-semibold text-foreground">
                 {hasActualDuration
                   ? formatDurationLong(actualDuration!)
                   : "N/A"}
               </p>
             </div>
-            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+            <div className="p-4 rounded-xl border border-subtle bg-surface shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
               <div className="flex items-center gap-2 mb-2">
-                <ChartBarIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <ChartBarIcon className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs font-semibold text-muted-foreground">
                   Manual estimate
                 </span>
               </div>
-              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <p className="text-xl font-semibold text-foreground">
                 {formatDurationLong(benchmark.manualEstimate)}
               </p>
             </div>
-            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+            <div className="p-4 rounded-xl border border-subtle bg-surface shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
               <div className="flex items-center gap-2 mb-2">
-                <ArrowTrendingDownIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <ArrowTrendingDownIcon className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">
                   Time saved
                 </span>
               </div>
-              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <p className="text-xl font-semibold text-foreground">
                 {hasActualDuration
                   ? formatDurationLong(benchmark.timeSaved)
                   : "N/A"}
               </p>
             </div>
-            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+            <div className="p-4 rounded-xl border border-subtle bg-surface shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
               <div className="flex items-center gap-2 mb-2">
-                <BoltIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                <BoltIcon className="w-4 h-4 text-muted-foreground" />
+                <span className="text-xs font-medium text-muted-foreground">
                   Efficiency
                 </span>
               </div>
-              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <p className="text-xl font-semibold text-foreground">
                 {hasActualDuration
                   ? `${formatNumber(benchmark.efficiencyGain, 0)}% faster`
                   : "N/A"}
@@ -233,10 +233,10 @@ export function BenchmarkComparison({
           {hasActualDuration && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <h4 className="text-sm font-semibold text-foreground">
                   Time comparison
                 </h4>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+                <span className="text-xs text-muted-foreground">
                   Lower is better
                 </span>
               </div>
@@ -254,13 +254,13 @@ export function BenchmarkComparison({
                       axisLine={false}
                       tickLine={false}
                       width={120}
-                      tick={{ fontSize: 12, fill: "#4b5563" }}
+                      tick={{ fontSize: 12, fill: "var(--color-muted)" }}
                     />
                     <Tooltip
                       formatter={(value: number) => formatDurationLong(value)}
                       contentStyle={{
-                        background: "#fff",
-                        border: "1px solid #e5e7eb",
+                        background: "var(--color-surface)",
+                        border: "1px solid var(--color-subtle)",
                         borderRadius: "12px",
                         boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
                       }}
@@ -273,7 +273,10 @@ export function BenchmarkComparison({
                         dataKey="value"
                         position="right"
                         formatter={(value) => formatDurationLong(Number(value))}
-                        style={{ fontSize: 11, fill: "#1f2937" }}
+                        style={{
+                          fontSize: 11,
+                          fill: "var(--color-foreground)",
+                        }}
                       />
                     </Bar>
                   </BarChart>
@@ -285,14 +288,14 @@ export function BenchmarkComparison({
           {/* Manual Steps Breakdown */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              <h4 className="text-sm font-semibold text-foreground">
                 Manual effort breakdown
               </h4>
-              <div className="flex gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <span className="px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+              <div className="flex gap-2 text-xs text-muted-foreground">
+                <span className="px-2 py-1 rounded-full border border-subtle bg-surface">
                   {formatNumber(rowCount, 0)} rows
                 </span>
-                <span className="px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <span className="px-2 py-1 rounded-full border border-subtle bg-surface">
                   {formatNumber(columnCount, 0)} columns
                 </span>
               </div>
@@ -304,7 +307,7 @@ export function BenchmarkComparison({
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.15)]"
+                  className="flex items-center gap-3 p-3 rounded-lg border border-subtle bg-surface shadow-[0_4px_12px_-8px_rgba(0,0,0,0.15)]"
                 >
                   <div
                     className="w-2 h-8 rounded-full shrink-0"
@@ -313,18 +316,18 @@ export function BenchmarkComparison({
                     }}
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                    <p className="text-sm font-semibold text-foreground truncate">
                       {step.name}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       {step.description}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                    <p className="text-sm font-semibold text-foreground">
                       {step.estimatedMinutes} min
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       ~{formatNumber(step.estimatedMinutes / 60, 1)} hr
                     </p>
                   </div>
@@ -332,21 +335,21 @@ export function BenchmarkComparison({
               ))}
             </div>
 
-            <div className="flex items-center justify-between p-3 rounded-lg border border-primary-200 dark:border-primary-800 bg-primary-50/60 dark:bg-primary-900/20">
+            <div className="flex items-center justify-between p-3 rounded-lg border border-primary-subtle bg-primary-muted">
               <div className="flex items-center gap-2">
-                <CheckCircleIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
-                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                <CheckCircleIcon className="w-5 h-5 text-primary" />
+                <span className="font-semibold text-foreground">
                   Total manual estimate
                 </span>
               </div>
-              <span className="text-lg font-bold text-primary-700 dark:text-primary-300">
+              <span className="text-lg font-bold text-primary">
                 {formatDurationLong(benchmark.manualEstimate)}
               </span>
             </div>
           </div>
 
           {/* Calculation basis note */}
-          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             Estimate based on {formatNumber(rowCount, 0)} rows,{" "}
             {formatNumber(columnCount, 0)} columns,
             {taskType === "classification"

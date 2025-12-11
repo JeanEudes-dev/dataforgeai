@@ -83,7 +83,7 @@ export function ModelPerformanceSection({
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Model overview</CardTitle>
             {model.is_best && (
-              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-700">
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
                 Best model
               </span>
             )}

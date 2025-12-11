@@ -21,10 +21,10 @@ const iconMap: Record<ToastVariant, React.ReactNode> = {
 };
 
 const variantStyles: Record<ToastVariant, string> = {
-  success: "bg-white",
-  error: "bg-white",
-  warning: "bg-white",
-  info: "bg-white",
+  success: "bg-white dark:bg-gray-900",
+  error: "bg-white dark:bg-gray-900",
+  warning: "bg-white dark:bg-gray-900",
+  info: "bg-white dark:bg-gray-900",
 };
 
 interface ToastItemProps {
@@ -41,9 +41,8 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
       exit={{ opacity: 0, x: 50, scale: 0.9 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       className={cn(
-        "flex items-start gap-3 p-4 rounded-lg",
-        "bg-white border border-subtle",
-        "shadow-lg",
+        "flex items-start gap-3 p-4 rounded-lg shadow-lg",
+        "bg-white dark:bg-gray-900 border border-subtle dark:border-gray-700",
         variantStyles[toast.type]
       )}
     >

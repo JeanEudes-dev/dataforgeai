@@ -55,7 +55,7 @@ export function CrossValidationChart({
 
   if (!scores || scores.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No cross-validation scores available.
       </div>
     )
@@ -64,10 +64,10 @@ export function CrossValidationChart({
   // Determine bar color based on deviation from mean
   const getBarColor = (score: number, mean: number, std: number) => {
     const deviation = Math.abs(score - mean)
-    if (deviation < std * 0.5) return '#22c55e' // Green - within 0.5 std
-    if (deviation < std) return '#3b82f6' // Blue - within 1 std
-    if (deviation < std * 1.5) return '#f59e0b' // Amber - within 1.5 std
-    return '#ef4444' // Red - beyond 1.5 std
+    if (deviation < std * 0.5) return 'var(--color-success-500)' // Green
+    if (deviation < std) return 'var(--color-primary-500)' // Blue
+    if (deviation < std * 1.5) return 'var(--color-warning-500)' // Amber
+    return 'var(--color-error-500)' // Red
   }
 
   return (
@@ -80,27 +80,27 @@ export function CrossValidationChart({
       {/* Stats summary */}
       {stats && (
         <div className="grid grid-cols-4 gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Mean</div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="p-2 rounded-lg bg-muted text-center">
+            <div className="text-xs text-muted-foreground">Mean</div>
+            <div className="text-lg font-semibold text-foreground">
               {stats.mean.toFixed(1)}%
             </div>
           </div>
-          <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Std Dev</div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="p-2 rounded-lg bg-muted text-center">
+            <div className="text-xs text-muted-foreground">Std Dev</div>
+            <div className="text-lg font-semibold text-foreground">
               {stats.std.toFixed(2)}%
             </div>
           </div>
-          <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Min</div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="p-2 rounded-lg bg-muted text-center">
+            <div className="text-xs text-muted-foreground">Min</div>
+            <div className="text-lg font-semibold text-foreground">
               {stats.min.toFixed(1)}%
             </div>
           </div>
-          <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 text-center">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Max</div>
-            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="p-2 rounded-lg bg-muted text-center">
+            <div className="text-xs text-muted-foreground">Max</div>
+            <div className="text-lg font-semibold text-foreground">
               {stats.max.toFixed(1)}%
             </div>
           </div>
@@ -109,16 +109,16 @@ export function CrossValidationChart({
 
       <ResponsiveContainer width="100%" height={height}>
         <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-subtle)" vertical={false} />
           <XAxis
             dataKey="fold"
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
-            axisLine={{ stroke: '#e4e4e7' }}
+            axisLine={{ stroke: 'var(--color-subtle)' }}
           />
           <YAxis
             domain={['auto', 'auto']}
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => `${value.toFixed(0)}%`}
@@ -128,13 +128,13 @@ export function CrossValidationChart({
               if (!active || !payload?.length) return null
               const item = payload[0].payload
               return (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.fold}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="bg-surface rounded-lg shadow-lg border border-subtle px-3 py-2">
+                  <p className="text-sm font-medium text-foreground">{item.fold}</p>
+                  <p className="text-xs text-muted-foreground">
                     {metricName}: {item.rawScore.toFixed(4)} ({item.score.toFixed(2)}%)
                   </p>
                   {stats && (
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Deviation: {(item.score - stats.mean).toFixed(2)}%
                     </p>
                   )}
@@ -146,13 +146,13 @@ export function CrossValidationChart({
           {stats && (
             <ReferenceLine
               y={stats.mean}
-              stroke="#6b7280"
+              stroke="var(--color-muted)"
               strokeDasharray="5 5"
               label={{
                 value: `Mean: ${stats.mean.toFixed(1)}%`,
                 position: 'right',
                 fontSize: 10,
-                fill: '#6b7280',
+                fill: 'var(--color-muted)',
               }}
             />
           )}
@@ -161,13 +161,13 @@ export function CrossValidationChart({
             <>
               <ReferenceLine
                 y={stats.mean + stats.std}
-                stroke="#9ca3af"
+                stroke="var(--color-subtle)"
                 strokeDasharray="3 3"
                 strokeOpacity={0.5}
               />
               <ReferenceLine
                 y={stats.mean - stats.std}
-                stroke="#9ca3af"
+                stroke="var(--color-subtle)"
                 strokeDasharray="3 3"
                 strokeOpacity={0.5}
               />
@@ -177,7 +177,7 @@ export function CrossValidationChart({
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={stats ? getBarColor(entry.score, stats.mean, stats.std) : '#3b82f6'}
+                fill={stats ? getBarColor(entry.score, stats.mean, stats.std) : 'var(--color-primary-500)'}
               />
             ))}
           </Bar>
@@ -191,34 +191,34 @@ export function CrossValidationChart({
           <span
             className={`text-xs font-medium ${
               stats.cv < 5
-                ? 'text-green-600 dark:text-green-400'
+                ? 'text-success'
                 : stats.cv < 10
-                ? 'text-yellow-600 dark:text-yellow-400'
-                : 'text-red-600 dark:text-red-400'
+                ? 'text-warning'
+                : 'text-error'
             }`}
           >
             {stats.cv < 5 ? 'Highly Stable' : stats.cv < 10 ? 'Moderately Stable' : 'Variable'}
           </span>
-          <span className="text-xs text-gray-400 dark:text-gray-500">(CV: {stats.cv.toFixed(1)}%)</span>
+          <span className="text-xs text-muted-foreground">(CV: {stats.cv.toFixed(1)}%)</span>
         </div>
       )}
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 mt-3 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center gap-4 mt-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-green-500" />
+          <div className="w-3 h-3 rounded bg-success-500" />
           <span>&lt;0.5 std</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-blue-500" />
+          <div className="w-3 h-3 rounded bg-primary-500" />
           <span>&lt;1 std</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-amber-500" />
+          <div className="w-3 h-3 rounded bg-warning-500" />
           <span>&lt;1.5 std</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-red-500" />
+          <div className="w-3 h-3 rounded bg-error-500" />
           <span>&gt;1.5 std</span>
         </div>
       </div>

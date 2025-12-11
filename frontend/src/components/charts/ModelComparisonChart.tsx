@@ -20,9 +20,9 @@ interface ModelComparisonChartProps {
 }
 
 const COLORS = {
-  best: '#22c55e', // Green for best model
-  default: '#3b82f6', // Blue for other models
-  hover: '#2563eb',
+  best: 'var(--color-success-500)', // Green for best model
+  default: 'var(--color-primary-500)', // Blue for other models
+  hover: 'var(--color-primary-600)',
 }
 
 export function ModelComparisonChart({
@@ -102,7 +102,7 @@ export function ModelComparisonChart({
 
   if (!models || models.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No model comparison data available.
       </div>
     )
@@ -121,8 +121,8 @@ export function ModelComparisonChart({
       transition={{ duration: 0.3 }}
       className="w-full"
     >
-      <div className="text-sm text-center text-gray-600 dark:text-gray-400 mb-4">
-        Comparing by: <span className="font-medium text-gray-900 dark:text-gray-100">{formatMetricName(selectedMetric)}</span>
+      <div className="text-sm text-center text-muted-foreground mb-4">
+        Comparing by: <span className="font-medium text-foreground">{formatMetricName(selectedMetric)}</span>
       </div>
 
       <ResponsiveContainer width="100%" height={height}>
@@ -131,19 +131,19 @@ export function ModelComparisonChart({
           layout="vertical"
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" horizontal={true} vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-subtle)" horizontal={true} vertical={false} />
           <XAxis
             type="number"
             domain={isPercentageMetric ? [0, 100] : ['auto', 'auto']}
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
-            axisLine={{ stroke: '#e4e4e7' }}
+            axisLine={{ stroke: 'var(--color-subtle)' }}
             tickFormatter={(value) => (isPercentageMetric ? `${value.toFixed(0)}%` : value.toFixed(3))}
           />
           <YAxis
             type="category"
             dataKey="name"
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
             axisLine={false}
             width={150}
@@ -153,16 +153,16 @@ export function ModelComparisonChart({
               if (!active || !payload?.length) return null
               const item = payload[0].payload
               return (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.fullName}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="bg-surface rounded-lg shadow-lg border border-subtle px-3 py-2">
+                  <p className="text-sm font-medium text-foreground">{item.fullName}</p>
+                  <p className="text-xs text-muted-foreground">
                     Algorithm: {item.algorithm.replace(/_/g, ' ')}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-xs text-muted-foreground">
                     {formatMetricName(selectedMetric)}: {isPercentageMetric ? `${item.value.toFixed(2)}%` : item.rawValue.toFixed(4)}
                   </p>
                   {item.is_best && (
-                    <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-1">
+                    <p className="text-xs text-success font-medium mt-1">
                       Best Model
                     </p>
                   )}
@@ -183,13 +183,13 @@ export function ModelComparisonChart({
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-green-500" />
+          <div className="w-4 h-4 rounded bg-success-500" />
           <span>Best Model</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-blue-500" />
+          <div className="w-4 h-4 rounded bg-primary-500" />
           <span>Other Models</span>
         </div>
       </div>

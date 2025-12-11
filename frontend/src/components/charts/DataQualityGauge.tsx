@@ -16,31 +16,31 @@ export function DataQualityGauge({
     const normalizedScore = score !== null ? Math.min(100, Math.max(0, score)) : 0
 
     let quality = 'Unknown'
-    let color = 'text-gray-400'
-    let bgColor = 'stroke-gray-200 dark:stroke-gray-700'
-    let progressColor = 'stroke-gray-400'
+    let color = 'text-muted-foreground'
+    let bgColor = 'stroke-subtle'
+    let progressColor = 'stroke-muted-foreground'
 
     if (score !== null) {
       if (normalizedScore >= 90) {
         quality = 'Excellent'
-        color = 'text-green-500'
-        progressColor = 'stroke-green-500'
+        color = 'text-success'
+        progressColor = 'stroke-success'
       } else if (normalizedScore >= 75) {
         quality = 'Good'
-        color = 'text-blue-500'
-        progressColor = 'stroke-blue-500'
+        color = 'text-primary'
+        progressColor = 'stroke-primary'
       } else if (normalizedScore >= 60) {
         quality = 'Fair'
-        color = 'text-yellow-500'
-        progressColor = 'stroke-yellow-500'
+        color = 'text-warning'
+        progressColor = 'stroke-warning'
       } else if (normalizedScore >= 40) {
         quality = 'Poor'
-        color = 'text-orange-500'
-        progressColor = 'stroke-orange-500'
+        color = 'text-warning'
+        progressColor = 'stroke-warning'
       } else {
         quality = 'Critical'
-        color = 'text-red-500'
-        progressColor = 'stroke-red-500'
+        color = 'text-error'
+        progressColor = 'stroke-error'
       }
     }
 
@@ -72,7 +72,7 @@ export function DataQualityGauge({
 
   if (score === null) {
     return (
-      <div className="flex flex-col items-center justify-center p-4 text-gray-500 dark:text-gray-400">
+      <div className="flex flex-col items-center justify-center p-4 text-muted-foreground">
         <span className="text-sm">Data quality score not available</span>
       </div>
     )
@@ -127,7 +127,7 @@ export function DataQualityGauge({
           >
             {displayScore.toFixed(0)}
           </motion.span>
-          <span className="text-xs text-gray-500 dark:text-gray-400">/ 100</span>
+          <span className="text-xs text-muted-foreground">/ 100</span>
         </div>
       </div>
 
@@ -139,7 +139,7 @@ export function DataQualityGauge({
           className="mt-2 text-center"
         >
           <span className={`font-semibold ${color} ${fontSize.label}`}>{quality}</span>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Data Quality</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Data Quality</p>
         </motion.div>
       )}
     </motion.div>

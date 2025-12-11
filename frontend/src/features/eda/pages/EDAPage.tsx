@@ -590,7 +590,7 @@ export function EDAPage() {
                               : "Consider cleaning your data before proceeding."}
                         </p>
                       </div>
-                      <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full bg-white/20 dark:bg-gray-900/30 flex items-center justify-center">
                         <span className="text-3xl font-bold">
                           {dataQualityScore}%
                         </span>

@@ -73,7 +73,7 @@ export function ConfusionMatrixChart({
 
   if (!matrix || matrix.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No confusion matrix data available.
       </div>
     )
@@ -90,16 +90,16 @@ export function ConfusionMatrixChart({
 
     if (isCorrect) {
       // Green for correct predictions (diagonal)
-      if (intensity > 0.7) return 'bg-green-500 text-white'
-      if (intensity > 0.4) return 'bg-green-400 text-white'
-      if (intensity > 0.1) return 'bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100'
-      return 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+      if (intensity > 0.7) return 'bg-success-500 text-white'
+      if (intensity > 0.4) return 'bg-success-400 text-white'
+      if (intensity > 0.1) return 'bg-success-200 dark:bg-success-800 text-success-900 dark:text-success-100'
+      return 'bg-success-50 dark:bg-success-900/30 text-success-700 dark:text-success-300'
     } else {
       // Red for incorrect predictions (off-diagonal)
-      if (intensity > 0.7) return 'bg-red-500 text-white'
-      if (intensity > 0.4) return 'bg-red-400 text-white'
-      if (intensity > 0.1) return 'bg-red-200 dark:bg-red-800 text-red-900 dark:text-red-100'
-      if (intensity > 0) return 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+      if (intensity > 0.7) return 'bg-error-500 text-white'
+      if (intensity > 0.4) return 'bg-error-400 text-white'
+      if (intensity > 0.1) return 'bg-error-200 dark:bg-error-800 text-error-900 dark:text-error-100'
+      if (intensity > 0) return 'bg-error-50 dark:bg-error-900/30 text-error-700 dark:text-error-300'
       return 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
     }
   }
@@ -114,13 +114,13 @@ export function ConfusionMatrixChart({
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Matrix */}
         <div className="flex-1">
-          <div className="text-xs text-center text-gray-500 dark:text-gray-400 mb-2">
+          <div className="text-xs text-center text-muted-foreground mb-2">
             Predicted Label
           </div>
           <div className="flex">
             {/* Y-axis label */}
             <div
-              className="flex items-center justify-center text-xs text-gray-500 dark:text-gray-400 -rotate-90 w-6"
+              className="flex items-center justify-center text-xs text-muted-foreground -rotate-90 w-6"
               style={{ minHeight: n * cellSize + 20 }}
             >
               Actual Label
@@ -134,7 +134,7 @@ export function ConfusionMatrixChart({
                   <div
                     key={i}
                     style={{ width: cellSize }}
-                    className="text-xs text-center text-gray-600 dark:text-gray-400 truncate"
+                    className="text-xs text-center text-foreground truncate"
                     title={label}
                   >
                     {label.length > 8 ? `${label.slice(0, 8)}...` : label}
@@ -148,7 +148,7 @@ export function ConfusionMatrixChart({
                   {/* Y-axis label for this row */}
                   <div
                     style={{ width: cellSize }}
-                    className="text-xs flex items-center justify-end pr-2 text-gray-600 dark:text-gray-400 truncate"
+                    className="text-xs flex items-center justify-end pr-2 text-foreground truncate"
                     title={labels?.[i] || `${i}`}
                   >
                     {(labels?.[i] || `${i}`).slice(0, 8)}
@@ -178,13 +178,13 @@ export function ConfusionMatrixChart({
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-green-400" />
+              <div className="w-4 h-4 rounded bg-success-400" />
               <span>Correct (diagonal)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-red-400" />
+              <div className="w-4 h-4 rounded bg-error-400" />
               <span>Incorrect (off-diagonal)</span>
             </div>
           </div>
@@ -193,14 +193,14 @@ export function ConfusionMatrixChart({
         {/* Per-class metrics */}
         {showMetrics && classMetrics.length > 0 && (
           <div className="lg:w-64">
-            <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
+            <h4 className="text-sm font-medium text-foreground mb-3">
               Per-Class Metrics
             </h4>
 
             {/* Overall accuracy */}
-            <div className="mb-4 p-3 rounded-lg bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-800">
-              <div className="text-xs text-primary-600 dark:text-primary-400">Overall Accuracy</div>
-              <div className="text-xl font-bold text-primary-700 dark:text-primary-300">
+            <div className="mb-4 p-3 rounded-lg bg-primary-muted border border-primary-subtle">
+              <div className="text-xs text-primary">Overall Accuracy</div>
+              <div className="text-xl font-bold text-primary">
                 {(totalAccuracy * 100).toFixed(1)}%
               </div>
             </div>
@@ -209,27 +209,27 @@ export function ConfusionMatrixChart({
               {classMetrics.map(({ label, precision, recall, f1 }) => (
                 <div
                   key={label}
-                  className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700"
+                  className="p-2 rounded-lg bg-surface border border-subtle"
                 >
-                  <div className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate mb-1" title={label}>
+                  <div className="font-medium text-sm text-foreground truncate mb-1" title={label}>
                     {label}
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">P: </span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                      <span className="text-muted-foreground">P: </span>
+                      <span className="font-medium text-foreground">
                         {(precision * 100).toFixed(0)}%
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">R: </span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                      <span className="text-muted-foreground">R: </span>
+                      <span className="font-medium text-foreground">
                         {(recall * 100).toFixed(0)}%
                       </span>
                     </div>
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">F1: </span>
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                      <span className="text-muted-foreground">F1: </span>
+                      <span className="font-medium text-foreground">
                         {(f1 * 100).toFixed(0)}%
                       </span>
                     </div>

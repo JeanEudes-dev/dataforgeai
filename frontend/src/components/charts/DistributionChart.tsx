@@ -10,7 +10,6 @@ import {
   Cell,
 } from "recharts";
 import { motion } from "framer-motion";
-import { useTheme } from "@/contexts";
 import type { DistributionData } from "@/types";
 
 interface DistributionChartProps {
@@ -20,25 +19,12 @@ interface DistributionChartProps {
   height?: number;
 }
 
-const COLORS = {
-  numeric: {
-    primary: "#007aff",
-    gradient: ["#007aff", "#5856d6"],
-  },
-  categorical: {
-    primary: "#34c759",
-    gradient: ["#34c759", "#30d158"],
-  },
-};
-
 export function DistributionChart({
   data,
   columnName,
   color,
   height = 200,
 }: DistributionChartProps) {
-  const { isDark } = useTheme();
-
   const chartData = useMemo(() => {
     if (!data?.bins || !data?.counts) return [];
     return data.bins.map((bin, index) => ({
@@ -50,17 +36,18 @@ export function DistributionChart({
 
   if (!data || chartData.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No distribution data available for {columnName}.
       </div>
     );
   }
 
   const maxValue = Math.max(...data.counts, 0);
-  const colorScheme = COLORS[data.type];
-  const barColor = color || colorScheme.primary;
-  const gridColor = isDark ? "#27272a" : "#e4e4e7";
-  const textColor = isDark ? "#a1a1aa" : "#71717a";
+  const barColor =
+    color ||
+    (data.type === 'numeric'
+      ? 'var(--color-primary-500)'
+      : 'var(--color-success-500)');
 
   return (
     <motion.div
@@ -71,12 +58,12 @@ export function DistributionChart({
     >
       <div className="flex items-center justify-between mb-3">
         <h4
-          className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate"
+          className="text-sm font-medium text-foreground truncate"
           title={columnName}
         >
           {columnName}
         </h4>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
           {data.type}
         </span>
       </div>
@@ -99,21 +86,21 @@ export function DistributionChart({
           </defs>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke={gridColor}
+            stroke="var(--color-subtle)"
             vertical={false}
           />
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 10, fill: textColor }}
+            tick={{ fontSize: 10, fill: "var(--color-muted)" }}
             tickLine={false}
-            axisLine={{ stroke: gridColor }}
+            axisLine={{ stroke: "var(--color-subtle)" }}
             interval={0}
             angle={-45}
             textAnchor="end"
             height={50}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: textColor }}
+            tick={{ fontSize: 10, fill: "var(--color-muted)" }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => value.toLocaleString()}
@@ -123,9 +110,9 @@ export function DistributionChart({
               if (!active || !payload?.length) return null;
               const item = payload[0].payload;
               return (
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2">
-                  <p className="text-xs text-gray-500">{item.fullName}</p>
-                  <p className="text-sm font-semibold text-gray-900">
+                <div className="bg-surface rounded-lg shadow-lg border border-subtle px-3 py-2">
+                  <p className="text-xs text-muted-foreground">{item.fullName}</p>
+                  <p className="text-sm font-semibold text-foreground">
                     {item.value.toLocaleString()} records
                   </p>
                 </div>

@@ -56,7 +56,7 @@ export function FeatureImportanceChart({
 
   if (!data || chartData.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+      <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No feature importance data available.
       </div>
     )
@@ -67,11 +67,11 @@ export function FeatureImportanceChart({
   // Color gradient from primary to lighter shade
   const getBarColor = (importance: number) => {
     const ratio = importance / maxImportance
-    if (ratio > 0.8) return '#3b82f6' // Blue
-    if (ratio > 0.6) return '#60a5fa'
-    if (ratio > 0.4) return '#93c5fd'
-    if (ratio > 0.2) return '#bfdbfe'
-    return '#dbeafe'
+    if (ratio > 0.8) return 'var(--color-primary-500)'
+    if (ratio > 0.6) return 'var(--color-primary-400)'
+    if (ratio > 0.4) return 'var(--color-primary-300)'
+    if (ratio > 0.2) return 'var(--color-primary-200)'
+    return 'var(--color-primary-100)'
   }
 
   return (
@@ -89,23 +89,23 @@ export function FeatureImportanceChart({
         >
           <defs>
             <linearGradient id="featureImportanceGradient" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.8} />
-              <stop offset="100%" stopColor="#60a5fa" stopOpacity={0.9} />
+              <stop offset="0%" stopColor="var(--color-primary-500)" stopOpacity={0.8} />
+              <stop offset="100%" stopColor="var(--color-primary-400)" stopOpacity={0.9} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" horizontal={true} vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="var(--color-subtle)" horizontal={true} vertical={false} />
           <XAxis
             type="number"
             domain={[0, showPercentage ? 100 : 'auto']}
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
-            axisLine={{ stroke: '#e4e4e7' }}
+            axisLine={{ stroke: 'var(--color-subtle)' }}
             tickFormatter={(value) => (showPercentage ? `${value.toFixed(0)}%` : value.toFixed(2))}
           />
           <YAxis
             type="category"
             dataKey="displayName"
-            tick={{ fontSize: 11, fill: '#71717a' }}
+            tick={{ fontSize: 11, fill: 'var(--color-muted)' }}
             tickLine={false}
             axisLine={false}
             width={150}
@@ -115,9 +115,9 @@ export function FeatureImportanceChart({
               if (!active || !payload?.length) return null
               const item = payload[0].payload
               return (
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 px-3 py-2">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="bg-surface rounded-lg shadow-lg border border-subtle px-3 py-2">
+                  <p className="text-sm font-medium text-foreground">{item.name}</p>
+                  <p className="text-xs text-muted-foreground">
                     Importance: {(item.importance * 100).toFixed(2)}%
                   </p>
                 </div>
@@ -140,16 +140,16 @@ export function FeatureImportanceChart({
       </ResponsiveContainer>
 
       {/* Summary stats */}
-      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
         <div className="flex items-center gap-2">
           <span>Top feature:</span>
-          <span className="font-medium text-gray-700 dark:text-gray-300">
+          <span className="font-medium text-foreground">
             {chartData[0]?.name} ({(chartData[0]?.importance * 100).toFixed(1)}%)
           </span>
         </div>
         <div className="flex items-center gap-2">
           <span>Features shown:</span>
-          <span className="font-medium text-gray-700 dark:text-gray-300">{chartData.length}</span>
+          <span className="font-medium text-foreground">{chartData.length}</span>
         </div>
       </div>
     </motion.div>
