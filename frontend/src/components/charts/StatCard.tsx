@@ -91,20 +91,34 @@ export function StatCard({
       whileHover={{ y: -2, boxShadow: "0 8px 25px -5px rgb(0 0 0 / 0.1)" }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "rounded-xl border border-gray-200 bg-white",
+        "rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800",
         sizes.padding,
         "transition-all duration-200"
       )}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
-          <p className={cn("font-medium text-gray-500 mb-1", sizes.title)}>
+          <p
+            className={cn(
+              "font-medium text-gray-500 dark:text-gray-400 mb-1",
+              sizes.title
+            )}
+          >
             {title}
           </p>
-          <p className={cn("font-bold text-gray-900 truncate", sizes.value)}>
+          <p
+            className={cn(
+              "font-bold text-gray-900 dark:text-gray-100 truncate",
+              sizes.value
+            )}
+          >
             {value}
           </p>
-          {subtitle && <p className="text-xs text-gray-400 mt-1">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+              {subtitle}
+            </p>
+          )}
           {trend && (
             <div className="flex items-center gap-1 mt-2">
               <span

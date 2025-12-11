@@ -1,12 +1,12 @@
-import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import {
   ClockIcon,
   BoltIcon,
   ChartBarIcon,
   CheckCircleIcon,
   ArrowTrendingDownIcon,
-} from '@heroicons/react/24/outline'
+} from "@heroicons/react/24/outline";
 import {
   BarChart,
   Bar,
@@ -16,20 +16,26 @@ import {
   ResponsiveContainer,
   Cell,
   LabelList,
-} from 'recharts'
-import { Card, CardHeader, CardTitle, CardContent, Button } from '@/components/ui'
-import { computeBenchmarkWithActual } from '@/utils/benchmarkCalculator'
-import { formatDurationLong, formatNumber } from '@/utils/formatters'
-import { cn } from '@/utils'
-import type { TaskType } from '@/types'
+} from "recharts";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  Button,
+} from "@/components/ui";
+import { computeBenchmarkWithActual } from "@/utils/benchmarkCalculator";
+import { formatDurationLong, formatNumber } from "@/utils/formatters";
+import { cn } from "@/utils";
+import type { TaskType } from "@/types";
 
 interface BenchmarkComparisonProps {
-  actualDuration: number | null // in seconds
-  rowCount: number | null
-  columnCount: number | null
-  featureCount?: number
-  taskType: TaskType
-  className?: string
+  actualDuration: number | null; // in seconds
+  rowCount: number | null;
+  columnCount: number | null;
+  featureCount?: number;
+  taskType: TaskType;
+  className?: string;
 }
 
 export function BenchmarkComparison({
@@ -41,7 +47,7 @@ export function BenchmarkComparison({
   className,
 }: BenchmarkComparisonProps) {
   const benchmark = useMemo(() => {
-    if (!rowCount || !columnCount) return null
+    if (!rowCount || !columnCount) return null;
 
     return computeBenchmarkWithActual(
       {
@@ -51,48 +57,57 @@ export function BenchmarkComparison({
         featureCount,
       },
       actualDuration
-    )
-  }, [actualDuration, rowCount, columnCount, featureCount, taskType])
+    );
+  }, [actualDuration, rowCount, columnCount, featureCount, taskType]);
 
   if (!benchmark || !rowCount || !columnCount) {
-    return null
+    return null;
   }
 
-  const hasActualDuration = actualDuration !== null && actualDuration > 0
-  const speedGain = hasActualDuration && actualDuration ? benchmark.manualEstimate / actualDuration : null
-  const timeSavedPct = hasActualDuration && benchmark.manualEstimate
-    ? Math.max(0, (benchmark.timeSaved / benchmark.manualEstimate) * 100)
-    : null
+  const hasActualDuration = actualDuration !== null && actualDuration > 0;
+  const speedGain =
+    hasActualDuration && actualDuration
+      ? benchmark.manualEstimate / actualDuration
+      : null;
+  const timeSavedPct =
+    hasActualDuration && benchmark.manualEstimate
+      ? Math.max(0, (benchmark.timeSaved / benchmark.manualEstimate) * 100)
+      : null;
 
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(false);
 
   // Data for main comparison chart
   const comparisonData = [
     {
-      name: 'DataForge AI',
+      name: "DataForge AI",
       value: actualDuration || 0,
-      fill: '#2563eb', // primary blue
+      fill: "#2563eb", // primary blue
     },
     {
-      name: 'Manual effort',
+      name: "Manual effort",
       value: benchmark.manualEstimate,
-      fill: '#cbd5e1', // soft slate
+      fill: "#cbd5e1", // soft slate
     },
-  ]
+  ];
 
   // Color palette for breakdown steps
   const stepColors = [
-    '#3b82f6', // blue
-    '#8b5cf6', // purple
-    '#ec4899', // pink
-    '#f59e0b', // amber
-    '#14b8a6', // teal
-    '#6366f1', // indigo
-  ]
+    "#3b82f6", // blue
+    "#8b5cf6", // purple
+    "#ec4899", // pink
+    "#f59e0b", // amber
+    "#14b8a6", // teal
+    "#6366f1", // indigo
+  ];
 
   return (
-    <Card className={cn('overflow-hidden border border-gray-200 shadow-sm', className)}>
-      <CardHeader className="border-b border-gray-200 bg-gray-50">
+    <Card
+      className={cn(
+        "overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm",
+        className
+      )}
+    >
+      <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
         <div className="flex items-center justify-between gap-3">
           <CardTitle className="flex items-center gap-2">
             <BoltIcon className="w-5 h-5 text-primary-500" />
@@ -101,206 +116,249 @@ export function BenchmarkComparison({
           <Button
             size="sm"
             variant="ghost"
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
             onClick={() => setCollapsed((prev) => !prev)}
           >
-            {collapsed ? 'Expand' : 'Collapse'}
+            {collapsed ? "Expand" : "Collapse"}
           </Button>
         </div>
       </CardHeader>
       {!collapsed && (
         <CardContent className="space-y-8">
           {/* Hero highlight */}
-          <div className="rounded-2xl overflow-hidden border border-primary-100 bg-gradient-to-r from-primary-500 via-indigo-500 to-sky-500 text-white shadow-lg">
+          <div className="rounded-2xl overflow-hidden border border-primary-100 dark:border-primary-900 bg-gradient-to-r from-primary-500 via-indigo-500 to-sky-500 text-white shadow-lg">
             <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <div className="md:col-span-2 space-y-2">
-                <p className="text-xs uppercase tracking-[0.08em] text-white/80">Impact</p>
-              <p className="text-3xl font-semibold leading-tight">AutoML vs. manual effort</p>
-              <p className="text-sm text-white/80">
-                Time saved by letting DataForge orchestrate feature prep and model search.
-              </p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs uppercase tracking-wide text-white/70">Time saved</span>
-              <p className="text-2xl font-semibold">
-                {hasActualDuration ? formatDurationLong(benchmark.timeSaved) : 'N/A'}
-              </p>
-              {timeSavedPct !== null && (
-                <span className="text-xs text-white/80">{formatNumber(timeSavedPct, 0)}% of manual effort</span>
-              )}
-            </div>
-            <div className="flex flex-col gap-2">
-              <span className="text-xs uppercase tracking-wide text-white/70">Speedup</span>
-              <p className="text-2xl font-semibold">
-                {speedGain ? `${formatNumber(speedGain, 1)}x faster` : 'N/A'}
-              </p>
-              <div className="flex items-center gap-2 text-sm">
-                <ClockIcon className="w-4 h-4 text-white/80" />
-                <span className="text-white/85">
-                  {hasActualDuration ? formatDurationLong(actualDuration!) : 'Pending'} vs {formatDurationLong(benchmark.manualEstimate)}
+                <p className="text-xs uppercase tracking-[0.08em] text-white/80">
+                  Impact
+                </p>
+                <p className="text-3xl font-semibold leading-tight">
+                  AutoML vs. manual effort
+                </p>
+                <p className="text-sm text-white/80">
+                  Time saved by letting DataForge orchestrate feature prep and
+                  model search.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs uppercase tracking-wide text-white/70">
+                  Time saved
                 </span>
+                <p className="text-2xl font-semibold">
+                  {hasActualDuration
+                    ? formatDurationLong(benchmark.timeSaved)
+                    : "N/A"}
+                </p>
+                {timeSavedPct !== null && (
+                  <span className="text-xs text-white/80">
+                    {formatNumber(timeSavedPct, 0)}% of manual effort
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col gap-2">
+                <span className="text-xs uppercase tracking-wide text-white/70">
+                  Speedup
+                </span>
+                <p className="text-2xl font-semibold">
+                  {speedGain ? `${formatNumber(speedGain, 1)}x faster` : "N/A"}
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <ClockIcon className="w-4 h-4 text-white/80" />
+                  <span className="text-white/85">
+                    {hasActualDuration
+                      ? formatDurationLong(actualDuration!)
+                      : "Pending"}{" "}
+                    vs {formatDurationLong(benchmark.manualEstimate)}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Compact stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="p-4 rounded-xl border border-gray-200 bg-white shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
-            <div className="flex items-center gap-2 mb-2">
-              <ClockIcon className="w-4 h-4 text-primary-600" />
-              <span className="text-xs font-medium text-gray-600">Actual time</span>
+          {/* Compact stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+              <div className="flex items-center gap-2 mb-2">
+                <ClockIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  Actual time
+                </span>
+              </div>
+              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {hasActualDuration
+                  ? formatDurationLong(actualDuration!)
+                  : "N/A"}
+              </p>
             </div>
-            <p className="text-xl font-semibold text-gray-900">
-              {hasActualDuration ? formatDurationLong(actualDuration!) : 'N/A'}
-            </p>
-          </div>
-          <div className="p-4 rounded-xl border border-gray-200 bg-white shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
-            <div className="flex items-center gap-2 mb-2">
-              <ChartBarIcon className="w-4 h-4 text-gray-600" />
-              <span className="text-xs font-medium text-gray-600">Manual estimate</span>
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+              <div className="flex items-center gap-2 mb-2">
+                <ChartBarIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  Manual estimate
+                </span>
+              </div>
+              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {formatDurationLong(benchmark.manualEstimate)}
+              </p>
             </div>
-            <p className="text-xl font-semibold text-gray-900">
-              {formatDurationLong(benchmark.manualEstimate)}
-            </p>
-          </div>
-          <div className="p-4 rounded-xl border border-gray-200 bg-white shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
-            <div className="flex items-center gap-2 mb-2">
-              <ArrowTrendingDownIcon className="w-4 h-4 text-primary-600" />
-              <span className="text-xs font-medium text-gray-600">Time saved</span>
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+              <div className="flex items-center gap-2 mb-2">
+                <ArrowTrendingDownIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  Time saved
+                </span>
+              </div>
+              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {hasActualDuration
+                  ? formatDurationLong(benchmark.timeSaved)
+                  : "N/A"}
+              </p>
             </div>
-            <p className="text-xl font-semibold text-gray-900">
-              {hasActualDuration ? formatDurationLong(benchmark.timeSaved) : 'N/A'}
-            </p>
-          </div>
-          <div className="p-4 rounded-xl border border-gray-200 bg-white shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
-            <div className="flex items-center gap-2 mb-2">
-              <BoltIcon className="w-4 h-4 text-gray-600" />
-              <span className="text-xs font-medium text-gray-600">Efficiency</span>
+            <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
+              <div className="flex items-center gap-2 mb-2">
+                <BoltIcon className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                  Efficiency
+                </span>
+              </div>
+              <p className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                {hasActualDuration
+                  ? `${formatNumber(benchmark.efficiencyGain, 0)}% faster`
+                  : "N/A"}
+              </p>
             </div>
-            <p className="text-xl font-semibold text-gray-900">
-              {hasActualDuration ? `${formatNumber(benchmark.efficiencyGain, 0)}% faster` : 'N/A'}
-            </p>
           </div>
-        </div>
 
-        {/* Visual Comparison Bar */}
-        {hasActualDuration && (
+          {/* Visual Comparison Bar */}
+          {hasActualDuration && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  Time comparison
+                </h4>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  Lower is better
+                </span>
+              </div>
+              <div className="h-20">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={comparisonData}
+                    layout="vertical"
+                    margin={{ top: 0, right: 64, left: 110, bottom: 0 }}
+                  >
+                    <XAxis type="number" hide />
+                    <YAxis
+                      dataKey="name"
+                      type="category"
+                      axisLine={false}
+                      tickLine={false}
+                      width={120}
+                      tick={{ fontSize: 12, fill: "#4b5563" }}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => formatDurationLong(value)}
+                      contentStyle={{
+                        background: "#fff",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: "12px",
+                        boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+                      }}
+                    />
+                    <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={30}>
+                      {comparisonData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                      <LabelList
+                        dataKey="value"
+                        position="right"
+                        formatter={(value) => formatDurationLong(Number(value))}
+                        style={{ fontSize: 11, fill: "#1f2937" }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          )}
+
+          {/* Manual Steps Breakdown */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-gray-900">Time comparison</h4>
-              <span className="text-xs text-gray-500">Lower is better</span>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                Manual effort breakdown
+              </h4>
+              <div className="flex gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <span className="px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                  {formatNumber(rowCount, 0)} rows
+                </span>
+                <span className="px-2 py-1 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                  {formatNumber(columnCount, 0)} columns
+                </span>
+              </div>
             </div>
-            <div className="h-20">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={comparisonData}
-                  layout="vertical"
-                  margin={{ top: 0, right: 64, left: 110, bottom: 0 }}
+            <div className="space-y-2">
+              {benchmark.breakdown.map((step, index) => (
+                <motion.div
+                  key={step.name}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.15)]"
                 >
-                  <XAxis type="number" hide />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    axisLine={false}
-                    tickLine={false}
-                    width={120}
-                    tick={{ fontSize: 12, fill: '#4b5563' }}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => formatDurationLong(value)}
-                    contentStyle={{
-                      background: '#fff',
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '12px',
-                      boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
+                  <div
+                    className="w-2 h-8 rounded-full shrink-0"
+                    style={{
+                      backgroundColor: stepColors[index % stepColors.length],
                     }}
                   />
-                  <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={30}>
-                    {comparisonData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                    <LabelList
-                      dataKey="value"
-                      position="right"
-                      formatter={(value) => formatDurationLong(Number(value))}
-                      style={{ fontSize: 11, fill: '#1f2937' }}
-                    />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                      {step.name}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {step.description}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {step.estimatedMinutes} min
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      ~{formatNumber(step.estimatedMinutes / 60, 1)} hr
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
-          </div>
-        )}
 
-        {/* Manual Steps Breakdown */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold text-gray-900">Manual effort breakdown</h4>
-            <div className="flex gap-2 text-xs text-gray-500">
-              <span className="px-2 py-1 rounded-full border border-gray-200 bg-white">
-                {formatNumber(rowCount, 0)} rows
-              </span>
-              <span className="px-2 py-1 rounded-full border border-gray-200 bg-white">
-                {formatNumber(columnCount, 0)} columns
-              </span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            {benchmark.breakdown.map((step, index) => (
-              <motion.div
-                key={step.name}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white shadow-[0_4px_12px_-8px_rgba(0,0,0,0.15)]"
-              >
-                <div
-                  className="w-2 h-8 rounded-full shrink-0"
-                  style={{ backgroundColor: stepColors[index % stepColors.length] }}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 truncate">
-                    {step.name}
-                  </p>
-                  <p className="text-xs text-gray-500 truncate">
-                    {step.description}
-                  </p>
-                </div>
-                <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {step.estimatedMinutes} min
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    ~{formatNumber(step.estimatedMinutes / 60, 1)} hr
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-between p-3 rounded-lg border border-primary-200 bg-primary-50/60">
-            <div className="flex items-center gap-2">
-              <CheckCircleIcon className="w-5 h-5 text-primary-600" />
-              <span className="font-semibold text-gray-900">
-                Total manual estimate
+            <div className="flex items-center justify-between p-3 rounded-lg border border-primary-200 dark:border-primary-800 bg-primary-50/60 dark:bg-primary-900/20">
+              <div className="flex items-center gap-2">
+                <CheckCircleIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  Total manual estimate
+                </span>
+              </div>
+              <span className="text-lg font-bold text-primary-700 dark:text-primary-300">
+                {formatDurationLong(benchmark.manualEstimate)}
               </span>
             </div>
-            <span className="text-lg font-bold text-primary-700">
-              {formatDurationLong(benchmark.manualEstimate)}
-            </span>
           </div>
-        </div>
 
-        {/* Calculation basis note */}
-        <p className="text-xs text-gray-500 leading-relaxed">
-          Estimate based on {formatNumber(rowCount, 0)} rows, {formatNumber(columnCount, 0)} columns,
-          {taskType === 'classification' ? ' classification' : ' regression'} task. Manual estimates assume a typical data science workflow by an experienced practitioner.
-        </p>
+          {/* Calculation basis note */}
+          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+            Estimate based on {formatNumber(rowCount, 0)} rows,{" "}
+            {formatNumber(columnCount, 0)} columns,
+            {taskType === "classification"
+              ? " classification"
+              : " regression"}{" "}
+            task. Manual estimates assume a typical data science workflow by an
+            experienced practitioner.
+          </p>
         </CardContent>
       )}
     </Card>
-  )
+  );
 }
 
-export default BenchmarkComparison
+export default BenchmarkComparison;

@@ -30,6 +30,7 @@ def health_check(request):
 # API v1 URL patterns
 api_v1_patterns = [
     path('health/', health_check, name='health_check'),
+    path('core/', include('apps.core.urls', namespace='core')),
     path('auth/', include('apps.users.urls', namespace='users')),
     path('datasets/', include('apps.datasets.urls', namespace='datasets')),
     path('eda/', include('apps.eda.urls', namespace='eda')),

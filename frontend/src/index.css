@@ -161,7 +161,7 @@
 /* Utilities */
 @layer utilities {
   .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-sm;
+    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-sm dark:bg-gray-900/80 dark:border-white/10;
   }
 
   .glass-dark {
@@ -175,10 +175,10 @@
 
 @layer utilities {
   .text-primary {
-    @apply text-gray-900;
+    @apply text-gray-900 dark:text-gray-50;
   }
   .text-secondary {
-    @apply text-gray-500;
+    @apply text-gray-500 dark:text-gray-400;
   }
 }
 
