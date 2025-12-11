@@ -4,7 +4,13 @@ import { cn } from "@/utils";
 
 export function AuthLayout() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center px-4 py-10 relative overflow-hidden">
+    <div
+      className="min-h-screen transition-colors duration-200 flex items-center justify-center px-4 py-10 relative overflow-hidden"
+      style={{
+        backgroundColor: "var(--color-background-val)",
+        color: "var(--color-foreground-val)",
+      }}
+    >
       {/* Content */}
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.96 }}

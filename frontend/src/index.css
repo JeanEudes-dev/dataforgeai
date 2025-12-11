@@ -123,9 +123,12 @@
 
     --background: 255 255 255;
     --foreground: 24 24 27;
+    color-scheme: light;
   }
 
-  .dark {
+  :root.dark,
+  .dark,
+  [data-theme="dark"] {
     --color-surface-val: #18181b;
     --color-background-val: #09090b;
     --color-foreground-val: #fafafa;
@@ -135,10 +138,13 @@
 
     --background: 9 9 11;
     --foreground: 250 250 250;
+    color-scheme: dark;
   }
 
   body {
-    @apply bg-background text-foreground antialiased font-sans;
+    background-color: var(--color-background-val);
+    color: var(--color-foreground-val);
+    @apply antialiased font-sans;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 

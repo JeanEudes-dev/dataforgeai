@@ -8,7 +8,13 @@ export function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-50">
+    <div
+      className="min-h-screen transition-colors duration-200"
+      style={{
+        backgroundColor: "var(--color-background-val)",
+        color: "var(--color-foreground-val)",
+      }}
+    >
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}

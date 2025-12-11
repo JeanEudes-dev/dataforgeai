@@ -24,18 +24,25 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(() => getTheme())
 
-  // Apply theme class to document
+  // Apply theme class/attributes to the document so tailwind dark: styles work everywhere
   useEffect(() => {
     const root = document.documentElement
+    const body = document.body
+    const appRoot = document.getElementById('root')
+    const isDark = theme === 'dark'
 
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
+    const targets = [root, body, appRoot].filter(Boolean) as HTMLElement[]
+
+    targets.forEach((el) => {
+      el.classList.remove('dark')
+      el.dataset.theme = theme
+      if (isDark) el.classList.add('dark')
+    })
 
     // Also set color-scheme for native elements
-    root.style.colorScheme = theme
+    targets.forEach((el) => {
+      el.style.colorScheme = theme
+    })
   }, [theme])
 
   // Listen for system preference changes
@@ -70,7 +77,23 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     isDark: theme === 'dark',
   }
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  return (
+    <ThemeContext.Provider value={value}>
+      {/* Ensure dark mode class exists in the React tree for tailwind dark: utilities */}
+      <div
+        className={theme === 'dark' ? 'dark theme-root' : 'theme-root'}
+        data-theme={theme}
+        style={{
+          backgroundColor: 'var(--color-background-val)',
+          color: 'var(--color-foreground-val)',
+          minHeight: '100vh',
+          transition: 'background-color 150ms ease, color 150ms ease',
+        }}
+      >
+        {children}
+      </div>
+    </ThemeContext.Provider>
+  )
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
