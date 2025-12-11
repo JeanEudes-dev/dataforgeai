@@ -134,8 +134,8 @@ export function Header({ onMenuClick, title }: HeaderProps) {
                 "transition-colors duration-200"
               )}
             >
-              <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center">
-                <span className="text-xs font-medium text-primary-600">
+              <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
                   {user?.first_name?.[0] ||
                     user?.email?.[0]?.toUpperCase() ||
                     "U"}
@@ -199,7 +199,7 @@ export function Header({ onMenuClick, title }: HeaderProps) {
                         className={cn(
                           "flex items-center gap-3 w-full px-4 py-2 text-sm",
                           active
-                            ? "bg-error-50 text-error-600"
+                            ? "bg-error-50 dark:bg-error-900/20 text-error-600 dark:text-error-400"
                             : "text-secondary"
                         )}
                       >

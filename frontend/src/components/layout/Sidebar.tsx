@@ -145,21 +145,43 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <button
           onClick={toggleTheme}
           className={cn(
-            "w-full flex items-center gap-3 px-3 py-2 rounded-md",
+            "group relative w-full flex items-center gap-3 px-3 py-2 rounded-md",
             "text-secondary hover:text-primary",
             "hover:bg-sunken",
-            "transition-all duration-200"
+            "transition-all duration-200",
+            !isOpen && "justify-center"
           )}
         >
-          {theme === "dark" ? (
-            <SunIcon className="w-5 h-5" />
-          ) : (
-            <MoonIcon className="w-5 h-5" />
-          )}
+          <motion.div
+            initial={false}
+            animate={{ rotate: theme === "dark" ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {theme === "dark" ? (
+              <SunIcon className="w-5 h-5" />
+            ) : (
+              <MoonIcon className="w-5 h-5" />
+            )}
+          </motion.div>
+
           {isOpen && (
             <span className="text-sm">
               {theme === "dark" ? "Light Mode" : "Dark Mode"}
             </span>
+          )}
+
+          {!isOpen && (
+            <div
+              className={cn(
+                "absolute left-full ml-2 px-2 py-1 rounded-md",
+                "bg-primary-950 text-white text-xs font-medium shadow-lg",
+                "opacity-0 group-hover:opacity-100",
+                "pointer-events-none transition-opacity duration-200",
+                "z-50 whitespace-nowrap"
+              )}
+            >
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </div>
           )}
         </button>
       </div>
