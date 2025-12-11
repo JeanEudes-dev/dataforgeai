@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -8,27 +8,28 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-} from 'recharts'
-import { motion } from 'framer-motion'
-import type { DistributionData } from '@/types'
+} from "recharts";
+import { motion } from "framer-motion";
+import { useTheme } from "@/contexts";
+import type { DistributionData } from "@/types";
 
 interface DistributionChartProps {
-  data: DistributionData
-  columnName: string
-  color?: string
-  height?: number
+  data: DistributionData;
+  columnName: string;
+  color?: string;
+  height?: number;
 }
 
 const COLORS = {
   numeric: {
-    primary: '#007aff',
-    gradient: ['#007aff', '#5856d6'],
+    primary: "#007aff",
+    gradient: ["#007aff", "#5856d6"],
   },
   categorical: {
-    primary: '#34c759',
-    gradient: ['#34c759', '#30d158'],
+    primary: "#34c759",
+    gradient: ["#34c759", "#30d158"],
   },
-}
+};
 
 export function DistributionChart({
   data,
@@ -36,26 +37,30 @@ export function DistributionChart({
   color,
   height = 200,
 }: DistributionChartProps) {
+  const { isDark } = useTheme();
+
   const chartData = useMemo(() => {
-    if (!data?.bins || !data?.counts) return []
+    if (!data?.bins || !data?.counts) return [];
     return data.bins.map((bin, index) => ({
       name: bin.length > 12 ? `${bin.slice(0, 12)}...` : bin,
       fullName: bin,
       value: data.counts[index] || 0,
-    }))
-  }, [data])
+    }));
+  }, [data]);
 
   if (!data || chartData.length === 0) {
     return (
-      <div className="w-full rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
+      <div className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4 text-sm text-gray-500 dark:text-gray-400">
         No distribution data available for {columnName}.
       </div>
-    )
+    );
   }
 
-  const maxValue = Math.max(...data.counts, 0)
-  const colorScheme = COLORS[data.type]
-  const barColor = color || colorScheme.primary
+  const maxValue = Math.max(...data.counts, 0);
+  const colorScheme = COLORS[data.type];
+  const barColor = color || colorScheme.primary;
+  const gridColor = isDark ? "#27272a" : "#e4e4e7";
+  const textColor = isDark ? "#a1a1aa" : "#71717a";
 
   return (
     <motion.div
@@ -65,42 +70,58 @@ export function DistributionChart({
       className="w-full"
     >
       <div className="flex items-center justify-between mb-3">
-        <h4 className="text-sm font-medium text-gray-900 truncate" title={columnName}>
+        <h4
+          className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate"
+          title={columnName}
+        >
           {columnName}
         </h4>
-        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+        <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
           {data.type}
         </span>
       </div>
       <ResponsiveContainer width="100%" height={height}>
-        <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
+        <BarChart
+          data={chartData}
+          margin={{ top: 5, right: 5, left: -20, bottom: 5 }}
+        >
           <defs>
-            <linearGradient id={`gradient-${columnName}`} x1="0" y1="0" x2="0" y2="1">
+            <linearGradient
+              id={`gradient-${columnName}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
               <stop offset="0%" stopColor={barColor} stopOpacity={0.9} />
               <stop offset="100%" stopColor={barColor} stopOpacity={0.6} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke={gridColor}
+            vertical={false}
+          />
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 10, fill: '#71717a' }}
+            tick={{ fontSize: 10, fill: textColor }}
             tickLine={false}
-            axisLine={{ stroke: '#e4e4e7' }}
+            axisLine={{ stroke: gridColor }}
             interval={0}
             angle={-45}
             textAnchor="end"
             height={50}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: '#71717a' }}
+            tick={{ fontSize: 10, fill: textColor }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => value.toLocaleString()}
           />
           <Tooltip
             content={({ active, payload }) => {
-              if (!active || !payload?.length) return null
-              const item = payload[0].payload
+              if (!active || !payload?.length) return null;
+              const item = payload[0].payload;
               return (
                 <div className="bg-white rounded-lg shadow-lg border border-gray-200 px-3 py-2">
                   <p className="text-xs text-gray-500">{item.fullName}</p>
@@ -108,7 +129,7 @@ export function DistributionChart({
                     {item.value.toLocaleString()} records
                   </p>
                 </div>
-              )
+              );
             }}
           />
           <Bar dataKey="value" radius={[4, 4, 0, 0]} maxBarSize={50}>
@@ -123,7 +144,7 @@ export function DistributionChart({
         </BarChart>
       </ResponsiveContainer>
     </motion.div>
-  )
+  );
 }
 
-export default DistributionChart
+export default DistributionChart;

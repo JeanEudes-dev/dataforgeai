@@ -44,8 +44,8 @@ export function Select({
           <Listbox.Button
             className={cn(
               "relative w-full py-2 pl-3 pr-10 text-left rounded-lg",
-              "bg-white text-gray-900",
-              "border border-gray-200 shadow-sm",
+              "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100",
+              "border border-gray-200 dark:border-gray-700 shadow-sm",
               "transition-all duration-200",
               "focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20",
               "disabled:opacity-60 disabled:cursor-not-allowed",
@@ -56,13 +56,13 @@ export function Select({
             <span
               className={cn(
                 "block truncate",
-                !selectedOption && "text-gray-400"
+                !selectedOption && "text-gray-400 dark:text-gray-500"
               )}
             >
               {selectedOption?.label || placeholder}
             </span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
+              <ChevronUpDownIcon className="h-5 w-5 text-gray-400 dark:text-gray-500" />
             </span>
           </Listbox.Button>
 
@@ -75,7 +75,7 @@ export function Select({
             <Listbox.Options
               className={cn(
                 "absolute z-10 mt-1 w-full py-1 rounded-lg",
-                "bg-white border border-gray-200",
+                "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700",
                 "shadow-lg",
                 "max-h-60 overflow-auto scrollbar-thin",
                 "focus:outline-none"
@@ -90,8 +90,9 @@ export function Select({
                     cn(
                       "relative cursor-pointer select-none py-2 pl-10 pr-4 mx-1 rounded-md",
                       "transition-colors duration-150",
-                      active && "bg-gray-50",
-                      selected && "text-primary-600 bg-primary-50 font-medium",
+                      active && "bg-gray-50 dark:bg-gray-800",
+                      selected &&
+                        "text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/20 font-medium",
                       option.disabled && "opacity-50 cursor-not-allowed"
                     )
                   }

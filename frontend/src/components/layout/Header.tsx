@@ -43,7 +43,11 @@ export function Header({ onMenuClick, title }: HeaderProps) {
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if ((event.key === "F" || event.key === "f") && (event.ctrlKey || event.metaKey) && event.shiftKey) {
+      if (
+        (event.key === "F" || event.key === "f") &&
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey
+      ) {
         event.preventDefault();
         toggleFullscreen();
       }
@@ -60,8 +64,8 @@ export function Header({ onMenuClick, title }: HeaderProps) {
       <div
         className={cn(
           "h-14 px-4 flex items-center justify-between gap-4",
-          "rounded-2xl bg-white/80 backdrop-blur-xl",
-          "border border-white/20 shadow-sm",
+          "rounded-2xl bg-surface/80 backdrop-blur-xl",
+          "border border-white/20 dark:border-white/10 shadow-sm",
           "transition-all duration-200"
         )}
       >

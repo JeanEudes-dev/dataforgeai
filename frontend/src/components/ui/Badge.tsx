@@ -18,12 +18,17 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-gray-100 text-gray-700 border border-gray-200",
-  primary: "bg-blue-50 text-blue-700 border border-blue-100",
-  success: "bg-green-50 text-green-700 border border-green-100",
-  warning: "bg-orange-50 text-orange-700 border border-orange-100",
-  error: "bg-red-50 text-red-700 border border-red-100",
-  info: "bg-indigo-50 text-indigo-700 border border-indigo-100",
+  default:
+    "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700",
+  primary:
+    "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800/30",
+  success:
+    "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-100 dark:border-green-800/30",
+  warning:
+    "bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border border-orange-100 dark:border-orange-800/30",
+  error:
+    "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800/30",
+  info: "bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800/30",
 };
 
 const dotColors: Record<BadgeVariant, string> = {

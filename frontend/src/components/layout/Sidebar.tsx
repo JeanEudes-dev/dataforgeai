@@ -95,7 +95,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 "focus-visible:ring-2 focus-visible:ring-primary-500/50",
                 isActive
                   ? "text-white font-medium"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-100/60"
+                  : "text-muted hover:text-foreground hover:bg-sunken/60"
               )}
             >
               {isActive && (
@@ -110,7 +110,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                   "w-5 h-5 flex-shrink-0 relative z-10 transition-colors",
                   isActive
                     ? "text-white"
-                    : "text-gray-400 group-hover:text-gray-600"
+                    : "text-muted group-hover:text-foreground"
                 )}
               />
               {isOpen && (

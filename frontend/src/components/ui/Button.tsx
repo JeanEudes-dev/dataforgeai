@@ -23,14 +23,14 @@ const variantStyles: Record<ButtonVariant, string> = {
     active:bg-primary-700 active:scale-[0.98]
   `,
   secondary: `
-    bg-white text-gray-700 border border-gray-200
-    shadow-sm hover:bg-gray-50 hover:border-gray-300
-    active:bg-gray-100 active:scale-[0.98]
+    bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700
+    shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600
+    active:bg-gray-100 dark:active:bg-gray-600 active:scale-[0.98]
   `,
   ghost: `
-    bg-transparent text-gray-600
-    hover:text-gray-900 hover:bg-gray-100
-    active:bg-gray-200 active:scale-[0.98]
+    bg-transparent text-gray-600 dark:text-gray-400
+    hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800
+    active:bg-gray-200 dark:active:bg-gray-700 active:scale-[0.98]
   `,
   danger: `
     bg-error-500 text-white border border-transparent

@@ -57,7 +57,7 @@ export function TabsList({ children, className }: TabsListProps) {
     <div
       className={cn(
         "inline-flex p-1 rounded-lg",
-        "bg-gray-100 border border-transparent",
+        "bg-gray-100 dark:bg-gray-800 border border-transparent",
         className
       )}
     >
@@ -101,7 +101,7 @@ export function TabsTrigger({
           layoutId="active-tab"
           className={cn(
             "absolute inset-0 rounded-md",
-            "bg-white shadow-sm border border-black/5"
+            "bg-white dark:bg-gray-700 shadow-sm border border-black/5 dark:border-white/5"
           )}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />

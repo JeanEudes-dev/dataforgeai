@@ -16,7 +16,7 @@ export function Skeleton({
   return (
     <div
       className={cn(
-        "relative overflow-hidden bg-gray-100",
+        "relative overflow-hidden bg-gray-100 dark:bg-gray-800",
         "rounded-md",
         variant === "text" && "h-4",
         variant === "circular" && "rounded-full",
@@ -28,7 +28,7 @@ export function Skeleton({
         height,
       }}
     >
-      <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 to-transparent" />
+      <div className="absolute inset-0 -translate-x-full animate-[shimmer-slide_1.5s_infinite] bg-gradient-to-r from-transparent via-white/50 dark:via-gray-700/50 to-transparent" />
     </div>
   );
 }
