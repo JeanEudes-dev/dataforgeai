@@ -8,10 +8,7 @@ import {
   DocumentTextIcon,
   ChatBubbleLeftRightIcon,
   ChevronLeftIcon,
-  SunIcon,
-  MoonIcon,
 } from "@heroicons/react/24/outline";
-import { useTheme } from "@/contexts";
 import { cn } from "@/utils";
 
 interface SidebarProps {
@@ -30,7 +27,6 @@ const navItems = [
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <motion.aside
@@ -39,9 +35,8 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
         "fixed left-0 top-0 h-screen z-40",
-        "bg-surface/95 backdrop-blur-xl",
-        "border-r border-subtle",
-        "flex flex-col py-4"
+        "glass-sidebar",
+        "flex flex-col py-4 text-white"
       )}
     >
       {/* Logo */}
@@ -53,7 +48,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           <img src="/Icon.png" alt="DataForge AI" className="w-8 h-8" />
           {isOpen && (
             <div className="leading-none">
-              <h1 className="font-semibold text-primary text-sm tracking-tight">
+              <h1 className="font-bold text-lg tracking-tight text-gradient bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 DataForge
               </h1>
             </div>
@@ -90,101 +85,42 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               key={item.path}
               to={item.path}
               className={cn(
-                "group relative flex items-center gap-3 px-3 py-2 rounded-lg",
-                "transition-all duration-200 outline-none",
-                "focus-visible:ring-2 focus-visible:ring-primary-500/50",
+                "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl mx-2",
+                "transition-all duration-300 outline-none overflow-hidden",
                 isActive
-                  ? "text-white font-medium"
-                  : "text-muted hover:text-foreground hover:bg-sunken/60"
+                  ? "text-white bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-white/10"
+                  : "text-gray-400 hover:text-white hover:bg-white/5"
               )}
             >
               {isActive && (
                 <motion.div
-                  layoutId="sidebar-active"
-                  className="absolute inset-0 bg-primary-500 rounded-lg shadow-sm"
-                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  layoutId="active-nav"
+                  className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                 />
               )}
               <item.icon
                 className={cn(
-                  "w-5 h-5 flex-shrink-0 relative z-10 transition-colors",
-                  isActive
-                    ? "text-white"
-                    : "text-muted group-hover:text-foreground"
+                  "w-5 h-5 shrink-0 relative z-10 transition-colors duration-300",
+                  isActive ? "text-blue-400" : "group-hover:text-blue-300"
                 )}
               />
               {isOpen && (
                 <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-sm relative z-10"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="font-medium text-sm relative z-10"
                 >
                   {item.label}
                 </motion.span>
-              )}
-              {!isOpen && (
-                <div
-                  className={cn(
-                    "absolute left-full ml-2 px-2 py-1 rounded-md",
-                    "bg-primary-950 text-white text-xs font-medium shadow-lg",
-                    "opacity-0 group-hover:opacity-100",
-                    "pointer-events-none transition-opacity duration-200",
-                    "z-50 whitespace-nowrap"
-                  )}
-                >
-                  {item.label}
-                </div>
               )}
             </NavLink>
           );
         })}
       </nav>
-
-      {/* Theme Toggle */}
-      <div className="px-2 mt-auto pt-4 border-t border-subtle">
-        <button
-          onClick={toggleTheme}
-          className={cn(
-            "group relative w-full flex items-center gap-3 px-3 py-2 rounded-md",
-            "text-secondary hover:text-primary",
-            "hover:bg-sunken",
-            "transition-all duration-200",
-            !isOpen && "justify-center"
-          )}
-        >
-          <motion.div
-            initial={false}
-            animate={{ rotate: theme === "dark" ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {theme === "dark" ? (
-              <SunIcon className="w-5 h-5" />
-            ) : (
-              <MoonIcon className="w-5 h-5" />
-            )}
-          </motion.div>
-
-          {isOpen && (
-            <span className="text-sm">
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
-            </span>
-          )}
-
-          {!isOpen && (
-            <div
-              className={cn(
-                "absolute left-full ml-2 px-2 py-1 rounded-md",
-                "bg-primary-950 text-white text-xs font-medium shadow-lg",
-                "opacity-0 group-hover:opacity-100",
-                "pointer-events-none transition-opacity duration-200",
-                "z-50 whitespace-nowrap"
-              )}
-            >
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
-            </div>
-          )}
-        </button>
-      </div>
     </motion.aside>
   );
 }

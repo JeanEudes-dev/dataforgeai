@@ -3,17 +3,17 @@ import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/utils";
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: "elevated" | "flat" | "pressed";
+  variant?: "elevated" | "flat" | "pressed" | "premium";
   hoverable?: boolean;
   clickable?: boolean;
   padding?: "none" | "sm" | "md" | "lg";
 }
 
 const variantStyles = {
-  elevated: "border border-gray-200 dark:border-gray-800 bg-surface shadow-sm",
-  flat: "border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50",
-  pressed:
-    "border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800 shadow-inner",
+  elevated: "glass-card shadow-xl text-white border-white/10",
+  flat: "glass border-none text-white",
+  pressed: "bg-black/40 shadow-inner border border-white/5 text-white",
+  premium: "glass-card relative overflow-hidden border-white/10 shadow-2xl",
 };
 
 const paddingStyles = {
@@ -37,15 +37,24 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
     ref
   ) => {
     const baseClassName = cn(
-      "rounded-xl",
-      "transition-all duration-200",
+      "rounded-2xl",
+      "transition-all duration-300",
       variantStyles[variant],
       paddingStyles[padding],
       hoverable &&
         variant === "elevated" &&
-        "hover:shadow-md hover:-translate-y-0.5",
+        "hover:shadow-2xl hover:-translate-y-1 hover:border-white/20 hover:bg-white/5",
       clickable && "cursor-pointer",
       className
+    );
+
+    const content = (
+      <>
+        {variant === "premium" && (
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none" />
+        )}
+        <div className="relative z-10">{children}</div>
+      </>
     );
 
     if (hoverable || clickable) {
@@ -53,19 +62,19 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         <motion.div
           ref={ref}
           className={baseClassName}
-          whileHover={{ scale: 1.005 }}
-          whileTap={clickable ? { scale: 0.99 } : undefined}
-          transition={{ type: "spring" as const, stiffness: 400, damping: 17 }}
+          whileHover={{ scale: 1.01 }}
+          whileTap={clickable ? { scale: 0.98 } : undefined}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
           {...(props as HTMLMotionProps<"div">)}
         >
-          {children}
+          {content}
         </motion.div>
       );
     }
 
     return (
       <div ref={ref} className={baseClassName} {...props}>
-        {children}
+        {content}
       </div>
     );
   }

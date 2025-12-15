@@ -7,6 +7,7 @@ import {
   CpuChipIcon,
   DocumentTextIcon,
   ArrowRightIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 import {
   Card,
@@ -26,6 +27,8 @@ const workflowSteps = [
     description: "Bring your CSV or Excel file into the workspace.",
     icon: CloudArrowUpIcon,
     path: "/datasets",
+    color: "text-blue-400",
+    bg: "bg-blue-500/10",
   },
   {
     id: 2,
@@ -33,6 +36,8 @@ const workflowSteps = [
     description: "Run automated EDA for fast profiling.",
     icon: ChartBarIcon,
     path: "/datasets",
+    color: "text-purple-400",
+    bg: "bg-purple-500/10",
   },
   {
     id: 3,
@@ -40,6 +45,8 @@ const workflowSteps = [
     description: "AutoML searches and benchmarks candidates.",
     icon: CpuChipIcon,
     path: "/training/jobs",
+    color: "text-pink-400",
+    bg: "bg-pink-500/10",
   },
   {
     id: 4,
@@ -47,6 +54,8 @@ const workflowSteps = [
     description: "Share insights with stakeholders.",
     icon: DocumentTextIcon,
     path: "/reports",
+    color: "text-cyan-400",
+    bg: "bg-cyan-500/10",
   },
 ];
 
@@ -64,122 +73,165 @@ export function DashboardPage() {
     queryFn: dashboardApi.getStats,
   });
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className="space-y-8">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="space-y-8"
+    >
       {/* Hero */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
-          <div className="relative px-6 py-6 flex flex-wrap items-start justify-between gap-6">
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
-                DataForge cockpit
-              </p>
-              <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-50">
-                Welcome back, {user?.first_name || "there"}.
+      <motion.div variants={item}>
+        <Card variant="premium" className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+
+          <div className="relative px-8 py-10 flex flex-wrap items-center justify-between gap-8">
+            <div className="space-y-4 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-blue-300 uppercase tracking-wider">
+                  DataForge Cockpit
+                </span>
+              </div>
+
+              <h1 className="text-4xl md:text-5xl font-bold text-white tracking-tight">
+                Welcome back,{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                  {user?.first_name || "there"}
+                </span>
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
+
+              <p className="text-lg text-gray-300 leading-relaxed">
                 Launch analysis, automate training, and ship reports from one
-                calm workspace.
+                unified workspace. Your data journey starts here.
               </p>
-              <div className="flex flex-wrap gap-3">
+
+              <div className="flex flex-wrap gap-4 pt-2">
                 <Link to="/datasets">
-                  <Button leftIcon={<CloudArrowUpIcon className="w-4 h-4" />}>
-                    Upload data
+                  <Button
+                    size="lg"
+                    leftIcon={<CloudArrowUpIcon className="w-5 h-5" />}
+                    className="shadow-blue-500/25"
+                  >
+                    Upload Data
                   </Button>
                 </Link>
                 <Link to="/assistant">
                   <Button
                     variant="secondary"
-                    rightIcon={<ArrowRightIcon className="w-4 h-4" />}
+                    size="lg"
+                    rightIcon={
+                      <SparklesIcon className="w-5 h-5 text-yellow-400" />
+                    }
                   >
-                    Open assistant
+                    Ask AI Assistant
                   </Button>
                 </Link>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 min-w-[240px]">
+            {/* Stats Grid in Hero */}
+            <div className="grid grid-cols-2 gap-4 min-w-[280px]">
               {[
                 {
                   label: "Datasets",
                   value: isLoading ? "-" : (stats?.datasets_count ?? 0),
                   hint: "Ready for ingestion",
+                  color: "text-blue-400",
                 },
                 {
                   label: "Models",
                   value: isLoading ? "-" : (stats?.models_count ?? 0),
                   hint: "Train to unlock",
+                  color: "text-purple-400",
                 },
                 {
                   label: "Reports",
                   value: isLoading ? "-" : (stats?.reports_count ?? 0),
                   hint: "Share insights",
+                  color: "text-pink-400",
                 },
                 {
                   label: "Automation",
                   value: "Live",
                   hint: "Pipelines healthy",
+                  color: "text-green-400",
                 },
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/50 p-3 shadow-[0_4px_12px_-6px_rgba(0,0,0,0.12)]"
+                  className="rounded-2xl border border-white/10 bg-black/20 backdrop-blur-md p-4 hover:bg-white/5 transition-colors"
                 >
-                  <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  <p className="text-xs uppercase tracking-wider text-gray-400 font-medium">
                     {stat.label}
                   </p>
-                  <p className="text-xl font-semibold text-gray-900 dark:text-gray-100 mt-1">
+                  <p className={cn("text-2xl font-bold mt-1", stat.color)}>
                     {stat.value}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {stat.hint}
-                  </p>
+                  <p className="text-xs text-gray-500 mt-1">{stat.hint}</p>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </Card>
       </motion.div>
 
       {/* Workflow Steps */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.05 }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Getting started
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            A guided flow to ship analysis faster
-          </p>
+      <motion.div variants={item}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-white">Getting Started</h2>
+            <p className="text-gray-400 mt-1">
+              A guided flow to ship analysis faster
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {workflowSteps.map((step) => (
-            <Link key={step.id} to={step.path}>
+            <Link key={step.id} to={step.path} className="block h-full">
               <Card
                 hoverable
-                className="h-full border border-gray-200 dark:border-gray-800 shadow-sm"
+                variant="elevated"
+                className="h-full border-white/5 bg-white/5 hover:bg-white/10"
               >
-                <CardContent className="flex flex-col items-start p-6 space-y-3">
-                  <div className="w-12 h-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300">
-                    <step.icon className="w-6 h-6" />
+                <CardContent className="flex flex-col items-start p-6 space-y-4">
+                  <div
+                    className={cn(
+                      "w-14 h-14 rounded-2xl flex items-center justify-center mb-2",
+                      step.bg,
+                      step.color
+                    )}
+                  >
+                    <step.icon className="w-7 h-7" />
                   </div>
-                  <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wide uppercase">
-                    Step {step.id}
+
+                  <div>
+                    <div className="text-xs font-bold text-gray-500 tracking-wider uppercase mb-1">
+                      Step {step.id}
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">
+                      {step.title}
+                    </h3>
+                    <p className="text-sm text-gray-400 leading-relaxed">
+                      {step.description}
+                    </p>
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {step.description}
-                  </p>
                 </CardContent>
               </Card>
             </Link>
@@ -188,22 +240,25 @@ export function DashboardPage() {
       </motion.div>
 
       {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.1 }}
-      >
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
-            <CardTitle>Quick actions</CardTitle>
+      <motion.div variants={item}>
+        <Card variant="flat" className="bg-white/5 border-white/5">
+          <CardHeader className="border-b border-white/5 pb-4">
+            <CardTitle className="text-white text-lg m-0">
+              Quick Actions
+            </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
+          <CardContent className="pt-6">
+            <div className="flex flex-wrap gap-4">
               {quickActions.map((action) => (
                 <Link key={action.path} to={action.path}>
                   <Button
-                    variant={action.primary ? "primary" : "secondary"}
+                    variant={action.primary ? "glow" : "secondary"}
                     rightIcon={<ArrowRightIcon className="w-4 h-4" />}
+                    className={
+                      action.primary
+                        ? "bg-blue-500/20 border-blue-500/30 text-blue-100"
+                        : ""
+                    }
                   >
                     {action.label}
                   </Button>
@@ -213,55 +268,7 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       </motion.div>
-
-      {/* Stats Overview */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, delay: 0.15 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-4"
-      >
-        {[
-          {
-            label: "Total datasets",
-            value: isLoading ? "-" : (stats?.datasets_count ?? 0),
-            hint: "Upload to get started",
-          },
-          {
-            label: "Trained models",
-            value: isLoading ? "-" : (stats?.models_count ?? 0),
-            hint: "Train your first model",
-          },
-          {
-            label: "Reports generated",
-            value: isLoading ? "-" : (stats?.reports_count ?? 0),
-            hint: "Share a report",
-          },
-        ].map((stat) => (
-          <Card
-            key={stat.label}
-            className="relative overflow-hidden border border-gray-200 dark:border-gray-800 shadow-sm"
-          >
-            <CardContent className="p-6 space-y-2">
-              <p className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                {stat.label}
-              </p>
-              <p className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mt-1">
-                {stat.value}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {stat.hint}
-              </p>
-              <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
-                <div
-                  className={cn("h-full rounded-full bg-primary-500 w-1/5")}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </motion.div>
-    </div>
+    </motion.div>
   );
 }
 

@@ -63,39 +63,54 @@ export function Header({ onMenuClick, title }: HeaderProps) {
     <header className="sticky top-0 z-30 px-6 pt-4 pb-2">
       <div
         className={cn(
-          "h-14 px-4 flex items-center justify-between gap-4",
-          "rounded-2xl bg-surface/80 backdrop-blur-xl",
-          "border border-white/20 dark:border-white/10 shadow-sm",
-          "transition-all duration-200"
+          "h-16 px-6 flex items-center justify-between gap-4",
+          "rounded-2xl glass border border-white/10",
+          "shadow-lg shadow-black/5 backdrop-blur-2xl",
+          "transition-all duration-300 text-white"
         )}
       >
         {/* Left side */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <button
             onClick={onMenuClick}
             className={cn(
-              "p-2 rounded-lg text-muted lg:hidden",
-              "hover:text-primary hover:bg-sunken",
+              "p-2 rounded-xl text-gray-400 lg:hidden",
+              "hover:text-white hover:bg-white/10",
               "transition-colors duration-200"
             )}
           >
-            <Bars3Icon className="w-5 h-5" />
+            <Bars3Icon className="w-6 h-6" />
           </button>
 
           <div>
-            <h1 className="text-sm font-semibold text-primary">
+            <h1 className="text-lg font-bold tracking-tight text-white/90">
               {title || "Dashboard"}
             </h1>
           </div>
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate("/datasets")}
+            className={cn(
+              "hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl",
+              "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500",
+              "text-white text-sm font-medium shadow-lg shadow-blue-500/20",
+              "transition-all duration-300 hover:scale-105 active:scale-95"
+            )}
+          >
+            <PlusIcon className="w-4 h-4" />
+            <span>New Project</span>
+          </button>
+
+          <div className="h-6 w-px bg-white/10 mx-1 hidden sm:block" />
+
           <button
             onClick={toggleFullscreen}
             className={cn(
-              "p-2 rounded-lg text-secondary",
-              "hover:text-primary hover:bg-sunken",
+              "p-2 rounded-xl text-gray-400",
+              "hover:text-white hover:bg-white/10",
               "transition-colors duration-200"
             )}
             title="Ctrl/Cmd + Shift + F to toggle fullscreen"
@@ -108,80 +123,66 @@ export function Header({ onMenuClick, title }: HeaderProps) {
             )}
           </button>
 
-          {/* Quick Upload Button */}
-          <button
-            onClick={() => navigate("/datasets")}
-            className={cn(
-              "flex items-center gap-2 px-3 py-1.5 rounded-lg",
-              "bg-primary-500 text-white",
-              "hover:bg-primary-600",
-              "transition-all duration-200 shadow-sm"
-            )}
-          >
-            <PlusIcon className="w-4 h-4" />
-            <span className="text-xs font-medium hidden sm:inline">
-              New Dataset
-            </span>
-          </button>
-
           {/* User Menu */}
           <Menu as="div" className="relative">
             <Menu.Button
               className={cn(
-                "flex items-center gap-2 px-2 py-1.5 rounded-lg",
-                "text-secondary hover:text-primary",
-                "hover:bg-sunken",
-                "transition-colors duration-200"
+                "flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-xl",
+                "text-gray-300 hover:text-white",
+                "hover:bg-white/5 border border-transparent hover:border-white/10",
+                "transition-all duration-200"
               )}
             >
-              <div className="w-6 h-6 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                <span className="text-xs font-medium text-primary-600 dark:text-primary-400">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-inner">
+                <span className="text-xs font-bold text-white">
                   {user?.first_name?.[0] ||
                     user?.email?.[0]?.toUpperCase() ||
                     "U"}
                 </span>
               </div>
-              <span className="text-xs font-medium hidden md:inline">
+              <span className="text-sm font-medium hidden md:inline">
                 {user?.full_name || user?.email || "User"}
               </span>
             </Menu.Button>
 
             <Transition
               as={Fragment}
-              enter="transition ease-out duration-100"
-              enterFrom="transform opacity-0 scale-95"
-              enterTo="transform opacity-100 scale-100"
-              leave="transition ease-in duration-75"
-              leaveFrom="transform opacity-100 scale-100"
-              leaveTo="transform opacity-0 scale-95"
+              enter="transition ease-out duration-200"
+              enterFrom="transform opacity-0 scale-95 translate-y-2"
+              enterTo="transform opacity-100 scale-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="transform opacity-100 scale-100 translate-y-0"
+              leaveTo="transform opacity-0 scale-95 translate-y-2"
             >
               <Menu.Items
                 className={cn(
-                  "absolute right-0 mt-2 w-56 origin-top-right",
-                  "rounded-xl bg-surface",
-                  "border border-subtle",
-                  "shadow-lg",
-                  "divide-y divide-subtle",
-                  "focus:outline-none z-50"
+                  "absolute right-0 mt-2 w-64 origin-top-right",
+                  "rounded-2xl glass-card",
+                  "border border-white/10",
+                  "shadow-2xl shadow-black/20",
+                  "divide-y divide-white/5",
+                  "focus:outline-none z-50 overflow-hidden"
                 )}
               >
                 {/* User info */}
-                <div className="px-4 py-3">
-                  <p className="text-sm font-medium text-primary">
+                <div className="px-5 py-4 bg-white/5">
+                  <p className="text-sm font-semibold text-white">
                     {user?.full_name || "User"}
                   </p>
-                  <p className="text-xs text-muted truncate">{user?.email}</p>
+                  <p className="text-xs text-gray-400 truncate mt-0.5">
+                    {user?.email}
+                  </p>
                 </div>
 
                 {/* Menu items */}
-                <div className="py-1">
+                <div className="p-2">
                   <Menu.Item>
                     {({ active }) => (
                       <button
                         onClick={() => navigate("/settings")}
                         className={cn(
-                          "flex items-center gap-3 w-full px-4 py-2 text-sm",
-                          active ? "bg-sunken text-primary" : "text-secondary"
+                          "flex items-center gap-3 w-full px-3 py-2.5 text-sm rounded-xl transition-all",
+                          active ? "bg-white/10 text-white" : "text-gray-300"
                         )}
                       >
                         <Cog6ToothIcon className="w-4 h-4" />
@@ -191,16 +192,16 @@ export function Header({ onMenuClick, title }: HeaderProps) {
                   </Menu.Item>
                 </div>
 
-                <div className="py-1">
+                <div className="p-2">
                   <Menu.Item>
                     {({ active }) => (
                       <button
                         onClick={handleLogout}
                         className={cn(
-                          "flex items-center gap-3 w-full px-4 py-2 text-sm",
+                          "flex items-center gap-3 w-full px-3 py-2.5 text-sm rounded-xl transition-all",
                           active
-                            ? "bg-error-50 dark:bg-error-900/20 text-error-600 dark:text-error-400"
-                            : "text-secondary"
+                            ? "bg-red-500/10 text-red-400"
+                            : "text-gray-300"
                         )}
                       >
                         <ArrowRightOnRectangleIcon className="w-4 h-4" />
