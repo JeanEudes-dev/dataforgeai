@@ -65,28 +65,28 @@ export function Modal({
             >
               <Dialog.Panel
                 className={cn(
-                  "w-full rounded-3xl bg-surface",
-                  "border border-gray-200 dark:border-gray-700 shadow-[0_30px_120px_rgba(0,0,0,0.18)]",
+                  "w-full rounded-3xl glass-card",
+                  "border border-white/10 shadow-2xl",
                   "overflow-hidden relative",
                   sizeStyles[size]
                 )}
               >
                 <div className="pointer-events-none absolute inset-0">
-                  <div className="absolute -right-12 -top-16 w-56 h-56 bg-primary-50 dark:bg-primary-900/10 rounded-full blur-3xl" />
-                  <div className="absolute -left-16 bottom-0 w-48 h-48 bg-gray-100 dark:bg-gray-800/20 rounded-full blur-3xl" />
+                  <div className="absolute -right-12 -top-16 w-56 h-56 bg-blue-500/10 rounded-full blur-3xl" />
+                  <div className="absolute -left-16 bottom-0 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl" />
                 </div>
 
                 {/* Header */}
                 {(title || showClose) && (
-                  <div className="flex items-start justify-between px-8 py-6 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-b border-gray-200 dark:border-gray-700 relative">
+                  <div className="flex items-start justify-between px-8 py-6 border-b border-white/10 bg-white/5 relative">
                     <div>
                       {title && (
-                        <Dialog.Title className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                        <Dialog.Title className="text-xl font-semibold text-white">
                           {title}
                         </Dialog.Title>
                       )}
                       {description && (
-                        <Dialog.Description className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <Dialog.Description className="mt-2 text-sm text-gray-400 leading-relaxed">
                           {description}
                         </Dialog.Description>
                       )}
@@ -108,13 +108,13 @@ export function Modal({
                 )}
 
                 {/* Content */}
-                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto scrollbar-thin bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm relative">
+                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto scrollbar-thin text-gray-300 relative">
                   {children}
                 </div>
 
                 {/* Footer */}
                 {footer && (
-                  <div className="px-8 py-5 border-t border-gray-200 dark:border-gray-800 bg-gray-50/80 dark:bg-gray-900/80">
+                  <div className="px-8 py-5 border-t border-white/10 bg-white/5">
                     {footer}
                   </div>
                 )}

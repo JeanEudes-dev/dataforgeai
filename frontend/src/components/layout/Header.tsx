@@ -64,7 +64,7 @@ export function Header({ onMenuClick, title }: HeaderProps) {
       <div
         className={cn(
           "h-16 px-6 flex items-center justify-between gap-4",
-          "rounded-2xl glass border border-white/10",
+          "rounded-2xl glass-header border border-white/10",
           "shadow-lg shadow-black/5 backdrop-blur-2xl",
           "transition-all duration-300 text-white"
         )}

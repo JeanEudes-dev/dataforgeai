@@ -98,8 +98,8 @@ export function DashboardPage() {
       {/* Hero */}
       <motion.div variants={item}>
         <Card variant="premium" className="relative overflow-hidden">
-          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
+          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
           <div className="relative px-8 py-10 flex flex-wrap items-center justify-between gap-8">
             <div className="space-y-4 max-w-2xl">

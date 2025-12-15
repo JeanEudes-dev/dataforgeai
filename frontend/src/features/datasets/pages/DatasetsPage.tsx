@@ -88,29 +88,34 @@ export function DatasetsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
-        <div className="relative px-6 py-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
-              Data workspace
-            </p>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-50">
+      <Card variant="premium" className="relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
+
+        <div className="relative px-8 py-8 flex flex-wrap items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-blue-300 uppercase tracking-wider">
+                Data Workspace
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">
               Datasets
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
+            <p className="text-lg text-gray-300 leading-relaxed">
               Upload, manage, and launch training from your datasets. Cards show
               freshness, size, and readiness status.
             </p>
           </div>
           <Button
+            size="lg"
             leftIcon={<PlusIcon className="w-5 h-5" />}
             onClick={() => setIsUploadModalOpen(true)}
+            className="shadow-blue-500/25"
           >
             Upload dataset
           </Button>
         </div>
-      </div>
+      </Card>
 
       {/* Content */}
       {isLoading ? (
@@ -152,18 +157,22 @@ export function DatasetsPage() {
                 exit={{ opacity: 0, y: 10 }}
                 layout
               >
-                <Card hoverable className="h-full">
+                <Card
+                  hoverable
+                  variant="elevated"
+                  className="h-full border-white/10 bg-white/5 hover:bg-white/10"
+                >
                   <CardContent className="p-5 space-y-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-300">
-                          <DocumentIcon className="w-5 h-5" />
+                        <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-blue-400">
+                          <DocumentIcon className="w-6 h-6" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                          <h3 className="font-semibold text-white truncate text-lg">
                             {dataset.name}
                           </h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-gray-400">
                             {formatRelativeTime(dataset.created_at)}
                           </p>
                         </div>
@@ -172,32 +181,30 @@ export function DatasetsPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20">
                         {dataset.original_filename}
                       </span>
                       {dataset.file_size_display && (
-                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-white/5 text-gray-300 border border-white/10">
                           {dataset.file_size_display}
                         </span>
                       )}
                       {dataset.row_count && (
-                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-300 border border-green-500/20">
                           {formatNumber(dataset.row_count, 0)} rows
                         </span>
                       )}
                       {dataset.column_count && (
-                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20">
                           {dataset.column_count} cols
                         </span>
                       )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                          Status
-                        </p>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                      <div className="p-3 rounded-xl border border-white/10 bg-white/5">
+                        <p className="text-xs text-gray-400 mb-1">Status</p>
+                        <p className="text-sm font-semibold text-white capitalize">
                           {dataset.status}
                         </p>
                       </div>

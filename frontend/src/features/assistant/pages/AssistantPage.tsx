@@ -1,13 +1,13 @@
-import { useState, useRef, useEffect } from 'react'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useRef, useEffect } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   PaperAirplaneIcon,
   SparklesIcon,
   UserIcon,
   InformationCircleIcon,
-} from '@heroicons/react/24/outline'
-import ReactMarkdown from 'react-markdown'
+} from "@heroicons/react/24/outline";
+import ReactMarkdown from "react-markdown";
 import {
   Card,
   CardHeader,
@@ -15,48 +15,48 @@ import {
   CardContent,
   Button,
   Select,
-} from '@/components/ui'
-import { assistantApi, datasetsApi, mlApi } from '@/api'
-import { useToastActions } from '@/contexts'
-import { cn } from '@/utils'
-import type { ChatMessage, AskQuestionParams } from '@/types'
+} from "@/components/ui";
+import { assistantApi, datasetsApi, mlApi } from "@/api";
+import { useToastActions } from "@/contexts";
+import { cn } from "@/utils";
+import type { ChatMessage, AskQuestionParams } from "@/types";
 
 const suggestedQuestions = [
-  'What are the main insights from my data?',
-  'Which features are most important?',
-  'Are there any data quality issues?',
-  'How well does my model perform?',
-  'What do the correlations mean?',
-  'Can you explain the F1 score?',
-]
+  "What are the main insights from my data?",
+  "Which features are most important?",
+  "Are there any data quality issues?",
+  "How well does my model perform?",
+  "What do the correlations mean?",
+  "Can you explain the F1 score?",
+];
 
 export function AssistantPage() {
-  const toast = useToastActions()
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const toast = useToastActions();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [input, setInput] = useState('')
-  const [selectedDatasetId, setSelectedDatasetId] = useState('')
-  const [selectedModelId, setSelectedModelId] = useState('')
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [selectedDatasetId, setSelectedDatasetId] = useState("");
+  const [selectedModelId, setSelectedModelId] = useState("");
 
   // Fetch datasets
   const { data: datasetsData } = useQuery({
-    queryKey: ['datasets'],
+    queryKey: ["datasets"],
     queryFn: () => datasetsApi.list(),
-  })
+  });
 
   // Fetch models
   const { data: modelsData } = useQuery({
-    queryKey: ['trained-models'],
+    queryKey: ["trained-models"],
     queryFn: () => mlApi.listModels(),
-  })
+  });
 
   // Check assistant status
   const { data: statusData } = useQuery({
-    queryKey: ['assistant-status'],
+    queryKey: ["assistant-status"],
     queryFn: () => assistantApi.getStatus(),
     refetchInterval: 30000,
-  })
+  });
 
   // Ask mutation
   const askMutation = useMutation({
@@ -64,77 +64,84 @@ export function AssistantPage() {
     onSuccess: (data) => {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.answer, timestamp: new Date().toISOString() },
-      ])
+        {
+          role: "assistant",
+          content: data.answer,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
     },
     onError: () => {
-      toast.error('Error', 'Could not get a response. Please try again.')
+      toast.error("Error", "Could not get a response. Please try again.");
       setMessages((prev) => [
         ...prev,
         {
-          role: 'assistant',
-          content: 'Sorry, I encountered an error. Please try again.',
+          role: "assistant",
+          content: "Sorry, I encountered an error. Please try again.",
           timestamp: new Date().toISOString(),
         },
-      ])
+      ]);
     },
-  })
+  });
 
   // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = () => {
-    if (!input.trim()) return
+    if (!input.trim()) return;
 
     const userMessage: ChatMessage = {
-      role: 'user',
+      role: "user",
       content: input,
       timestamp: new Date().toISOString(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    setInput('')
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
 
     askMutation.mutate({
       question: input,
       dataset_id: selectedDatasetId || undefined,
       model_id: selectedModelId || undefined,
-    })
-  }
+    });
+  };
 
   const handleSuggestedQuestion = (question: string) => {
-    setInput(question)
-  }
+    setInput(question);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
     }
-  }
+  };
 
-  const datasets = datasetsData?.results || []
-  const models = modelsData?.results || []
-  const isAvailable = statusData?.available !== false
+  const datasets = datasetsData?.results || [];
+  const models = modelsData?.results || [];
+  const isAvailable = statusData?.available !== false;
 
   return (
     <div className="h-[calc(100vh-12rem)] flex gap-6">
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
-        <Card className="flex-1 flex flex-col overflow-hidden">
+        <Card
+          variant="premium"
+          className="flex-1 flex flex-col overflow-hidden border-white/10 bg-black/20 backdrop-blur-xl"
+        >
           {/* Chat Header */}
-          <CardHeader className="flex-shrink-0 border-b border-subtle">
+          <CardHeader className="flex-shrink-0 border-b border-white/10 bg-white/5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
                   <SparklesIcon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle>AI Assistant</CardTitle>
-                  <p className="text-sm text-muted">
-                    {isAvailable ? 'Ready to help' : 'Currently unavailable'}
+                  <CardTitle className="text-white">AI Assistant</CardTitle>
+                  <p className="text-sm text-gray-400">
+                    {isAvailable ? "Ready to help" : "Currently unavailable"}
                   </p>
                 </div>
               </div>
@@ -142,27 +149,28 @@ export function AssistantPage() {
           </CardHeader>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 rounded-2xl bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center mb-4">
-                  <SparklesIcon className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-6 border border-white/10 backdrop-blur-md">
+                  <SparklesIcon className="w-10 h-10 text-blue-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-primary mb-2">
+                <h3 className="text-2xl font-bold text-white mb-3">
                   How can I help you?
                 </h3>
-                <p className="text-secondary max-w-md mb-6">
+                <p className="text-gray-400 max-w-md mb-8 text-lg">
                   Ask me anything about your data, models, or analysis results.
-                  I can explain metrics, suggest improvements, and help you understand your findings.
+                  I can explain metrics, suggest improvements, and help you
+                  understand your findings.
                 </p>
 
                 {/* Suggested Questions */}
-                <div className="flex flex-wrap justify-center gap-2 max-w-lg">
+                <div className="flex flex-wrap justify-center gap-3 max-w-2xl">
                   {suggestedQuestions.slice(0, 4).map((question) => (
                     <button
                       key={question}
                       onClick={() => handleSuggestedQuestion(question)}
-                      className="px-3 py-2 text-sm rounded-xl neu-raised hover:neu-button transition-all text-secondary"
+                      className="px-4 py-2.5 text-sm rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white transition-all duration-200"
                     >
                       {question}
                     </button>
@@ -178,36 +186,36 @@ export function AssistantPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     className={cn(
-                      'flex gap-3',
-                      message.role === 'user' ? 'justify-end' : 'justify-start'
+                      "flex gap-4",
+                      message.role === "user" ? "justify-end" : "justify-start"
                     )}
                   >
-                    {message.role === 'assistant' && (
-                      <div className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                        <SparklesIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                    {message.role === "assistant" && (
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20">
+                        <SparklesIcon className="w-4 h-4 text-white" />
                       </div>
                     )}
                     <div
                       className={cn(
-                        'max-w-[70%] p-4 rounded-2xl text-sm leading-relaxed',
-                        message.role === 'user'
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm text-gray-900 dark:text-gray-100'
+                        "max-w-[75%] p-5 rounded-2xl text-sm leading-relaxed shadow-lg",
+                        message.role === "user"
+                          ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-tr-sm"
+                          : "bg-white/10 border border-white/10 text-gray-100 rounded-tl-sm backdrop-blur-md"
                       )}
                     >
-                      {message.role === 'assistant' ? (
-                        <div className="prose prose-sm max-w-none">
+                      {message.role === "assistant" ? (
+                        <div className="prose prose-invert prose-sm max-w-none">
                           <ReactMarkdown>{message.content}</ReactMarkdown>
                         </div>
                       ) : (
-                        <p className="whitespace-pre-wrap text-white">
+                        <p className="whitespace-pre-wrap text-white font-medium">
                           {message.content}
                         </p>
                       )}
                     </div>
-                    {message.role === 'user' && (
-                      <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center flex-shrink-0">
-                        <UserIcon className="w-4 h-4 text-white" />
+                    {message.role === "user" && (
+                      <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0 border border-white/10">
+                        <UserIcon className="w-4 h-4 text-gray-300" />
                       </div>
                     )}
                   </motion.div>
@@ -220,16 +228,25 @@ export function AssistantPage() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex gap-3"
+                className="flex gap-4"
               >
-                <div className="w-8 h-8 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                  <SparklesIcon className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                  <SparklesIcon className="w-4 h-4 text-white" />
                 </div>
-                <div className="p-4 rounded-2xl neu-raised">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-primary-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 rounded-tl-sm">
+                  <div className="flex gap-1.5">
+                    <span
+                      className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="w-2 h-2 bg-pink-400 rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                 </div>
               </motion.div>
@@ -239,7 +256,7 @@ export function AssistantPage() {
           </div>
 
           {/* Input */}
-          <div className="flex-shrink-0 p-4 border-t border-subtle">
+          <div className="flex-shrink-0 p-4 border-t border-white/10 bg-white/5 backdrop-blur-md">
             <div className="flex gap-3">
               <div className="flex-1 relative">
                 <textarea
@@ -250,18 +267,22 @@ export function AssistantPage() {
                   disabled={!isAvailable}
                   rows={1}
                   className={cn(
-                    'w-full px-4 py-3 rounded-xl resize-none',
-                    'bg-transparent neu-input',
-                    'text-primary placeholder:text-muted',
-                    'focus:outline-none focus:ring-2 focus:ring-primary-500/20',
-                    'disabled:opacity-50 disabled:cursor-not-allowed'
+                    "w-full px-4 py-3 rounded-xl resize-none",
+                    "bg-black/20 border border-white/10",
+                    "text-white placeholder:text-gray-500",
+                    "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent",
+                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    "transition-all duration-200"
                   )}
                 />
               </div>
               <Button
                 onClick={handleSend}
-                disabled={!input.trim() || askMutation.isPending || !isAvailable}
-                className="flex-shrink-0"
+                disabled={
+                  !input.trim() || askMutation.isPending || !isAvailable
+                }
+                className="flex-shrink-0 shadow-lg shadow-blue-500/20"
+                variant="primary"
               >
                 <PaperAirplaneIcon className="w-5 h-5" />
               </Button>
@@ -272,9 +293,9 @@ export function AssistantPage() {
 
       {/* Context Panel */}
       <div className="w-80 flex-shrink-0 space-y-4">
-        <Card className="border border-gray-200 shadow-sm">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60">
-            <CardTitle>Context</CardTitle>
+        <Card variant="elevated" className="border-white/10 bg-white/5">
+          <CardHeader className="border-b border-white/10 pb-4">
+            <CardTitle className="text-white">Context</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
             <Select
@@ -282,12 +303,13 @@ export function AssistantPage() {
               value={selectedDatasetId}
               onChange={setSelectedDatasetId}
               options={[
-                { value: '', label: 'None selected' },
+                { value: "", label: "None selected" },
                 ...datasets
-                  .filter((d) => d.status === 'ready')
+                  .filter((d) => d.status === "ready")
                   .map((d) => ({ value: d.id, label: d.name })),
               ]}
               placeholder="Select a dataset..."
+              className="bg-black/20 border-white/10 text-white"
             />
 
             <Select
@@ -295,34 +317,37 @@ export function AssistantPage() {
               value={selectedModelId}
               onChange={setSelectedModelId}
               options={[
-                { value: '', label: 'None selected' },
+                { value: "", label: "None selected" },
                 ...models.map((m) => ({
                   value: m.id,
                   label: `${m.display_name} - ${m.target_column}`,
                 })),
               ]}
               placeholder="Select a model..."
+              className="bg-black/20 border-white/10 text-white"
             />
 
-            <div className="p-3 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50 dark:bg-blue-900/30 text-xs text-blue-700 dark:text-blue-200 flex items-start gap-2">
-              <InformationCircleIcon className="w-5 h-5 text-blue-500 dark:text-blue-300 flex-shrink-0 mt-0.5" />
-              <p className="text-blue-700 dark:text-blue-200">Selecting context helps tailor answers to your dataset or model.</p>
+            <div className="p-3 rounded-xl border border-blue-500/20 bg-blue-500/10 text-xs text-blue-200 flex items-start gap-2">
+              <InformationCircleIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+              <p>
+                Selecting context helps tailor answers to your dataset or model.
+              </p>
             </div>
           </CardContent>
         </Card>
 
         {/* Quick Questions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Questions</CardTitle>
+        <Card variant="elevated" className="border-white/10 bg-white/5">
+          <CardHeader className="border-b border-white/10 pb-4">
+            <CardTitle className="text-white">Quick Questions</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="space-y-2">
               {suggestedQuestions.map((question) => (
                 <button
                   key={question}
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="w-full text-left px-3 py-2 text-sm rounded-lg neu-raised hover:neu-button transition-all text-secondary"
+                  className="w-full text-left px-3 py-2.5 text-sm rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 transition-all text-gray-300 hover:text-white"
                 >
                   {question}
                 </button>
@@ -332,7 +357,7 @@ export function AssistantPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
 
-export default AssistantPage
+export default AssistantPage;

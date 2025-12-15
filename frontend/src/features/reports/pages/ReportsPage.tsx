@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   DocumentTextIcon,
   PlusIcon,
   ArrowRightIcon,
   TrashIcon,
   SparklesIcon,
-} from '@heroicons/react/24/outline'
+} from "@heroicons/react/24/outline";
 import {
   Card,
   CardContent,
@@ -16,109 +16,127 @@ import {
   Modal,
   Select,
   SkeletonCard,
-} from '@/components/ui'
-import { StatusBadge, EmptyState } from '@/components/shared'
-import { reportsApi, datasetsApi, mlApi, getErrorMessage } from '@/api'
-import { useToastActions } from '@/contexts'
-import { formatRelativeTime } from '@/utils'
-import type { ReportListItem, GenerateReportParams } from '@/types'
+} from "@/components/ui";
+import { StatusBadge, EmptyState } from "@/components/shared";
+import { reportsApi, datasetsApi, mlApi, getErrorMessage } from "@/api";
+import { useToastActions } from "@/contexts";
+import { formatRelativeTime } from "@/utils";
+import type { ReportListItem, GenerateReportParams } from "@/types";
 
 export function ReportsPage() {
-  const queryClient = useQueryClient()
-  const toast = useToastActions()
-  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false)
-  const [selectedDatasetId, setSelectedDatasetId] = useState('')
-  const [selectedReportType, setSelectedReportType] = useState<'eda' | 'model' | 'full'>('full')
-  const [selectedModelId, setSelectedModelId] = useState('')
+  const queryClient = useQueryClient();
+  const toast = useToastActions();
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [selectedDatasetId, setSelectedDatasetId] = useState("");
+  const [selectedReportType, setSelectedReportType] = useState<
+    "eda" | "model" | "full"
+  >("full");
+  const [selectedModelId, setSelectedModelId] = useState("");
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['reports'],
+    queryKey: ["reports"],
     queryFn: () => reportsApi.list(),
-  })
+  });
 
   const { data: datasetsData } = useQuery({
-    queryKey: ['datasets'],
+    queryKey: ["datasets"],
     queryFn: () => datasetsApi.list(),
-  })
+  });
 
   const { data: modelsData } = useQuery({
-    queryKey: ['trained-models'],
+    queryKey: ["trained-models"],
     queryFn: () => mlApi.listModels(),
-  })
+  });
 
   const generateMutation = useMutation({
     mutationFn: (params: GenerateReportParams) => reportsApi.generate(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reports'] })
-      toast.success('Report generating', 'Your report is being generated in the background.')
-      closeGenerateModal()
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      toast.success(
+        "Report generating",
+        "Your report is being generated in the background."
+      );
+      closeGenerateModal();
     },
     onError: (err) => {
-      toast.error('Generation failed', getErrorMessage(err))
+      toast.error("Generation failed", getErrorMessage(err));
     },
-  })
+  });
 
   const deleteMutation = useMutation({
     mutationFn: reportsApi.delete,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reports'] })
-      toast.success('Report deleted', 'The report has been removed.')
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+      toast.success("Report deleted", "The report has been removed.");
     },
     onError: (err) => {
-      toast.error('Delete failed', getErrorMessage(err))
+      toast.error("Delete failed", getErrorMessage(err));
     },
-  })
+  });
 
   const closeGenerateModal = () => {
-    setIsGenerateModalOpen(false)
-    setSelectedDatasetId('')
-    setSelectedReportType('full')
-    setSelectedModelId('')
-  }
+    setIsGenerateModalOpen(false);
+    setSelectedDatasetId("");
+    setSelectedReportType("full");
+    setSelectedModelId("");
+  };
 
   const handleGenerate = () => {
     if (!selectedDatasetId) {
-      toast.error('Missing dataset', 'Please select a dataset.')
-      return
+      toast.error("Missing dataset", "Please select a dataset.");
+      return;
     }
     generateMutation.mutate({
       dataset_id: selectedDatasetId,
       report_type: selectedReportType,
-      model_id: selectedReportType === 'model' || selectedReportType === 'full' ? selectedModelId || undefined : undefined,
-    })
-  }
+      model_id:
+        selectedReportType === "model" || selectedReportType === "full"
+          ? selectedModelId || undefined
+          : undefined,
+    });
+  };
 
   const handleDelete = (id: string, title: string) => {
     if (confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteMutation.mutate(id)
+      deleteMutation.mutate(id);
     }
-  }
+  };
 
-  const reports = data?.results || []
-  const datasets = datasetsData?.results || []
-  const models = modelsData?.results || []
+  const reports = data?.results || [];
+  const datasets = datasetsData?.results || [];
+  const models = modelsData?.results || [];
 
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
-        <div className="relative px-6 py-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="space-y-2">
-            <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">Insights</p>
-            <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-50">Reports</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">
-              Generate EDA summaries or model performance packs; cards show status and freshness.
+      <Card variant="premium" className="relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl" />
+
+        <div className="relative px-8 py-8 flex flex-wrap items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-pink-300 uppercase tracking-wider">
+                Insights
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">
+              Reports
+            </h1>
+            <p className="text-lg text-gray-300 leading-relaxed">
+              Generate EDA summaries or model performance packs. Cards show
+              status and freshness.
             </p>
           </div>
           <Button
+            size="lg"
             leftIcon={<PlusIcon className="w-5 h-5" />}
             onClick={() => setIsGenerateModalOpen(true)}
+            className="shadow-pink-500/25"
           >
             Generate report
           </Button>
         </div>
-      </div>
+      </Card>
 
       {/* Content */}
       {isLoading ? (
@@ -130,7 +148,9 @@ export function ReportsPage() {
       ) : error ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-error-500">Failed to load reports. Please try again.</p>
+            <p className="text-error-500">
+              Failed to load reports. Please try again.
+            </p>
           </CardContent>
         </Card>
       ) : reports.length === 0 ? (
@@ -139,7 +159,7 @@ export function ReportsPage() {
           title="No reports yet"
           description="Generate your first report to get a comprehensive summary of your data analysis."
           action={{
-            label: 'Generate report',
+            label: "Generate report",
             onClick: () => setIsGenerateModalOpen(true),
           }}
         />
@@ -158,18 +178,22 @@ export function ReportsPage() {
                 exit={{ opacity: 0, y: 10 }}
                 layout
               >
-                <Card hoverable className="h-full border border-gray-200 dark:border-gray-800 shadow-sm">
+                <Card
+                  hoverable
+                  variant="elevated"
+                  className="h-full border-white/10 bg-white/5 hover:bg-white/10"
+                >
                   <CardContent className="p-5 space-y-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-200">
-                          <DocumentTextIcon className="w-5 h-5" />
+                        <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-pink-400">
+                          <DocumentTextIcon className="w-6 h-6" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+                          <h3 className="font-semibold text-white truncate text-lg">
                             {report.title}
                           </h3>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-gray-400">
                             {formatRelativeTime(report.created_at)}
                           </p>
                         </div>
@@ -178,23 +202,27 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 truncate max-w-[180px]">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20 truncate max-w-[180px]">
                         {report.dataset.name}
                       </span>
-                      <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-200 capitalize">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20 capitalize">
                         {report.report_type} report
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Status</p>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">{report.status}</p>
+                      <div className="p-3 rounded-xl border border-white/10 bg-white/5">
+                        <p className="text-xs text-gray-400 mb-1">Status</p>
+                        <p className="text-sm font-semibold text-white capitalize">
+                          {report.status}
+                        </p>
                       </div>
-                      <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Updated</p>
-                        <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                          {formatRelativeTime(report.updated_at || report.created_at)}
+                      <div className="p-3 rounded-xl border border-white/10 bg-white/5">
+                        <p className="text-xs text-gray-400 mb-1">Updated</p>
+                        <p className="text-sm font-semibold text-white">
+                          {formatRelativeTime(
+                            report.updated_at || report.created_at
+                          )}
                         </p>
                       </div>
                     </div>
@@ -206,7 +234,7 @@ export function ReportsPage() {
                           size="sm"
                           className="w-full"
                           rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-                          disabled={report.status !== 'completed'}
+                          disabled={report.status !== "completed"}
                         >
                           View
                         </Button>
@@ -217,7 +245,7 @@ export function ReportsPage() {
                         onClick={() => handleDelete(report.id, report.title)}
                         disabled={deleteMutation.isPending}
                       >
-                        <TrashIcon className="w-4 h-4 text-error-500" />
+                        <TrashIcon className="w-4 h-4 text-red-400" />
                       </Button>
                     </div>
                   </CardContent>
@@ -250,11 +278,14 @@ export function ReportsPage() {
         }
       >
         <div className="space-y-5">
-          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/70 p-4 flex items-start gap-3 text-sm text-gray-600 dark:text-gray-300">
-            <SparklesIcon className="w-5 h-5 text-primary-500 mt-0.5" />
+          <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 flex items-start gap-3 text-sm text-blue-200">
+            <SparklesIcon className="w-5 h-5 text-blue-400 mt-0.5" />
             <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">Background generation</p>
-              <p className="text-gray-600 dark:text-gray-300">We'll notify you and update the list when the report is ready. You can navigate away safely.</p>
+              <p className="font-semibold text-white">Background generation</p>
+              <p className="text-blue-200">
+                We'll notify you and update the list when the report is ready.
+                You can navigate away safely.
+              </p>
             </div>
           </div>
 
@@ -263,23 +294,28 @@ export function ReportsPage() {
             value={selectedDatasetId}
             onChange={setSelectedDatasetId}
             options={datasets
-              .filter((d) => d.status === 'ready')
+              .filter((d) => d.status === "ready")
               .map((d) => ({ value: d.id, label: d.name }))}
             placeholder="Select a dataset..."
+            className="bg-black/20 border-white/10 text-white"
           />
 
           <Select
             label="Report type"
             value={selectedReportType}
-            onChange={(value) => setSelectedReportType(value as 'eda' | 'model' | 'full')}
+            onChange={(value) =>
+              setSelectedReportType(value as "eda" | "model" | "full")
+            }
             options={[
-              { value: 'eda', label: 'EDA only — data analysis summary' },
-              { value: 'model', label: 'Model only — performance report' },
-              { value: 'full', label: 'Full report — analysis + model' },
+              { value: "eda", label: "EDA only — data analysis summary" },
+              { value: "model", label: "Model only — performance report" },
+              { value: "full", label: "Full report — analysis + model" },
             ]}
+            className="bg-black/20 border-white/10 text-white"
           />
 
-          {(selectedReportType === 'model' || selectedReportType === 'full') && (
+          {(selectedReportType === "model" ||
+            selectedReportType === "full") && (
             <Select
               label="Model (optional)"
               value={selectedModelId}
@@ -289,12 +325,13 @@ export function ReportsPage() {
                 label: `${m.display_name} — ${m.target_column}`,
               }))}
               placeholder="Select a model..."
+              className="bg-black/20 border-white/10 text-white"
             />
           )}
         </div>
       </Modal>
     </div>
-  )
+  );
 }
 
-export default ReportsPage
+export default ReportsPage;

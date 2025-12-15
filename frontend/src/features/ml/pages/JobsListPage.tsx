@@ -1,46 +1,55 @@
-import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   CpuChipIcon,
   ArrowRightIcon,
   ClockIcon,
-} from '@heroicons/react/24/outline'
-import {
-  Card,
-  CardContent,
-  Button,
-  SkeletonCard,
-} from '@/components/ui'
-import { StatusBadge, EmptyState } from '@/components/shared'
-import { mlApi } from '@/api'
-import { formatRelativeTime, formatDuration, cn } from '@/utils'
-import type { TrainingJobListItem } from '@/types'
+} from "@heroicons/react/24/outline";
+import { Card, CardContent, Button, SkeletonCard } from "@/components/ui";
+import { StatusBadge, EmptyState } from "@/components/shared";
+import { mlApi } from "@/api";
+import { formatRelativeTime, formatDuration, cn } from "@/utils";
+import type { TrainingJobListItem } from "@/types";
 
 export function JobsListPage() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['training-jobs'],
+    queryKey: ["training-jobs"],
     queryFn: () => mlApi.listJobs(),
     refetchInterval: 5000, // Poll every 5 seconds for active jobs
-  })
+  });
 
-  const jobs = data?.results || []
+  const jobs = data?.results || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Training Jobs</h1>
-          <p className="text-secondary mt-1">Monitor your model training jobs</p>
+      <Card variant="premium" className="relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+
+        <div className="relative px-8 py-8 flex flex-wrap items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-purple-300 uppercase tracking-wider">
+                AutoML Engine
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">
+              Training Jobs
+            </h1>
+            <p className="text-lg text-gray-300 leading-relaxed">
+              Monitor your model training jobs. Watch as the AutoML engine
+              searches for the best algorithms and hyperparameters.
+            </p>
+          </div>
+          <Link to="/datasets">
+            <Button size="lg" className="shadow-purple-500/25">
+              <CpuChipIcon className="w-5 h-5 mr-2" />
+              Start New Training
+            </Button>
+          </Link>
         </div>
-        <Link to="/datasets">
-          <Button>
-            <CpuChipIcon className="w-5 h-5 mr-2" />
-            Start New Training
-          </Button>
-        </Link>
-      </div>
+      </Card>
 
       {/* Content */}
       {isLoading ? (
@@ -52,7 +61,9 @@ export function JobsListPage() {
       ) : error ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-error-500">Failed to load training jobs. Please try again.</p>
+            <p className="text-error-500">
+              Failed to load training jobs. Please try again.
+            </p>
           </CardContent>
         </Card>
       ) : jobs.length === 0 ? (
@@ -61,8 +72,8 @@ export function JobsListPage() {
           title="No training jobs yet"
           description="Start training models by selecting a dataset and configuring the training parameters."
           action={{
-            label: 'Go to Datasets',
-            onClick: () => window.location.href = '/datasets',
+            label: "Go to Datasets",
+            onClick: () => (window.location.href = "/datasets"),
           }}
         />
       ) : (
@@ -80,24 +91,27 @@ export function JobsListPage() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 layout
               >
-                <Card hoverable className="h-full">
+                <Card
+                  hoverable
+                  variant="elevated"
+                  className="h-full border-white/10 bg-white/5 hover:bg-white/10"
+                >
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
-                        <div className={cn(
-                          'w-10 h-10 rounded-xl flex items-center justify-center',
-                          job.status === 'completed' ? 'bg-success-100 dark:bg-success-900/30' :
-                          job.status === 'running' ? 'bg-primary-100 dark:bg-primary-900/30' :
-                          job.status === 'error' ? 'bg-error-100 dark:bg-error-900/30' :
-                          'bg-neutral-100 dark:bg-neutral-800'
-                        )}>
-                          <CpuChipIcon className={cn(
-                            'w-5 h-5',
-                            job.status === 'completed' ? 'text-success-600' :
-                            job.status === 'running' ? 'text-primary-600' :
-                            job.status === 'error' ? 'text-error-600' :
-                            'text-neutral-500'
-                          )} />
+                        <div
+                          className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center border border-white/10",
+                            job.status === "completed"
+                              ? "bg-green-500/10 text-green-400"
+                              : job.status === "running"
+                                ? "bg-blue-500/10 text-blue-400"
+                                : job.status === "error"
+                                  ? "bg-red-500/10 text-red-400"
+                                  : "bg-white/5 text-gray-400"
+                          )}
+                        >
+                          <CpuChipIcon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
                           <h3 className="font-semibold text-primary truncate">
@@ -114,26 +128,34 @@ export function JobsListPage() {
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between text-sm">
                         <span className="text-secondary">Task</span>
-                        <span className="text-primary capitalize">{job.task_type}</span>
+                        <span className="text-primary capitalize">
+                          {job.task_type}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-secondary">Target</span>
-                        <span className="text-primary">{job.target_column}</span>
+                        <span className="text-primary">
+                          {job.target_column}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-secondary">Features</span>
-                        <span className="text-primary">{job.feature_columns?.length || '-'}</span>
+                        <span className="text-primary">
+                          {job.feature_columns?.length || "-"}
+                        </span>
                       </div>
-                      {job.status === 'completed' && job.best_model && (
+                      {job.status === "completed" && job.best_model && (
                         <div className="flex justify-between text-sm">
                           <span className="text-secondary">Best Model</span>
-                          <span className="text-primary">{job.best_model.display_name}</span>
+                          <span className="text-primary">
+                            {job.best_model.display_name}
+                          </span>
                         </div>
                       )}
                     </div>
 
                     {/* Progress bar for running jobs */}
-                    {job.status === 'running' && (
+                    {job.status === "running" && (
                       <div className="mb-4">
                         <div className="h-1.5 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                           <motion.div
@@ -144,13 +166,13 @@ export function JobsListPage() {
                           />
                         </div>
                         <p className="text-xs text-muted mt-1">
-                          {job.current_step || 'Processing...'}
+                          {job.current_step || "Processing..."}
                         </p>
                       </div>
                     )}
 
                     {/* Duration for completed jobs */}
-                    {job.status === 'completed' && job.duration && (
+                    {job.status === "completed" && job.duration && (
                       <div className="flex items-center gap-1 text-xs text-muted mb-4">
                         <ClockIcon className="w-3.5 h-3.5" />
                         <span>{formatDuration(job.duration)}</span>
@@ -175,7 +197,7 @@ export function JobsListPage() {
         </motion.div>
       )}
     </div>
-  )
+  );
 }
 
-export default JobsListPage
+export default JobsListPage;

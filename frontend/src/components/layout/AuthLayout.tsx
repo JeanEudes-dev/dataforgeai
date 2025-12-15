@@ -1,15 +1,13 @@
 import { Outlet } from "react-router-dom";
 import { motion } from "framer-motion";
 import { cn } from "@/utils";
+import { AuroraBackground } from "../ui/AuroraBackground";
 
 export function AuthLayout() {
   return (
-    <div
-      className="min-h-screen transition-colors duration-200 flex items-center justify-center px-4 py-10 relative overflow-hidden"
-      style={{
-        backgroundColor: "var(--color-background-val)",
-        color: "var(--color-foreground-val)",
-      }}
+    <AuroraBackground
+      variant="sunset"
+      className="min-h-screen flex items-center justify-center px-4 py-10 overflow-hidden"
     >
       {/* Content */}
       <motion.div
@@ -21,17 +19,17 @@ export function AuthLayout() {
           stiffness: 320,
           damping: 28,
         }}
-        className="relative w-full max-w-md"
+        className="relative w-full max-w-md z-10"
       >
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
             <img src="/Icon.png" alt="DataForge AI" className="w-11 h-11" />
             <div className="text-left">
-              <h1 className="text-2xl font-semibold text-primary leading-tight">
+              <h1 className="text-2xl font-semibold text-white leading-tight">
                 DataForge
               </h1>
-              <span className="text-sm text-muted font-medium">
+              <span className="text-sm text-gray-400 font-medium">
                 Calm AI workspace
               </span>
             </div>
@@ -41,19 +39,19 @@ export function AuthLayout() {
         {/* Card */}
         <div
           className={cn(
-            "rounded-2xl p-8 glass",
-            "border border-subtle shadow-[0_20px_70px_rgba(15,23,42,0.12)]"
+            "rounded-2xl p-8 glass-card",
+            "border border-white/10 shadow-2xl"
           )}
         >
           <Outlet />
         </div>
 
         {/* Footer */}
-        <p className="text-center text-sm text-muted mt-6">
+        <p className="text-center text-sm text-gray-400 mt-6">
           Automated data analytics and machine learning
         </p>
       </motion.div>
-    </div>
+    </AuroraBackground>
   );
 }
 
