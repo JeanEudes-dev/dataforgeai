@@ -45,18 +45,18 @@ services:
   # ---------------------------------------------------------------------------
   # Django Backend API
   # ---------------------------------------------------------------------------
-  backend:
+  dataforgeai-backend:
     build:
       context: .
       dockerfile: Dockerfile
       target: production
-    container_name: dataforge-backend
+    container_name: dataforgeai-backend
     restart: unless-stopped
     environment:
       # Django settings
       DEBUG: ${DEBUG:-False}
       SECRET_KEY: ${SECRET_KEY:-django-insecure-change-me-in-production}
-      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,backend}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,dataforgeai-backend}
 
       # Database
       DB_NAME: ${DB_NAME:-dataforge}
@@ -134,7 +134,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      backend:
+      dataforgeai-backend:
         condition: service_healthy
 
   # ---------------------------------------------------------------------------

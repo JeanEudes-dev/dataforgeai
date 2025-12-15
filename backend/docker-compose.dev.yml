@@ -41,7 +41,7 @@ services:
   # ---------------------------------------------------------------------------
   # Django Backend (Development with hot reload)
   # ---------------------------------------------------------------------------
-  backend:
+  dataforgeai-backend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -50,7 +50,7 @@ services:
     environment:
       DEBUG: "True"
       SECRET_KEY: django-insecure-dev-key-for-local-development-only
-      ALLOWED_HOSTS: localhost,127.0.0.1,backend
+      ALLOWED_HOSTS: localhost,127.0.0.1,dataforgeai-backend
       DB_NAME: dataforge_dev
       DB_USER: postgres
       DB_PASSWORD: postgres

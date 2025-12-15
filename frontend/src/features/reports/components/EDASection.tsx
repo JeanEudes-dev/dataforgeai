@@ -10,6 +10,20 @@ import {
 } from '@/components/charts'
 import type { EnhancedReport } from '@/types'
 
+// Interface to handle both current and legacy backend outlier data formats
+interface RawOutlierData {
+  method?: 'iqr' | 'zscore'
+  count: number
+  ratio?: number
+  bounds?: {
+    lower: number
+    upper: number
+  }
+  // Legacy format fields
+  lower_bound?: number
+  upper_bound?: number
+}
+
 interface EDASectionProps {
   report: EnhancedReport
 }
@@ -52,14 +66,15 @@ export function EDASection({ report }: EDASectionProps) {
   // Transform outlier analysis for the chart
   const outlierData = Object.entries(eda.outlier_analysis || {}).reduce(
     (acc, [col, data]) => {
+      const rawData = data as RawOutlierData
       acc[col] = {
-        method: (data as any).method || 'iqr',
-        count: data.count,
-        ratio: data.ratio ?? 0,
-        bounds: (data as any).bounds ||
-          ((data as any).lower_bound !== undefined &&
-            (data as any).upper_bound !== undefined
-            ? { lower: (data as any).lower_bound, upper: (data as any).upper_bound }
+        method: rawData.method || 'iqr',
+        count: rawData.count,
+        ratio: rawData.ratio ?? 0,
+        bounds: rawData.bounds ||
+          (rawData.lower_bound !== undefined &&
+            rawData.upper_bound !== undefined
+            ? { lower: rawData.lower_bound, upper: rawData.upper_bound }
             : undefined),
       }
       return acc
