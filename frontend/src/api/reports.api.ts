@@ -2,7 +2,6 @@ import { apiClient } from './client'
 import axios from 'axios'
 import type {
   PaginatedResponse,
-  Report,
   ReportListItem,
   GenerateReportParams,
   EnhancedReport,

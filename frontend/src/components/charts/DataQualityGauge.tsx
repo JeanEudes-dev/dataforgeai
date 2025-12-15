@@ -17,7 +17,7 @@ export function DataQualityGauge({
 
     let quality = 'Unknown'
     let color = 'text-muted-foreground'
-    let bgColor = 'stroke-subtle'
+    const bgColor = 'stroke-subtle'
     let progressColor = 'stroke-muted-foreground'
 
     if (score !== null) {

@@ -10,8 +10,7 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles = {
-  elevated:
-    "border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm",
+  elevated: "border border-gray-200 dark:border-gray-800 bg-surface shadow-sm",
   flat: "border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50",
   pressed:
     "border border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-800 shadow-inner",
@@ -91,7 +90,10 @@ export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
   ({ className, ...props }, ref) => (
     <h3
       ref={ref}
-      className={cn("text-base font-semibold text-primary", className)}
+      className={cn(
+        "text-base font-semibold text-primary m-2 rounded-2xl",
+        className
+      )}
       {...props}
     />
   )

@@ -8,7 +8,7 @@ import {
   Skeleton,
 } from '@/components/ui'
 import { reportsApi } from '@/api'
-import type { ReportSection, EnhancedReport, SharedReport } from '@/types'
+import type { ReportSection, EnhancedReport } from '@/types'
 
 // Import report section components
 import {
@@ -75,13 +75,22 @@ export function SharedReportPage() {
     report_metadata: report.report_metadata,
     is_public: true,
     share_url: null,
-    owner: 0,
-    dataset: report.dataset_name ? {
+    share_token: null,
+    error_message: '',
+    dataset: {
       id: '',
-      name: report.dataset_name,
-      row_count: report.content?.dataset?.row_count || 0,
-      column_count: report.content?.dataset?.column_count || 0,
-    } : undefined,
+      name: report.dataset_name || 'Dataset',
+      description: '',
+      original_filename: '',
+      file_type: 'csv',
+      file_size: 0,
+      file_size_display: '',
+      row_count: report.content?.dataset?.row_count || report.dataset_row_count || 0,
+      column_count: report.content?.dataset?.column_count || report.dataset_column_count || 0,
+      status: 'ready',
+      created_at: report.created_at,
+      updated_at: report.created_at,
+    },
     trained_model: null,
     eda_result: null,
     report_type: 'full',

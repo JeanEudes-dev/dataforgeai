@@ -46,6 +46,8 @@ export function BenchmarkComparison({
   taskType,
   className,
 }: BenchmarkComparisonProps) {
+  const [collapsed, setCollapsed] = useState(false);
+
   const benchmark = useMemo(() => {
     if (!rowCount || !columnCount) return null;
 
@@ -73,8 +75,6 @@ export function BenchmarkComparison({
     hasActualDuration && benchmark.manualEstimate
       ? Math.max(0, (benchmark.timeSaved / benchmark.manualEstimate) * 100)
       : null;
-
-  const [collapsed, setCollapsed] = useState(false);
 
   // Data for main comparison chart
   const comparisonData = [

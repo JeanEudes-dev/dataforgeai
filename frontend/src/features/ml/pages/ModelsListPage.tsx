@@ -131,9 +131,9 @@ export function ModelsListPage() {
                         <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-200 truncate max-w-[180px]">
                           Target: {model.target_column}
                         </span>
-                        {model.dataset?.name && (
+                        {model.dataset_name && (
                           <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-200 truncate max-w-[180px]">
-                            {model.dataset.name}
+                            {model.dataset_name}
                           </span>
                         )}
                       </div>
@@ -150,7 +150,7 @@ export function ModelsListPage() {
                         <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Features</p>
                           <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            {model.feature_columns?.length ?? '-'}
+                            -
                           </p>
                         </div>
                       </div>

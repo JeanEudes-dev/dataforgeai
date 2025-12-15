@@ -50,7 +50,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             disabled={disabled}
             className={cn(
               "w-full px-3 py-2 rounded-lg",
-              "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500",
+              "bg-surface text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500",
               "border border-gray-200 dark:border-gray-700",
               "shadow-sm",
               "transition-all duration-200",

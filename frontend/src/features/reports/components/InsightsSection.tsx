@@ -26,6 +26,9 @@ export function InsightsSection({ report }: InsightsSectionProps) {
     )
   }
 
+  const qualityScore =
+    typeof eda?.data_quality_score === 'number' ? eda.data_quality_score : null
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -99,13 +102,13 @@ export function InsightsSection({ report }: InsightsSectionProps) {
       </Card>
 
       {/* Data Quality Note */}
-      {eda?.data_quality_score !== undefined && (
+      {qualityScore !== null && (
         <div className="flex items-center justify-center">
           <div
             className={`px-4 py-3 rounded-xl border ${
-              eda.data_quality_score >= 80
+              qualityScore >= 80
                 ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
-                : eda.data_quality_score >= 60
+                : qualityScore >= 60
                 ? 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300'
                 : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
             }`}
@@ -113,10 +116,10 @@ export function InsightsSection({ report }: InsightsSectionProps) {
             <p
               className="text-sm font-medium"
             >
-              Data Quality Score: <strong>{eda.data_quality_score.toFixed(0)}/100</strong>
-              {eda.data_quality_score >= 80
+              Data Quality Score: <strong>{qualityScore.toFixed(0)}/100</strong>
+              {qualityScore >= 80
                 ? ' - Excellent data quality for analysis'
-                : eda.data_quality_score >= 60
+                : qualityScore >= 60
                 ? ' - Moderate data quality, consider data cleaning'
                 : ' - Low data quality, significant cleaning recommended'}
             </p>

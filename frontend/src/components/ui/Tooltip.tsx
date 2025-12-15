@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, ReactNode } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import type { ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface TooltipProps {
@@ -17,7 +18,7 @@ export function Tooltip({
   className = '',
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false)
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
 
   const showTooltip = () => {
@@ -119,6 +120,7 @@ export function MetricTooltip({
 }
 
 // Pre-defined metric descriptions for common ML metrics
+// eslint-disable-next-line react-refresh/only-export-components
 export const METRIC_DESCRIPTIONS: Record<string, { title: string; description: string }> = {
   accuracy: {
     title: 'Accuracy',

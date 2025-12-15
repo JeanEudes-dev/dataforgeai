@@ -8,7 +8,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-  Legend,
 } from 'recharts'
 import { motion } from 'framer-motion'
 import type { ModelComparisonEntry } from '@/types'

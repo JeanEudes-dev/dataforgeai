@@ -65,7 +65,7 @@ export function Modal({
             >
               <Dialog.Panel
                 className={cn(
-                  "w-full rounded-3xl bg-white dark:bg-gray-900",
+                  "w-full rounded-3xl bg-surface",
                   "border border-gray-200 dark:border-gray-700 shadow-[0_30px_120px_rgba(0,0,0,0.18)]",
                   "overflow-hidden relative",
                   sizeStyles[size]

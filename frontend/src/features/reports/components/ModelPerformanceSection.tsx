@@ -64,11 +64,7 @@ export function ModelPerformanceSection({
   };
 
   // Extract ROC curve data
-  const rocData =
-    metrics.roc_curve ||
-    (metrics.fpr && metrics.tpr
-      ? { fpr: metrics.fpr, tpr: metrics.tpr }
-      : null);
+  const rocData = metrics.roc_curve || null;
 
   return (
     <motion.div

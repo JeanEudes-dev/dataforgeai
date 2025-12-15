@@ -6,8 +6,6 @@
    ========================================================== */
 
 @theme {
-  /* Use class-based dark mode so ThemeProvider toggles work */
-  --dark-mode: class;
   /* Brand palette - Refined Blue (Apple System Blue-ish) */
   --color-primary-50: #f2f8ff;
   --color-primary-100: #e6f2ff;
@@ -149,18 +147,42 @@
   }
 
   /* Dark mode fallbacks for legacy utility usage */
-  .dark .bg-white { background-color: var(--color-surface-val) !important; }
-  .dark .bg-gray-50 { background-color: #111114 !important; }
-  .dark .bg-gray-100 { background-color: #16161a !important; }
-  .dark .bg-white\/80 { background-color: rgb(24 24 27 / 0.8) !important; }
-  .dark .bg-white\/70 { background-color: rgb(24 24 27 / 0.7) !important; }
-  .dark .bg-white\/20 { background-color: rgb(24 24 27 / 0.2) !important; }
-  .dark .border-gray-200 { border-color: #2f2f34 !important; }
-  .dark .border-gray-300 { border-color: #3a3a40 !important; }
-  .dark .text-gray-900 { color: var(--color-foreground-val) !important; }
-  .dark .text-gray-700 { color: #e4e4e7 !important; }
-  .dark .text-gray-600 { color: #d4d4d8 !important; }
-  .dark .text-gray-500 { color: #a1a1aa !important; }
+  .dark .bg-white {
+    background-color: var(--color-surface-val) !important;
+  }
+  .dark .bg-gray-50 {
+    background-color: #111114 !important;
+  }
+  .dark .bg-gray-100 {
+    background-color: #16161a !important;
+  }
+  .dark .bg-white\/80 {
+    background-color: rgb(24 24 27 / 0.8) !important;
+  }
+  .dark .bg-white\/70 {
+    background-color: rgb(24 24 27 / 0.7) !important;
+  }
+  .dark .bg-white\/20 {
+    background-color: rgb(24 24 27 / 0.2) !important;
+  }
+  .dark .border-gray-200 {
+    border-color: #2f2f34 !important;
+  }
+  .dark .border-gray-300 {
+    border-color: #3a3a40 !important;
+  }
+  .dark .text-gray-900 {
+    color: var(--color-foreground-val) !important;
+  }
+  .dark .text-gray-700 {
+    color: #e4e4e7 !important;
+  }
+  .dark .text-gray-600 {
+    color: #d4d4d8 !important;
+  }
+  .dark .text-gray-500 {
+    color: #a1a1aa !important;
+  }
 
   /* Scrollbar - Minimalist */
   ::-webkit-scrollbar {

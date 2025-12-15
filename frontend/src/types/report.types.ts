@@ -1,70 +1,26 @@
 import type { Timestamps } from './api.types'
 import type { DatasetListItem } from './dataset.types'
-import type { TrainedModelListItem, TrainedModel, TaskType, AlgorithmType, TrainingJobMetrics, FeatureImportance } from './ml.types'
+import type {
+  TrainedModelListItem,
+  TrainedModel,
+  TaskType,
+  AlgorithmType,
+  TrainingJobMetrics,
+} from './ml.types'
+import type {
+  DistributionData,
+  CorrelationPair,
+  MissingAnalysis,
+  OutlierAnalysis,
+  SummaryStats,
+  Insight as EDAInsight,
+} from './eda.types'
 
 export type ReportStatus = 'pending' | 'generating' | 'completed' | 'error'
 export type ReportType = 'full' | 'eda' | 'model'
 
 // Section types for navigation
 export type ReportSection = 'overview' | 'eda' | 'model' | 'comparison' | 'insights'
-
-// Distribution data for charts
-export interface DistributionData {
-  bins?: number[]
-  counts?: number[]
-  labels?: string[]
-  type?: 'numeric' | 'categorical'
-}
-
-// Correlation pair
-export interface CorrelationPair {
-  col1: string
-  col2: string
-  correlation: number
-  strength?: string
-}
-
-// Missing value analysis
-export interface MissingAnalysis {
-  count: number
-  ratio: number
-  pattern?: string
-}
-
-// Outlier analysis
-export interface OutlierAnalysis {
-  count: number
-  ratio?: number
-  method: string
-  lower_bound?: number
-  upper_bound?: number
-}
-
-// Insight from EDA
-export interface EDAInsight {
-  type: 'info' | 'warning' | 'success' | 'error'
-  message: string
-  severity?: 'low' | 'medium' | 'high'
-  column?: string
-  value?: number | string
-}
-
-// Summary stats for a column
-export interface ColumnSummaryStats {
-  count?: number
-  mean?: number
-  std?: number
-  min?: number
-  max?: number
-  '25%'?: number
-  '50%'?: number
-  '75%'?: number
-  skewness?: number
-  kurtosis?: number
-  unique?: number
-  top?: string
-  freq?: number
-}
 
 // Model comparison entry
 export interface ModelComparisonEntry {
@@ -98,7 +54,7 @@ export interface ReportMetadata {
 // Enhanced EDA content
 export interface EnhancedEDAContent {
   // Summary statistics
-  summary_stats: Record<string, ColumnSummaryStats>
+  summary_stats: Record<string, SummaryStats>
   summary_stats_formatted?: {
     numeric_columns: Array<{ name: string; mean: number; std: number; min: number; max: number }>
     categorical_columns: Array<{ name: string; unique: number; top: string }>

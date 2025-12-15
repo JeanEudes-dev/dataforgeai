@@ -44,7 +44,7 @@ export function Select({
           <Listbox.Button
             className={cn(
               "relative w-full py-2 pl-3 pr-10 text-left rounded-lg",
-              "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100",
+              "bg-surface text-gray-900 dark:text-gray-100",
               "border border-gray-200 dark:border-gray-700 shadow-sm",
               "transition-all duration-200",
               "focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20",
@@ -75,7 +75,7 @@ export function Select({
             <Listbox.Options
               className={cn(
                 "absolute z-10 mt-1 w-full py-1 rounded-lg",
-                "bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700",
+                "bg-surface border border-gray-200 dark:border-gray-700",
                 "shadow-lg",
                 "max-h-60 overflow-auto scrollbar-thin",
                 "focus:outline-none"

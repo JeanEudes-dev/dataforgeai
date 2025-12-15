@@ -8,13 +8,6 @@ interface ConfusionMatrixChartProps {
   showMetrics?: boolean
 }
 
-interface CellData {
-  x: number
-  y: number
-  value: number
-  isCorrect: boolean
-}
-
 export function ConfusionMatrixChart({
   matrix,
   labels,
@@ -22,32 +15,23 @@ export function ConfusionMatrixChart({
   showMetrics = true,
 }: ConfusionMatrixChartProps) {
   // Generate cell data and calculate metrics
-  const { cells, maxValue, classMetrics, totalAccuracy } = useMemo(() => {
+  const { maxValue, classMetrics, totalAccuracy } = useMemo(() => {
     if (!matrix || matrix.length === 0) {
-      return { cells: [], maxValue: 0, classMetrics: [], totalAccuracy: 0 }
+      return { maxValue: 0, classMetrics: [], totalAccuracy: 0 }
     }
 
-    const cells: CellData[] = []
     let maxVal = 0
     let totalCorrect = 0
     let totalSamples = 0
 
     matrix.forEach((row, i) => {
       row.forEach((value, j) => {
-        cells.push({
-          x: j,
-          y: i,
-          value,
-          isCorrect: i === j,
-        })
         maxVal = Math.max(maxVal, value)
         totalSamples += value
         if (i === j) totalCorrect += value
       })
     })
 
-    // Calculate per-class metrics
-    const n = matrix.length
     const classMetrics = matrix.map((row, i) => {
       const tp = matrix[i][i]
       const fp = matrix.reduce((sum, r, j) => (j !== i ? sum + r[i] : sum), 0)
@@ -64,7 +48,6 @@ export function ConfusionMatrixChart({
     })
 
     return {
-      cells,
       maxValue: maxVal,
       classMetrics,
       totalAccuracy: totalSamples > 0 ? totalCorrect / totalSamples : 0,

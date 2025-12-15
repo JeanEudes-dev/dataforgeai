@@ -6,7 +6,7 @@ import {
   ClockIcon,
 } from '@heroicons/react/24/outline'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
-import { StatCard, DataQualityGauge } from '@/components/charts'
+import { DataQualityGauge } from '@/components/charts'
 import { formatNumber, cn } from '@/utils'
 import type { EnhancedReport } from '@/types'
 

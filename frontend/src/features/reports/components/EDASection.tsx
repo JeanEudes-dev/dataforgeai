@@ -36,33 +36,36 @@ export function EDASection({ report }: EDASectionProps) {
 
   // Transform correlation data for the heatmap
   const correlationData = eda.correlation_matrix || {}
-  const topCorrelations = eda.top_correlations?.map((c) => ({
-    column1: c.col1,
-    column2: c.col2,
-    correlation: c.correlation,
-  })) || []
-
   // Transform missing analysis for the chart
   const missingData = Object.entries(eda.missing_analysis || {}).reduce(
     (acc, [col, data]) => {
       acc[col] = {
         count: data.count,
-        percentage: data.ratio * 100,
+        ratio: data.ratio,
+        pattern: data.pattern,
       }
       return acc
     },
-    {} as Record<string, { count: number; percentage: number }>
+    {} as typeof eda.missing_analysis
   )
 
   // Transform outlier analysis for the chart
-  const outlierData = Object.entries(eda.outlier_analysis || {}).map(([col, data]) => ({
-    column: col,
-    count: data.count,
-    percentage: data.ratio ? data.ratio * 100 : 0,
-    method: data.method,
-    lower: data.lower_bound,
-    upper: data.upper_bound,
-  }))
+  const outlierData = Object.entries(eda.outlier_analysis || {}).reduce(
+    (acc, [col, data]) => {
+      acc[col] = {
+        method: (data as any).method || 'iqr',
+        count: data.count,
+        ratio: data.ratio ?? 0,
+        bounds: (data as any).bounds ||
+          ((data as any).lower_bound !== undefined &&
+            (data as any).upper_bound !== undefined
+            ? { lower: (data as any).lower_bound, upper: (data as any).upper_bound }
+            : undefined),
+      }
+      return acc
+    },
+    {} as typeof eda.outlier_analysis
+  )
 
   return (
     <motion.div
@@ -126,11 +129,7 @@ export function EDASection({ report }: EDASectionProps) {
             <CardTitle className="text-base">Correlation Analysis</CardTitle>
           </CardHeader>
           <CardContent>
-            <CorrelationHeatmap
-              data={correlationData}
-              topCorrelations={topCorrelations}
-              maxItems={10}
-            />
+            <CorrelationHeatmap matrix={correlationData} maxItems={10} />
           </CardContent>
         </Card>
       )}
@@ -153,7 +152,7 @@ export function EDASection({ report }: EDASectionProps) {
         )}
 
         {/* Outliers */}
-        {outlierData.length > 0 && (
+        {Object.keys(outlierData).length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Outliers Detection</CardTitle>

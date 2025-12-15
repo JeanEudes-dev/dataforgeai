@@ -10,7 +10,7 @@ import {
   METRIC_DESCRIPTIONS,
 } from "@/components/ui";
 import { ModelComparisonChart, MetricsRadarChart } from "@/components/charts";
-import type { EnhancedReport, ModelComparisonEntry } from "@/types";
+import type { EnhancedReport } from "@/types";
 
 interface ModelComparisonSectionProps {
   report: EnhancedReport;
@@ -29,7 +29,10 @@ type SortDirection = "asc" | "desc";
 export function ModelComparisonSection({
   report,
 }: ModelComparisonSectionProps) {
-  const models = report.model_comparison || [];
+  const models = useMemo(
+    () => report.model_comparison || [],
+    [report.model_comparison]
+  );
   const [sortKey, setSortKey] = useState<SortKey>("primary_metric");
   const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [selectedMetric, setSelectedMetric] = useState<string>("");
@@ -115,7 +118,7 @@ export function ModelComparisonSection({
     );
   }
 
-  const SortIcon = ({ column }: { column: SortKey }) => {
+  const renderSortIcon = (column: SortKey) => {
     if (sortKey !== column) return null;
     return sortDirection === "asc" ? (
       <ChevronUpIcon className="w-4 h-4" />
@@ -158,7 +161,7 @@ export function ModelComparisonSection({
                   >
                     <div className="flex items-center gap-1">
                       Model
-                      <SortIcon column="name" />
+                      {renderSortIcon("name")}
                     </div>
                   </th>
                   <th
@@ -167,7 +170,7 @@ export function ModelComparisonSection({
                   >
                     <div className="flex items-center gap-1">
                       Algorithm
-                      <SortIcon column="algorithm_type" />
+                      {renderSortIcon("algorithm_type")}
                     </div>
                   </th>
                   {metricOptions.map(({ key, label }) => {
@@ -180,7 +183,7 @@ export function ModelComparisonSection({
                       >
                         <div className="flex items-center gap-1">
                           {label}
-                          <SortIcon column={key as SortKey} />
+                          {renderSortIcon(key as SortKey)}
                         </div>
                       </th>
                     );

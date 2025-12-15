@@ -44,7 +44,7 @@ export interface OutlierAnalysis {
 }
 
 export interface Insight {
-  type: 'info' | 'warning' | 'success'
+  type: 'info' | 'warning' | 'success' | 'error'
   message: string
   severity: 'low' | 'medium' | 'high'
   column?: string

@@ -33,6 +33,8 @@ export function MetricsRadarChart({
   height = 350,
   maxModels = 4,
 }: MetricsRadarChartProps) {
+  // React compiler lint: keep manual memoization here for clarity
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const { chartData, selectedMetrics, displayModels } = useMemo(() => {
     if (!models || models.length === 0) {
       return { chartData: [], selectedMetrics: [], displayModels: [] }
