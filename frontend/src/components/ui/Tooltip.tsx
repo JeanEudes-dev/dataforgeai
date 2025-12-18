@@ -1,197 +1,28 @@
-import { useState, useRef, useEffect } from "react";
-import type { ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import * as React from "react";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
-interface TooltipProps {
-  content: ReactNode;
-  children: ReactNode;
-  position?: "top" | "bottom" | "left" | "right";
-  delay?: number;
-  className?: string;
-}
+import { cn } from "../../lib/utils";
 
-export function Tooltip({
-  content,
-  children,
-  position = "top",
-  delay = 200,
-  className = "",
-}: TooltipProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
+const TooltipProvider = TooltipPrimitive.Provider;
 
-  const showTooltip = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsVisible(true);
-    }, delay);
-  };
+const Tooltip = TooltipPrimitive.Root;
 
-  const hideTooltip = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    setIsVisible(false);
-  };
+const TooltipTrigger = TooltipPrimitive.Trigger;
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+const TooltipContent = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+>(({ className, sideOffset = 4, ...props }, ref) => (
+  <TooltipPrimitive.Content
+    ref={ref}
+    sideOffset={sideOffset}
+    className={cn(
+      "z-50 overflow-hidden rounded-md border bg-popover px-3 py-1.5 text-sm text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=bottom]:slide-in-from-top-2 data-[state=left]:slide-in-from-right-2 data-[state=right]:slide-in-from-left-2 data-[state=top]:slide-in-from-bottom-2",
+      className
+    )}
+    {...props}
+  />
+));
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-  const positionClasses = {
-    top: "bottom-full left-1/2 -translate-x-1/2 mb-2",
-    bottom: "top-full left-1/2 -translate-x-1/2 mt-2",
-    left: "right-full top-1/2 -translate-y-1/2 mr-2",
-    right: "left-full top-1/2 -translate-y-1/2 ml-2",
-  };
-
-  const arrowClasses = {
-    top: "top-full left-1/2 -translate-x-1/2 border-t-popover border-x-transparent border-b-transparent",
-    bottom:
-      "bottom-full left-1/2 -translate-x-1/2 border-b-popover border-x-transparent border-t-transparent",
-    left: "left-full top-1/2 -translate-y-1/2 border-l-popover border-y-transparent border-r-transparent",
-    right:
-      "right-full top-1/2 -translate-y-1/2 border-r-popover border-y-transparent border-l-transparent",
-  };
-
-  return (
-    <div
-      ref={triggerRef}
-      className={`relative inline-block ${className}`}
-      onMouseEnter={showTooltip}
-      onMouseLeave={hideTooltip}
-      onFocus={showTooltip}
-      onBlur={hideTooltip}
-    >
-      {children}
-      <AnimatePresence>
-        {isVisible && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className={`absolute z-50 ${positionClasses[position]}`}
-          >
-            <div className="relative bg-popover text-popover-foreground text-xs rounded-lg px-3 py-2 shadow-lg max-w-xs whitespace-normal border border-border">
-              {content}
-              <div
-                className={`absolute w-0 h-0 border-4 ${arrowClasses[position]}`}
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// Specialized tooltip for metrics with title and description
-interface MetricTooltipProps {
-  title: string;
-  description: string;
-  children: ReactNode;
-  position?: "top" | "bottom" | "left" | "right";
-}
-
-export function MetricTooltip({
-  title,
-  description,
-  children,
-  position = "top",
-}: MetricTooltipProps) {
-  return (
-    <Tooltip
-      position={position}
-      content={
-        <div className="min-w-[150px]">
-          <div className="font-semibold mb-1">{title}</div>
-          <div className="text-gray-500 dark:text-gray-400 text-[11px] leading-relaxed">
-            {description}
-          </div>
-        </div>
-      }
-    >
-      {children}
-    </Tooltip>
-  );
-}
-
-// Pre-defined metric descriptions for common ML metrics
-// eslint-disable-next-line react-refresh/only-export-components
-export const METRIC_DESCRIPTIONS: Record<
-  string,
-  { title: string; description: string }
-> = {
-  accuracy: {
-    title: "Accuracy",
-    description:
-      "The proportion of correct predictions out of all predictions. Best used when classes are balanced.",
-  },
-  precision: {
-    title: "Precision",
-    description:
-      "Of all positive predictions, how many were actually positive. High precision = fewer false positives.",
-  },
-  recall: {
-    title: "Recall",
-    description:
-      "Of all actual positives, how many were correctly predicted. High recall = fewer false negatives.",
-  },
-  f1: {
-    title: "F1 Score",
-    description:
-      "Harmonic mean of precision and recall. Balances both metrics, useful for imbalanced classes.",
-  },
-  f1_score: {
-    title: "F1 Score",
-    description:
-      "Harmonic mean of precision and recall. Balances both metrics, useful for imbalanced classes.",
-  },
-  roc_auc: {
-    title: "ROC AUC",
-    description:
-      "Area under the ROC curve. Measures model's ability to distinguish classes. 1.0 is perfect, 0.5 is random.",
-  },
-  r2: {
-    title: "R-squared (R²)",
-    description:
-      "Proportion of variance in the target explained by the model. 1.0 is perfect, 0 means model is no better than mean.",
-  },
-  r2_score: {
-    title: "R-squared (R²)",
-    description:
-      "Proportion of variance in the target explained by the model. 1.0 is perfect, 0 means model is no better than mean.",
-  },
-  rmse: {
-    title: "RMSE",
-    description:
-      "Root Mean Squared Error. Average prediction error in the same units as the target. Lower is better.",
-  },
-  mae: {
-    title: "MAE",
-    description:
-      "Mean Absolute Error. Average absolute prediction error. Less sensitive to outliers than RMSE.",
-  },
-  mse: {
-    title: "MSE",
-    description:
-      "Mean Squared Error. Average of squared prediction errors. Penalizes large errors more heavily.",
-  },
-  cv_mean: {
-    title: "CV Mean",
-    description:
-      "Average score across all cross-validation folds. Indicates expected model performance on unseen data.",
-  },
-  cv_std: {
-    title: "CV Std",
-    description:
-      "Standard deviation of cross-validation scores. Lower values indicate more stable/consistent model performance.",
-  },
-};
-
-export default Tooltip;
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

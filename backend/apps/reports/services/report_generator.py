@@ -153,11 +153,13 @@ class ReportGeneratorService:
             'outliers_summary': self._summarize_outliers(eda_result.outlier_analysis),
 
             # Data quality
-            'data_quality_score': eda_result.data_quality_score,
-
+            "data_quality_score": eda_result.data_quality_score,
+            # Global metrics and target analysis
+            "global_metrics": eda_result.global_metrics or {},
+            "target_analysis": eda_result.target_analysis or {},
             # Insights
-            'insights': eda_result.insights or [],
-            'ai_insights': eda_result.ai_insights,
+            "insights": eda_result.insights or [],
+            "ai_insights": eda_result.ai_insights,
 
             # Additional analysis
             'datetime_analysis': eda_result.datetime_analysis or {},

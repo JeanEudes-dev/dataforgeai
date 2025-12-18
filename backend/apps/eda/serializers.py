@@ -52,6 +52,8 @@ class EDAResultDetailSerializer(serializers.ModelSerializer):
             'associations',
             'datetime_analysis',
             'text_analysis',
+            'target_analysis',
+            'global_metrics',
             'data_quality_score',
             # Insights
             'insights',

@@ -1,335 +1,233 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { apiClient } from "../../../api/client";
+import { Button } from "../../../components/ui/button";
+import {
+  Layers,
+  Upload,
+  FileText,
+  Download,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  X,
+} from "lucide-react";
 import { motion } from "framer-motion";
-import {
-  ArrowLeftIcon,
-  PlayIcon,
-  CloudArrowUpIcon,
-} from "@heroicons/react/24/outline";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  Button,
-  Input,
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-  Skeleton,
-} from "@/components/ui";
-import { FileUpload } from "@/components/forms";
-import { mlApi, predictionsApi } from "@/api";
-import { useToastActions } from "@/contexts";
-import { formatNumber } from "@/utils";
-import type { SinglePredictionResponse } from "@/types";
+import { pageVariants } from "../../../theme/motion";
 
-export function PredictionsPage() {
-  const { modelId } = useParams<{ modelId: string }>();
-  const queryClient = useQueryClient();
-  const toast = useToastActions();
+export const PredictionsPage: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const modelId = searchParams.get("modelId");
+  const [file, setFile] = useState<File | null>(null);
+  const [isPredicting, setIsPredicting] = useState(false);
+  const [predictionResult, setPredictionResult] = useState<{
+    row_count?: number;
+    download_url?: string;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [singleInputs, setSingleInputs] = useState<Record<string, string>>({});
-  const [batchFile, setBatchFile] = useState<File | null>(null);
-  const [prediction, setPrediction] = useState<SinglePredictionResponse | null>(
-    null
-  );
-
-  const { data: model, isLoading: modelLoading } = useQuery({
-    queryKey: ["trained-models", modelId],
-    queryFn: () => mlApi.getModel(modelId!),
+  const { data: model } = useQuery({
+    queryKey: ["model", modelId],
+    queryFn: async () => {
+      if (!modelId) return null;
+      const response = await apiClient.get(`/ml/models/${modelId}/`);
+      return response.data;
+    },
     enabled: !!modelId,
   });
 
-  const singlePredictMutation = useMutation({
-    mutationFn: (inputs: Record<string, unknown>) =>
-      predictionsApi.predict({
-        model_id: modelId!,
-        data: [inputs],
-        include_probabilities: true,
-      }),
-    onSuccess: (data) => {
-      setPrediction(data);
-      toast.success("Prediction complete", "Your prediction result is ready.");
-    },
-    onError: () => {
-      toast.error("Prediction failed", "Could not make the prediction.");
-    },
-  });
-
-  const batchPredictMutation = useMutation({
-    mutationFn: (file: File) =>
-      predictionsApi.batchPredict({
-        model_id: modelId!,
-        file,
-        async: true,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["prediction-jobs"] });
-      toast.success(
-        "Batch prediction started",
-        "Your predictions are being processed."
-      );
-      setBatchFile(null);
-    },
-    onError: () => {
-      toast.error(
-        "Batch prediction failed",
-        "Could not start the batch prediction."
-      );
-    },
-  });
-
-  const handleSinglePredict = () => {
-    if (!model?.feature_columns) return;
-
-    const inputs: Record<string, unknown> = {};
-    model.feature_columns.forEach((col) => {
-      const value = singleInputs[col];
-      if (value !== undefined && value !== "") {
-        // Try to convert to number if possible
-        const numValue = parseFloat(value);
-        inputs[col] = isNaN(numValue) ? value : numValue;
-      }
-    });
-
-    singlePredictMutation.mutate(inputs);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setError(null);
+    }
   };
 
-  const handleBatchPredict = () => {
-    if (!batchFile) return;
-    batchPredictMutation.mutate(batchFile);
+  const handlePredict = async () => {
+    if (!file || !modelId) return;
+
+    setIsPredicting(true);
+    setError(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("model_id", modelId);
+
+    try {
+      const response = await apiClient.post("/predictions/batch/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      setPredictionResult(response.data);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(
+        error.response?.data?.detail ||
+          "Failed to process predictions. Please check your file schema."
+      );
+    } finally {
+      setIsPredicting(false);
+    }
   };
 
-  if (modelLoading) {
+  if (!modelId) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-8 w-64" />
-        <Card>
-          <CardContent className="p-6">
-            <Skeleton className="h-48" />
-          </CardContent>
-        </Card>
+      <div className="flex flex-col items-center justify-center h-[60vh] text-center">
+        <Layers className="h-16 w-16 text-muted-foreground/20 mb-4" />
+        <h2 className="text-xl font-semibold">No model selected</h2>
+        <p className="text-muted-foreground mt-2 max-w-md">
+          Please select a trained model from the Modeling page to make
+          predictions.
+        </p>
+        <Link to="/app/modeling" className="mt-6">
+          <Button>Go to Modeling</Button>
+        </Link>
       </div>
     );
   }
 
-  if (!model) {
-    return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-error-500 mb-4">Model not found.</p>
-          <Link to="/models">
-            <Button variant="secondary">Back to Models</Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Get the first prediction from results (since we sent single input)
-  const predictionValue = prediction?.predictions?.[0];
-  const probabilitiesMap = prediction?.probabilities?.[0];
-
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <motion.div
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      className="max-w-4xl mx-auto space-y-8"
+    >
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to={`/models/${modelId}`}>
-            <Button variant="ghost" size="sm">
-              <ArrowLeftIcon className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-boldtext-muted-foreground">
-              Make Predictions
-            </h1>
-            <p className="text-secondary mt-1">
-              {model.display_name} • {model.target_column}
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Batch Predictions
+          </h1>
+          <p className="text-muted-foreground">
+            Using model: {model?.model_type_display || "Loading..."}
+          </p>
         </div>
       </div>
 
-      <Tabs defaultValue="single">
-        <TabsList>
-          <TabsTrigger value="single">Single Prediction</TabsTrigger>
-          <TabsTrigger value="batch">Batch Prediction</TabsTrigger>
-        </TabsList>
+      {!predictionResult ? (
+        <div className="bg-card p-8 rounded-xl border border-border space-y-6">
+          <div className="flex items-start gap-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
+            <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-primary">Schema Requirement</p>
+              <p className="text-muted-foreground mt-1">
+                Your upload must contain the same columns as the training data
+                (excluding the target column).
+              </p>
+            </div>
+          </div>
 
-        <TabsContent value="single">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Input Form */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle>Input Values</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {model.feature_columns?.map((col) => (
-                    <Input
-                      key={col}
-                      label={col}
-                      value={singleInputs[col] || ""}
-                      onChange={(e) =>
-                        setSingleInputs((prev) => ({
-                          ...prev,
-                          [col]: e.target.value,
-                        }))
-                      }
-                      placeholder={`Enter ${col}`}
-                    />
-                  ))}
-                </div>
-
-                <div className="flex justify-end mt-6">
-                  <Button
-                    onClick={handleSinglePredict}
-                    isLoading={singlePredictMutation.isPending}
-                    leftIcon={<PlayIcon className="w-5 h-5" />}
-                    disabled={
-                      Object.values(singleInputs).filter(Boolean).length === 0
-                    }
-                  >
-                    Predict
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Result */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Prediction Result</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {prediction && predictionValue !== undefined ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-4"
-                  >
-                    <div className="p-4 rounded-xl neu-pressed text-center">
-                      <p className="text-sm text-muted-foreground mb-1">Predicted Value</p>
-                      <p className="text-3xl font-bold text-muted-foreground">
-                        {typeof predictionValue === "number"
-                          ? formatNumber(predictionValue, 4)
-                          : String(predictionValue)}
-                      </p>
-                    </div>
-
-                    {probabilitiesMap && (
-                      <div>
-                        <p className="text-sm text-muted mb-2">
-                          Class Probabilities
-                        </p>
-                        <div className="space-y-2">
-                          {Object.entries(probabilitiesMap)
-                            .sort(([, a], [, b]) => b - a)
-                            .map(([cls, prob]) => (
-                              <div
-                                key={cls}
-                                className="flex items-center gap-3"
-                              >
-                                <span className="text-sm text-secondary w-24 truncate">
-                                  {cls}
-                                </span>
-                                <div className="flex-1 h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                                  <div
-                                    className="h-full bg-primary-500"
-                                    style={{ width: `${prob * 100}%` }}
-                                  />
-                                </div>
-                                <span className="text-sm text-muted-foreground w-16 text-right">
-                                  {formatNumber(prob * 100, 1)}%
-                                </span>
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-secondary">
-                      Enter values and click Predict to see results
+          {!file ? (
+            <div
+              className="border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
+              onClick={() => document.getElementById("predict-upload")?.click()}
+            >
+              <Upload className="mx-auto h-12 w-12 text-muted-foreground/50" />
+              <p className="mt-4 text-sm font-medium">
+                Upload data for prediction
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                CSV or Excel files only
+              </p>
+              <input
+                id="predict-upload"
+                type="file"
+                className="hidden"
+                accept=".csv,.xlsx"
+                onChange={handleFileChange}
+              />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg border border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded text-primary">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{file.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {(file.size / 1024).toFixed(2)} KB
                     </p>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="batch">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Upload */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload CSV File</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FileUpload
-                  onFileSelect={setBatchFile}
-                  onError={(error) => toast.error("File error", error)}
-                  isUploading={batchPredictMutation.isPending}
-                />
-
-                {batchFile && (
-                  <div className="mt-4">
-                    <p className="text-sm text-secondary">
-                      Selected:{" "}
-                      <span className="text-primary">{batchFile.name}</span>
-                    </p>
-                    <Button
-                      onClick={handleBatchPredict}
-                      isLoading={batchPredictMutation.isPending}
-                      leftIcon={<CloudArrowUpIcon className="w-5 h-5" />}
-                      className="mt-4 w-full"
-                    >
-                      Start Batch Prediction
-                    </Button>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Instructions */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Instructions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 text-sm text-secondary">
-                  <p>
-                    Upload a CSV file with the same columns used for training.
-                    The file should contain the following columns:
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {model.feature_columns?.map((col) => (
-                      <span
-                        key={col}
-                        className="px-2 py-1 text-xs rounded-lg neu-raised text-muted"
-                      >
-                        {col}
-                      </span>
-                    ))}
-                  </div>
-                  <p>
-                    The predictions will be added as a new column to your data
-                    and made available for download.
-                  </p>
                 </div>
-              </CardContent>
-            </Card>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setFile(null)}
+                  disabled={isPredicting}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive text-sm rounded-md">
+                  <AlertCircle className="h-4 w-4" />
+                  {error}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setFile(null)}
+                  disabled={isPredicting}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handlePredict} disabled={isPredicting}>
+                  {isPredicting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Layers className="mr-2 h-4 w-4" />
+                  )}
+                  {isPredicting ? "Processing..." : "Run Predictions"}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
+            <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
+            <h3 className="text-lg font-semibold mt-4 text-green-900">
+              Predictions Complete
+            </h3>
+            <p className="text-green-700 mt-2">
+              Successfully processed {predictionResult.row_count} rows.
+            </p>
+            <div className="mt-8 flex justify-center gap-4">
+              <Button
+                onClick={() => window.open(predictionResult.download_url)}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download Results (CSV)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setPredictionResult(null)}
+              >
+                Run Another Batch
+              </Button>
+            </div>
           </div>
-        </TabsContent>
-      </Tabs>
-    </div>
+
+          {/* Preview Table Placeholder */}
+          <div className="bg-card rounded-xl border border-border overflow-hidden">
+            <div className="p-4 border-b border-border bg-neutral-50">
+              <h3 className="text-sm font-semibold">Preview (Top 5 rows)</h3>
+            </div>
+            <div className="p-8 text-center text-muted-foreground text-sm">
+              Preview table would be rendered here with predicted values.
+            </div>
+          </div>
+        </div>
+      )}
+    </motion.div>
   );
-}
-
-export default PredictionsPage;
+};

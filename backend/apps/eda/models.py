@@ -79,6 +79,14 @@ class EDAResult(models.Model):
     # Format: {column_name: {avg_length, word_count, contains_numbers, etc.}}
     text_analysis = models.JSONField(default=dict, blank=True)
 
+    # Target-focused analysis
+    # Format: {target_column, task_type, distribution: {}, warnings: []}
+    target_analysis = models.JSONField(default=dict, blank=True)
+
+    # Global dataset metrics
+    # Format: {duplicate_rows, memory_usage, quality_indicators: {}}
+    global_metrics = models.JSONField(default=dict, blank=True)
+
     # Data quality score (0-100)
     data_quality_score = models.FloatField(null=True, blank=True)
 

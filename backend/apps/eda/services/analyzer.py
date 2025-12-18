@@ -93,34 +93,58 @@ class EDAAnalyzerService:
 
         try:
             # Load the dataset
+            logger.info(f"Loading dataset for EDA: {self.dataset.id}")
             self.df = self._load_dataset()
 
             # Compute all analyses
+            logger.info(f"Computing summary stats for {self.dataset.id}")
             self.eda_result.summary_stats = self._compute_summary_stats()
+            
+            logger.info(f"Computing distributions for {self.dataset.id}")
             self.eda_result.distributions = self._compute_distributions()
+            
+            logger.info(f"Computing correlations for {self.dataset.id}")
             self.eda_result.correlation_matrix = self._compute_correlations()
             self.eda_result.top_correlations = self._get_top_correlations()
+            
+            logger.info(f"Analyzing missing values for {self.dataset.id}")
             self.eda_result.missing_analysis = self._analyze_missing_values()
+            
+            logger.info(f"Detecting outliers for {self.dataset.id}")
             self.eda_result.outlier_analysis = self._detect_outliers()
 
             # Enhanced analysis: cross-type associations
+            logger.info(f"Computing associations for {self.dataset.id}")
             self.eda_result.associations = self._compute_associations()
 
             # Enhanced analysis: datetime columns
+            logger.info(f"Analyzing datetime columns for {self.dataset.id}")
             self.eda_result.datetime_analysis = self._analyze_datetime_columns()
 
             # Enhanced analysis: text columns
+            logger.info(f"Analyzing text columns for {self.dataset.id}")
             self.eda_result.text_analysis = self._analyze_text_columns()
 
+            # Global metrics (duplicates, memory, etc.)
+            logger.info(f"Computing global metrics for {self.dataset.id}")
+            self.eda_result.global_metrics = self._compute_global_metrics()
+
+            # Target-focused analysis
+            logger.info(f"Performing target analysis for {self.dataset.id}")
+            self.eda_result.target_analysis = self._analyze_target()
+
             # Compute data quality score
+            logger.info(f"Computing data quality score for {self.dataset.id}")
             self.eda_result.data_quality_score = self._compute_data_quality_score()
 
             # Generate rule-based insights
+            logger.info(f"Generating rule-based insights for {self.dataset.id}")
             from .insights import EDAInsightsService
             insights_service = EDAInsightsService(self.eda_result, self.df)
             self.eda_result.insights = insights_service.generate_insights()
 
             # Generate AI insights using Gemini
+            logger.info(f"Generating AI insights for {self.dataset.id}")
             self._generate_ai_insights()
 
             # Update metadata
@@ -170,12 +194,13 @@ class EDAAnalyzerService:
 
         return df
 
-    def _compute_summary_stats(self) -> dict[str, dict]:
+    def _compute_summary_stats(self) -> dict[str, Any]:
         """Compute summary statistics for each column."""
-        stats = {}
+        stats_dict = {}
 
         for col in self.df.columns:
             col_data = self.df[col]
+            
             col_stats = {
                 'count': int(col_data.count()),
                 'null_count': int(col_data.isnull().sum()),
@@ -201,9 +226,9 @@ class EDAAnalyzerService:
                 # Enhanced categorical statistics
                 col_stats.update(self._compute_categorical_stats(col_data))
 
-            stats[col] = col_stats
+            stats_dict[col] = col_stats
 
-        return stats
+        return stats_dict
 
     def _compute_categorical_stats(self, col_data: pd.Series) -> dict:
         """
@@ -668,7 +693,8 @@ class EDAAnalyzerService:
         """
         Compute an overall data quality score (0-100).
 
-        Considers missing values, constant columns, outliers, and data type consistency.
+        Considers missing values, constant columns, outliers, 
+        duplicates, and multicollinearity.
         """
         score = 100.0
         total_cols = len(self.df.columns)
@@ -676,33 +702,183 @@ class EDAAnalyzerService:
         if total_cols == 0:
             return 0.0
 
-        # Deduct for missing values (up to 30 points)
-        missing_analysis = self.eda_result.missing_analysis
-        if missing_analysis:
-            avg_missing = np.mean([v['ratio'] for v in missing_analysis.values()])
-            cols_with_missing = len(missing_analysis)
-            missing_penalty = min(30, (avg_missing * 50) + (cols_with_missing / total_cols * 10))
-            score -= missing_penalty
+        # 1. Missing values (up to 25 points)
+        global_metrics = self.eda_result.global_metrics
+        missing_ratio = global_metrics.get('missing_ratio', 0)
+        score -= min(25, missing_ratio * 100)
 
-        # Deduct for constant columns (2 points each, up to 10)
+        # 2. Constant columns (3 points each, up to 15)
+        constant_cols = global_metrics.get('constant_columns', [])
+        score -= min(15, len(constant_cols) * 3)
+
+        # 3. Duplicate rows (up to 10 points)
+        duplicate_ratio = global_metrics.get('duplicate_ratio', 0)
+        score -= min(10, duplicate_ratio * 50)
+
+        # 4. High cardinality categorical (up to 10 points)
         summary_stats = self.eda_result.summary_stats
-        constant_cols = sum(1 for s in summary_stats.values() if s.get('unique_count') == 1)
-        score -= min(10, constant_cols * 2)
-
-        # Deduct for very high cardinality categorical columns (3 points each, up to 15)
         high_cardinality = sum(
             1 for s in summary_stats.values()
-            if s.get('cardinality_ratio', 0) > 0.8 and s.get('mode') is not None
+            if isinstance(s, dict) and s.get('cardinality_ratio', 0) > 0.9 and s.get('unique_count', 0) > 50
         )
-        score -= min(15, high_cardinality * 3)
+        score -= min(10, high_cardinality * 2)
 
-        # Deduct for columns with many outliers (up to 10 points)
+        # 5. Outliers (up to 10 points)
         outlier_analysis = self.eda_result.outlier_analysis
         if outlier_analysis:
-            high_outlier_cols = sum(1 for o in outlier_analysis.values() if o.get('ratio', 0) > 0.1)
+            high_outlier_cols = sum(1 for o in outlier_analysis.values() if o.get('ratio', 0) > 0.15)
             score -= min(10, high_outlier_cols * 2)
 
+        # 6. Multicollinearity (up to 10 points)
+        multicollinearity = global_metrics.get('multicollinearity', [])
+        score -= min(10, len(multicollinearity) * 1)
+
         return max(0.0, min(100.0, round(score, 1)))
+
+    def _compute_global_metrics(self) -> dict:
+        """
+        Compute global dataset metrics like duplicates, memory usage,
+        and overall quality indicators.
+        """
+        try:
+            # Memory usage in bytes
+            memory_bytes = self.df.memory_usage(deep=True).sum()
+            
+            # Duplicate rows
+            duplicate_count = int(self.df.duplicated().sum())
+            
+            # Global quality indicators
+            total_cells = self.df.size
+            total_missing = int(self.df.isnull().sum().sum())
+            
+            # Columns with high missingness (>30%)
+            high_missing_cols = [
+                col for col, stats in self.eda_result.missing_analysis.items()
+                if stats.get('ratio', 0) > 0.3
+            ]
+            
+            # Constant columns
+            constant_cols = [
+                col for col, stats in self.eda_result.summary_stats.items()
+                if isinstance(stats, dict) and stats.get('unique_count') == 1
+            ]
+
+            return {
+                'row_count': len(self.df),
+                'column_count': len(self.df.columns),
+                'duplicate_rows': duplicate_count,
+                'duplicate_ratio': round(duplicate_count / len(self.df), 4) if len(self.df) > 0 else 0,
+                'memory_usage_bytes': int(memory_bytes),
+                'memory_usage_display': self._format_bytes(memory_bytes),
+                'total_cells': int(total_cells),
+                'total_missing': total_missing,
+                'missing_ratio': round(total_missing / total_cells, 4) if total_cells > 0 else 0,
+                'high_missing_columns': high_missing_cols,
+                'constant_columns': constant_cols,
+                'multicollinearity': self._detect_multicollinearity(),
+            }
+        except Exception as e:
+            logger.warning(f"Failed to compute global metrics: {e}")
+            return {}
+
+    def _detect_multicollinearity(self, threshold: float = 0.9) -> list[dict]:
+        """Detect pairs of highly correlated features."""
+        corr_matrix = self.eda_result.correlation_matrix
+        if not corr_matrix:
+            return []
+            
+        warnings = []
+        cols = list(corr_matrix.keys())
+        for i, col1 in enumerate(cols):
+            for col2 in cols[i+1:]:
+                val = corr_matrix[col1].get(col2)
+                if val is not None and abs(val) >= threshold:
+                    warnings.append({
+                        'column1': col1,
+                        'column2': col2,
+                        'correlation': round(val, 4),
+                        'severity': 'high' if abs(val) >= 0.95 else 'medium'
+                    })
+        return warnings
+
+    def _analyze_target(self) -> dict:
+        """
+        Perform target-focused analysis to prepare for modeling.
+        """
+        target_col = self.dataset.schema.get('target_column') # This might be set in dataset
+        if not target_col and self.df.columns.size > 0:
+            # Fallback: assume last column is target if not specified
+            target_col = self.df.columns[-1]
+            
+        if target_col not in self.df.columns:
+            return {'status': 'no_target'}
+
+        target_data = self.df[target_col].dropna()
+        if len(target_data) == 0:
+            return {'status': 'empty_target'}
+
+        # Task inference
+        unique_count = target_data.nunique()
+        is_numeric = pd.api.types.is_numeric_dtype(target_data)
+        
+        if not is_numeric or unique_count <= 10:
+            task_type = 'classification'
+        else:
+            task_type = 'regression'
+
+        analysis = {
+            'target_column': target_col,
+            'task_type': task_type,
+            'unique_count': unique_count,
+            'warnings': []
+        }
+
+        if task_type == 'classification':
+            # Class balance
+            counts = target_data.value_counts()
+            total = len(target_data)
+            distribution = {
+                str(k): {
+                    'count': int(v),
+                    'percentage': round(100 * v / total, 2)
+                } for k, v in counts.items()
+            }
+            analysis['distribution'] = distribution
+            
+            # Imbalance warning
+            if len(counts) >= 2:
+                min_class_ratio = counts.min() / total
+                if min_class_ratio < 0.1:
+                    analysis['warnings'].append({
+                        'type': 'imbalance',
+                        'message': f"Target class imbalance detected (min class: {min_class_ratio:.1%})",
+                        'severity': 'high' if min_class_ratio < 0.05 else 'medium'
+                    })
+        else:
+            # Regression distribution
+            analysis['distribution'] = {
+                'mean': self._safe_float(target_data.mean()),
+                'std': self._safe_float(target_data.std()),
+                'skewness': self._safe_float(target_data.skew()),
+                'kurtosis': self._safe_float(target_data.kurtosis()),
+            }
+            
+            if abs(target_data.skew()) > 1:
+                analysis['warnings'].append({
+                    'type': 'skewness',
+                    'message': "Target variable is highly skewed. Consider log transformation.",
+                    'severity': 'medium'
+                })
+
+        return analysis
+
+    def _format_bytes(self, size: float) -> str:
+        """Format bytes to human readable string."""
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size < 1024:
+                return f"{size:.1f} {unit}"
+            size /= 1024
+        return f"{size:.1f} TB"
 
     def _safe_float(self, value: Any) -> float | None:
         """Convert value to float, handling NaN and infinity."""
@@ -727,11 +903,13 @@ class EDAAnalyzerService:
                 return
 
             eda_data = {
-                'summary_stats': self.eda_result.summary_stats,
-                'missing_analysis': self.eda_result.missing_analysis,
-                'correlation_matrix': self.eda_result.correlation_matrix,
-                'outlier_analysis': self.eda_result.outlier_analysis,
-                'insights': self.eda_result.insights,
+                "summary_stats": self.eda_result.summary_stats,
+                "missing_analysis": self.eda_result.missing_analysis,
+                "correlation_matrix": self.eda_result.correlation_matrix,
+                "outlier_analysis": self.eda_result.outlier_analysis,
+                "insights": self.eda_result.insights,
+                "global_metrics": self.eda_result.global_metrics,
+                "target_analysis": self.eda_result.target_analysis,
             }
 
             ai_insights = gemini.generate_eda_insights(eda_data)

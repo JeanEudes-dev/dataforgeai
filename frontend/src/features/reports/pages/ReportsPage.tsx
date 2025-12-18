@@ -1,65 +1,107 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  DocumentTextIcon,
-  PlusIcon,
-  ArrowRightIcon,
-  TrashIcon,
-  SparklesIcon,
-} from "@heroicons/react/24/outline";
+  FileText,
+  Plus,
+  Download,
+  Share2,
+  Trash2,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { format } from "date-fns";
+
+import { reportsApi, type Report } from "../../../api/reports";
+import { datasetsApi } from "../../../api/datasets";
+import { mlApi } from "../../../api/ml";
+import { Button } from "../../../components/ui/button";
 import {
   Card,
   CardContent,
-  Button,
-  Modal,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import { Badge } from "../../../components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../../../components/ui/dialog";
+import {
   Select,
-  SkeletonCard,
-} from "@/components/ui";
-import { StatusBadge, EmptyState } from "@/components/shared";
-import { reportsApi, datasetsApi, mlApi, getErrorMessage } from "@/api";
-import { useToastActions } from "@/contexts";
-import { formatRelativeTime } from "@/utils";
-import type { ReportListItem, GenerateReportParams } from "@/types";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/ui/select";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
+import { useToast } from "../../../hooks/use-toast";
+import { containerVariants, listItemVariants } from "../../../theme/motion";
 
-export function ReportsPage() {
+export default function ReportsPage() {
+  const { projectId } = useParams<{ projectId: string }>();
   const queryClient = useQueryClient();
-  const toast = useToastActions();
-  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  const [selectedDatasetId, setSelectedDatasetId] = useState("");
-  const [selectedReportType, setSelectedReportType] = useState<
-    "eda" | "model" | "full"
-  >("full");
-  const [selectedModelId, setSelectedModelId] = useState("");
+  const { toast } = useToast();
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["reports"],
-    queryFn: () => reportsApi.list(),
+  // Form state
+  const [title, setTitle] = useState("");
+  const [datasetId, setDatasetId] = useState("");
+  const [modelId, setModelId] = useState("none");
+  const [reportType, setReportType] = useState("full");
+
+  // Fetch datasets for the project
+  const { data: datasets } = useQuery({
+    queryKey: ["datasets", projectId],
+    queryFn: () => datasetsApi.list(projectId!),
+    enabled: !!projectId,
   });
 
-  const { data: datasetsData } = useQuery({
-    queryKey: ["datasets"],
-    queryFn: () => datasetsApi.list(),
+  // Fetch models for the selected dataset
+  const { data: models } = useQuery({
+    queryKey: ["models", datasetId],
+    queryFn: () => mlApi.list(datasetId),
+    enabled: !!datasetId && datasetId !== "",
   });
 
-  const { data: modelsData } = useQuery({
-    queryKey: ["trained-models"],
-    queryFn: () => mlApi.listModels(),
+  // Fetch reports
+  const { data: reports, isLoading } = useQuery({
+    queryKey: ["reports", projectId],
+    queryFn: () => reportsApi.list(), // Backend might need filtering by project, but for now list all
   });
 
   const generateMutation = useMutation({
-    mutationFn: (params: GenerateReportParams) => reportsApi.generate(params),
+    mutationFn: reportsApi.generate,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports"] });
-      toast.success(
-        "Report generating",
-        "Your report is being generated in the background."
-      );
-      closeGenerateModal();
+      setIsGenerateOpen(false);
+      toast({
+        title: "Report generation started",
+        description: "Your report is being prepared and will be ready shortly.",
+      });
+      // Reset form
+      setTitle("");
+      setDatasetId("");
+      setModelId("none");
     },
-    onError: (err) => {
-      toast.error("Generation failed", getErrorMessage(err));
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast({
+        title: "Failed to generate report",
+        description:
+          err.response?.data?.detail || "An unexpected error occurred.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -67,270 +109,249 @@ export function ReportsPage() {
     mutationFn: reportsApi.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["reports"] });
-      toast.success("Report deleted", "The report has been removed.");
-    },
-    onError: (err) => {
-      toast.error("Delete failed", getErrorMessage(err));
+      toast({
+        title: "Report deleted",
+        description: "The report has been successfully removed.",
+      });
     },
   });
 
-  const closeGenerateModal = () => {
-    setIsGenerateModalOpen(false);
-    setSelectedDatasetId("");
-    setSelectedReportType("full");
-    setSelectedModelId("");
-  };
+  const handleGenerate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title || !datasetId) return;
 
-  const handleGenerate = () => {
-    if (!selectedDatasetId) {
-      toast.error("Missing dataset", "Please select a dataset.");
-      return;
-    }
     generateMutation.mutate({
-      dataset_id: selectedDatasetId,
-      report_type: selectedReportType,
-      model_id:
-        selectedReportType === "model" || selectedReportType === "full"
-          ? selectedModelId || undefined
-          : undefined,
+      title,
+      dataset_id: datasetId,
+      model_id: modelId === "none" ? undefined : modelId,
+      report_type: reportType,
     });
   };
 
-  const handleDelete = (id: string, title: string) => {
-    if (confirm(`Are you sure you want to delete "${title}"?`)) {
-      deleteMutation.mutate(id);
+  const getStatusBadge = (status: Report["status"]) => {
+    switch (status) {
+      case "completed":
+        return (
+          <Badge variant="success" className="gap-1">
+            <CheckCircle2 className="h-3 w-3" /> Ready
+          </Badge>
+        );
+      case "processing":
+        return (
+          <Badge variant="secondary" className="gap-1 animate-pulse">
+            <Loader2 className="h-3 w-3 animate-spin" /> Processing
+          </Badge>
+        );
+      case "pending":
+        return (
+          <Badge variant="outline" className="gap-1">
+            <Clock className="h-3 w-3" /> Pending
+          </Badge>
+        );
+      case "failed":
+        return (
+          <Badge variant="destructive" className="gap-1">
+            <AlertCircle className="h-3 w-3" /> Failed
+          </Badge>
+        );
+      default:
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
 
-  const reports = data?.results || [];
-  const datasets = datasetsData?.results || [];
-  const models = modelsData?.results || [];
-
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <Card variant="premium" className="relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
-
-        <div className="relative px-8 py-8 flex flex-wrap items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Insights
-              </span>
-            </div>
-            <h1 className="text-3xl font-bold text-foreground tracking-tight">
-              Reports
-            </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              Generate EDA summaries or model performance packs. Cards show
-              status and freshness.
-            </p>
-          </div>
-          <Button
-            size="lg"
-            leftIcon={<PlusIcon className="w-5 h-5" />}
-            onClick={() => setIsGenerateModalOpen(true)}
-            className="shadow-lg shadow-primary/25"
-          >
-            Generate report
-          </Button>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
+          <p className="text-muted-foreground">
+            Generate and manage comprehensive analysis reports.
+          </p>
         </div>
-      </Card>
+        <Dialog open={isGenerateOpen} onOpenChange={setIsGenerateOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Generate Report
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Generate New Report</DialogTitle>
+              <DialogDescription>
+                Create a detailed report including EDA insights and model
+                performance.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleGenerate} className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Report Title</Label>
+                <Input
+                  id="title"
+                  placeholder="e.g., Q3 Sales Analysis"
+                  value={title}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setTitle(e.target.value)
+                  }
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="dataset">Dataset</Label>
+                <Select value={datasetId} onValueChange={setDatasetId} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a dataset" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {datasets?.map((ds: { id: string; name: string }) => (
+                      <SelectItem key={ds.id} value={ds.id}>
+                        {ds.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model">Model (Optional)</Label>
+                <Select value={modelId} onValueChange={setModelId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No model (EDA only)</SelectItem>
+                    {models?.results?.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>
+                        {m.algorithm} (
+                        {typeof m.metric_value === "number"
+                          ? m.metric_value.toFixed(4)
+                          : "N/A"}
+                        )
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="type">Report Type</Label>
+                <Select value={reportType} onValueChange={setReportType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full">
+                      Full Report (EDA + Model)
+                    </SelectItem>
+                    <SelectItem value="eda">EDA Only</SelectItem>
+                    <SelectItem value="model">
+                      Model Performance Only
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  disabled={generateMutation.isPending || !title || !datasetId}
+                >
+                  {generateMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Generate
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-      {/* Content */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <SkeletonCard key={i} />
-          ))}
+        <div className="flex h-64 items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      ) : error ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-error-500">
-              Failed to load reports. Please try again.
-            </p>
-          </CardContent>
+      ) : reports?.results?.length === 0 ? (
+        <Card className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <FileText className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <CardTitle>No reports yet</CardTitle>
+          <CardDescription className="max-w-sm mt-2">
+            You haven't generated any reports for this project. Click the button
+            above to create your first one.
+          </CardDescription>
         </Card>
-      ) : reports.length === 0 ? (
-        <EmptyState
-          icon={<DocumentTextIcon className="w-8 h-8" />}
-          title="No reports yet"
-          description="Generate your first report to get a comprehensive summary of your data analysis."
-          action={{
-            label: "Generate report",
-            onClick: () => setIsGenerateModalOpen(true),
-          }}
-        />
       ) : (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
         >
-          <AnimatePresence>
-            {reports.map((report: ReportListItem) => (
-              <motion.div
-                key={report.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                layout
-              >
-                <Card hoverable variant="elevated" className="h-full">
-                  <CardContent className="p-5 space-y-4">
+          <AnimatePresence mode="popLayout">
+            {reports?.results?.map((report) => (
+              <motion.div key={report.id} variants={listItemVariants} layout>
+                <Card className="h-full flex flex-col">
+                  <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl border border-border bg-muted/50 flex items-center justify-center text-muted-foreground">
-                          <DocumentTextIcon className="w-6 h-6" />
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-foreground truncate text-lg">
-                            {report.title}
-                          </h3>
-                          <p className="text-xs text-muted-foreground">
-                            {formatRelativeTime(report.created_at)}
-                          </p>
-                        </div>
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <FileText className="h-5 w-5 text-primary" />
                       </div>
-                      <StatusBadge status={report.status} />
+                      {getStatusBadge(report.status)}
                     </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20 truncate max-w-[180px]">
-                        {report.dataset.name}
-                      </span>
-                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-500 border border-purple-500/20 capitalize">
-                        {report.report_type} report
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-xl border border-border bg-muted/30">
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Status
-                        </p>
-                        <p className="text-sm font-semibold text-foreground capitalize">
-                          {report.status}
-                        </p>
+                    <CardTitle className="mt-4 line-clamp-1">
+                      {report.title}
+                    </CardTitle>
+                    <CardDescription>
+                      Created{" "}
+                      {format(new Date(report.created_at), "MMM d, yyyy")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <div className="text-sm space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Type:</span>
+                        <span className="font-medium capitalize">
+                          {report.report_type}
+                        </span>
                       </div>
-                      <div className="p-3 rounded-xl border border-border bg-card">
-                        <p className="text-xs text-muted-foreground mb-1">
-                          Updated
-                        </p>
-                        <p className="text-sm font-semibold text-foreground">
-                          {formatRelativeTime(
-                            report.updated_at || report.created_at
-                          )}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Link to={`/reports/${report.id}`} className="flex-1">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="w-full"
-                          rightIcon={<ArrowRightIcon className="w-4 h-4" />}
-                          disabled={report.status !== "completed"}
-                        >
-                          View
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(report.id, report.title)}
-                        disabled={deleteMutation.isPending}
-                      >
-                        <TrashIcon className="w-4 h-4 text-red-400" />
-                      </Button>
                     </div>
                   </CardContent>
+                  <div className="p-4 pt-0 flex gap-2">
+                    {report.status === "completed" && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 gap-1"
+                          asChild
+                        >
+                          <a
+                            href={report.file}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Download className="h-3 w-3" /> Download
+                          </a>
+                        </Button>
+                        <Button variant="outline" size="sm" className="px-2">
+                          <Share2 className="h-3 w-3" />
+                        </Button>
+                      </>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => deleteMutation.mutate(report.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </Card>
               </motion.div>
             ))}
           </AnimatePresence>
         </motion.div>
       )}
-
-      {/* Generate Modal */}
-      <Modal
-        isOpen={isGenerateModalOpen}
-        onClose={closeGenerateModal}
-        title="Generate report"
-        description="Select a dataset and report type. Generation runs in the background."
-        footer={
-          <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={closeGenerateModal}>
-              Cancel
-            </Button>
-            <Button
-              onClick={handleGenerate}
-              disabled={!selectedDatasetId}
-              isLoading={generateMutation.isPending}
-            >
-              Generate
-            </Button>
-          </div>
-        }
-      >
-        <div className="space-y-5">
-          <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 flex items-start gap-3 text-sm text-muted-foreground">
-            <SparklesIcon className="w-5 h-5 text-muted-foreground mt-0.5" />
-            <div>
-              <p className="font-semibold text-foreground">
-                Background generation
-              </p>
-              <p className="text-muted-foreground">
-                We'll notify you and update the list when the report is ready.
-                You can navigate away safely.
-              </p>
-            </div>
-          </div>
-
-          <Select
-            label="Dataset"
-            value={selectedDatasetId}
-            onChange={setSelectedDatasetId}
-            options={datasets
-              .filter((d) => d.status === "ready")
-              .map((d) => ({ value: d.id, label: d.name }))}
-            placeholder="Select a dataset..."
-          />
-
-          <Select
-            label="Report type"
-            value={selectedReportType}
-            onChange={(value) =>
-              setSelectedReportType(value as "eda" | "model" | "full")
-            }
-            options={[
-              { value: "eda", label: "EDA only — data analysis summary" },
-              { value: "model", label: "Model only — performance report" },
-              { value: "full", label: "Full report — analysis + model" },
-            ]}
-          />
-
-          {(selectedReportType === "model" ||
-            selectedReportType === "full") && (
-            <Select
-              label="Model (optional)"
-              value={selectedModelId}
-              onChange={setSelectedModelId}
-              options={models.map((m) => ({
-                value: m.id,
-                label: `${m.display_name} — ${m.target_column}`,
-              }))}
-              placeholder="Select a model..."
-            />
-          )}
-        </div>
-      </Modal>
     </div>
   );
 }
-
-export default ReportsPage;

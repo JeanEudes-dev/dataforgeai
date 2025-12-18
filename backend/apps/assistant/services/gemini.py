@@ -64,7 +64,11 @@ class GeminiService:
         prompt = self._build_eda_prompt(eda_data)
 
         try:
-            response = self.model.generate_content(prompt)
+            # Add a 30-second timeout to prevent hanging
+            response = self.model.generate_content(
+                prompt,
+                request_options={"timeout": 30}
+            )
             return response.text
         except Exception as e:
             logger.error(f'Gemini EDA insights generation failed: {e}')
@@ -86,7 +90,10 @@ class GeminiService:
         prompt = self._build_model_prompt(model_data)
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(
+                prompt,
+                request_options={"timeout": 30}
+            )
             return response.text
         except Exception as e:
             logger.error(f'Gemini model explanation failed: {e}')
@@ -108,7 +115,10 @@ class GeminiService:
         prompt = self._build_report_prompt(report_data)
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(
+                prompt,
+                request_options={"timeout": 30}
+            )
             return response.text
         except Exception as e:
             logger.error(f'Gemini report summary failed: {e}')
@@ -131,7 +141,10 @@ class GeminiService:
         prompt = self._build_qa_prompt(question, context)
 
         try:
-            response = self.model.generate_content(prompt)
+            response = self.model.generate_content(
+                prompt,
+                request_options={"timeout": 30}
+            )
             return response.text
         except Exception as e:
             logger.error(f'Gemini Q&A failed: {e}')
@@ -176,6 +189,23 @@ Keep the explanation concise and accessible to non-technical users."""
         """Build prompt for EDA insights generation with optimized data."""
         # Extract and summarize key information compactly
         parts = []
+
+        # Global Metrics
+        global_metrics = eda_data.get('global_metrics', {})
+        if global_metrics:
+            parts.append(f"Dataset: {global_metrics.get('total_rows')} rows, {global_metrics.get('total_columns')} columns.")
+            parts.append(f"Quality Score: {global_metrics.get('quality_score', 0)}/100.")
+            if global_metrics.get('duplicate_rows', 0) > 0:
+                parts.append(f"Duplicates: {global_metrics.get('duplicate_rows')} rows.")
+
+        # Target Analysis
+        target_analysis = eda_data.get('target_analysis', {})
+        if target_analysis:
+            parts.append(f"Target Column: {target_analysis.get('target_column')}")
+            parts.append(f"Inferred Task: {target_analysis.get('task_type')}")
+            warnings = target_analysis.get('warnings', [])
+            if warnings:
+                parts.append(f"Target Warnings: {'; '.join(warnings)}")
 
         # Column summary (only column names and types, not full stats)
         summary_stats = eda_data.get('summary_stats', {})

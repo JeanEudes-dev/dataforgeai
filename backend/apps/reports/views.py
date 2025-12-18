@@ -348,6 +348,6 @@ class DatasetReportsView(APIView):
         return Response({
             'dataset_id': str(dataset_id),
             'dataset_name': dataset.name,
-            'reports': serializer.data,
+            'results': serializer.data,
             'count': reports.count(),
         })

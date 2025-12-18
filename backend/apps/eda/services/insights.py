@@ -170,6 +170,9 @@ class EDAInsightsService:
         summary_stats = self.eda_result.summary_stats
 
         for col, stats in summary_stats.items():
+            if not isinstance(stats, dict):
+                continue
+                
             unique_count = stats.get('unique_count', 0)
             count = stats.get('count', 0)
 
@@ -192,13 +195,16 @@ class EDAInsightsService:
         summary_stats = self.eda_result.summary_stats
 
         for col, stats in summary_stats.items():
+            if not isinstance(stats, dict):
+                continue
+                
             unique_count = stats.get('unique_count', 0)
 
             if unique_count == 1:
                 self._add_insight(
                     self.InsightType.DATA_QUALITY,
                     f"Column '{col}' has only one unique value. "
-                    f"Consider removing as it provides no information.",
+                    f"It provides no predictive power.",
                     self.Severity.WARNING,
                     column=col,
                     value=1
@@ -282,6 +288,9 @@ class EDAInsightsService:
         summary_stats = self.eda_result.summary_stats
 
         for col, stats in summary_stats.items():
+            if not isinstance(stats, dict):
+                continue
+                
             # Check for binary columns with severe imbalance
             if stats.get('is_binary', False):
                 dominance = stats.get('dominance', 0)
@@ -310,6 +319,9 @@ class EDAInsightsService:
         summary_stats = self.eda_result.summary_stats
 
         for col, stats in summary_stats.items():
+            if not isinstance(stats, dict):
+                continue
+                
             # Only check categorical columns (those with mode)
             if stats.get('mode') is not None and stats.get('mean') is None:
                 cardinality_ratio = stats.get('cardinality_ratio', 0)
@@ -390,6 +402,9 @@ class EDAInsightsService:
         regression_targets = []
 
         for col, stats in summary_stats.items():
+            if not isinstance(stats, dict):
+                continue
+                
             unique_count = stats.get('unique_count', 0)
             null_ratio = stats.get('null_ratio', 1)
 
@@ -443,13 +458,13 @@ class EDAInsightsService:
                 issues.append(f"{cols_with_high_missing} columns with >10% missing")
 
         summary_stats = self.eda_result.summary_stats
-        constant_cols = sum(1 for s in summary_stats.values() if s.get('unique_count') == 1)
+        constant_cols = sum(1 for s in summary_stats.values() if isinstance(s, dict) and s.get('unique_count') == 1)
         if constant_cols > 0:
             issues.append(f"{constant_cols} constant columns")
 
         high_cardinality = sum(
             1 for s in summary_stats.values()
-            if s.get('cardinality_ratio', 0) > 0.5 and s.get('mode') is not None and s.get('mean') is None
+            if isinstance(s, dict) and s.get('cardinality_ratio', 0) > 0.5 and s.get('mode') is not None and s.get('mean') is None
         )
         if high_cardinality > 0:
             issues.append(f"{high_cardinality} high-cardinality categorical columns")

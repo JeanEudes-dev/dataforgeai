@@ -1,95 +1,104 @@
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
-import { Button, Input } from "@/components/ui";
-import { useAuth, useToastActions } from "@/contexts";
-import { getErrorMessage } from "@/api";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuthStore } from "../store";
+import { Button } from "../../../components/ui/button";
+import { apiClient } from "../../../api/client";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type LoginFormValues = z.infer<typeof loginSchema>;
 
-export function LoginPage() {
+export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
-  const toast = useToastActions();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const from =
-    (location.state as { from?: { pathname?: string } })?.from?.pathname || "/";
-
+  const { setTokens, setUser } = useAuthStore();
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true);
+  const onSubmit = async (data: LoginFormValues) => {
     try {
-      await login(data);
-      toast.success("Welcome back!", "You have been logged in successfully.");
-      navigate(from, { replace: true });
+      const response = await apiClient.post("/auth/login/", data);
+      const { access, refresh, user } = response.data;
+      setTokens(access, refresh);
+      setUser(user);
+      navigate("/app/dashboard");
     } catch (error) {
-      toast.error("Login failed", getErrorMessage(error));
-    } finally {
-      setIsLoading(false);
+      console.error("Login failed", error);
+      // Handle error (toast, etc.)
     }
   };
 
   return (
-    <div>
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-semiboldtext-muted-foreground">
-          Welcome back
-        </h2>
-        <p className="text-secondary mt-1">Sign in to your account</p>
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50 px-4">
+      <div className="max-w-md w-full space-y-8 bg-card p-8 rounded-xl shadow-lg border border-border">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-primary">DataForge AI</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Sign in to your account
+          </p>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-foreground">
+                Email Address
+              </label>
+              <input
+                type="email"
+                {...register("email")}
+                placeholder="name@example.com"
+                className="mt-1 block w-full px-3 py-2 bg-background border border-input rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              />
+              {errors.email && (
+                <p className="mt-1 text-xs text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground">
+                Password
+              </label>
+              <input
+                type="password"
+                {...register("password")}
+                className="mt-1 block w-full px-3 py-2 bg-background border border-input rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+              />
+              {errors.password && (
+                <p className="mt-1 text-xs text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Signing in..." : "Sign in"}
+          </Button>
+
+          <div className="text-center text-sm">
+            <span className="text-muted-foreground">
+              Don't have an account?{" "}
+            </span>
+            <Link
+              to="/auth/register"
+              className="font-medium text-primary hover:underline"
+            >
+              Register
+            </Link>
+          </div>
+        </form>
       </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input
-          label="Email"
-          type="email"
-          placeholder="you@example.com"
-          leftIcon={<EnvelopeIcon className="w-5 h-5" />}
-          error={errors.email?.message}
-          {...register("email")}
-        />
-
-        <Input
-          label="Password"
-          type="password"
-          placeholder="Enter your password"
-          leftIcon={<LockClosedIcon className="w-5 h-5" />}
-          error={errors.password?.message}
-          {...register("password")}
-        />
-
-        <Button type="submit" className="w-full" isLoading={isLoading}>
-          Sign in
-        </Button>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-secondary">
-        Don't have an account?{" "}
-        <Link
-          to="/register"
-          className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
-        >
-          Sign up
-        </Link>
-      </p>
     </div>
   );
-}
-
-export default LoginPage;
+};

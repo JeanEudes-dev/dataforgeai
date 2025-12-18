@@ -268,6 +268,6 @@ class DatasetModelsView(APIView):
         serializer = TrainedModelListSerializer(models, many=True)
 
         return Response({
-            'models': serializer.data,
+            'results': serializer.data,
             'count': models.count(),
         })

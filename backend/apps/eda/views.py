@@ -3,7 +3,9 @@ Views for the EDA app.
 """
 
 import logging
+from datetime import timedelta
 
+from django.utils import timezone
 from rest_framework import generics, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -133,6 +135,26 @@ class TriggerEDAView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         if run_async:
+            # Check if there's already a pending or running EDA for this dataset
+            # Allow re-triggering if the job is "stale" (older than 10 minutes) OR if force_refresh is True
+            stale_threshold = timezone.now() - timedelta(minutes=10)
+            
+            existing_eda_query = EDAResult.objects.filter(
+                dataset=dataset,
+                status__in=[EDAResult.Status.PENDING, EDAResult.Status.RUNNING]
+            )
+            
+            if not force_refresh:
+                existing_eda = existing_eda_query.filter(created_at__gt=stale_threshold).first()
+                
+                if existing_eda:
+                    return Response({
+                        'eda_result_id': str(existing_eda.id),
+                        'dataset_id': str(dataset_id),
+                        'status': existing_eda.status,
+                        'message': 'An EDA job is already in progress.',
+                    }, status=status.HTTP_200_OK)
+
             # Create EDA result with pending status
             eda_result = EDAResult.objects.create(
                 dataset=dataset,
@@ -229,10 +251,9 @@ class LatestEDAView(APIView):
         except Dataset.DoesNotExist:
             raise DatasetNotFoundError()
 
-        # Get latest completed EDA
+        # Get latest EDA (any status)
         eda_result = EDAResult.objects.filter(
-            dataset=dataset,
-            status=EDAResult.Status.COMPLETED
+            dataset=dataset
         ).order_by('-created_at').first()
 
         if not eda_result:
@@ -242,4 +263,7 @@ class LatestEDAView(APIView):
                 'meta': {}
             }, status=status.HTTP_404_NOT_FOUND)
 
+        # If the latest is an error, we might want to allow retrying, 
+        # but for now just return it so the UI can show the error state.
+        
         return Response(EDAResultDetailSerializer(eda_result).data)

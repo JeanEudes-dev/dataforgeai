@@ -1,270 +1,255 @@
-import { Link } from "react-router-dom";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import {
-  CloudArrowUpIcon,
-  ChartBarIcon,
-  CpuChipIcon,
-  DocumentTextIcon,
-  ArrowRightIcon,
-  SparklesIcon,
-} from "@heroicons/react/24/outline";
+  Database,
+  Cpu,
+  FileText,
+  TrendingUp,
+  Plus,
+  ArrowRight,
+} from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+
+import { apiClient } from "../../../api/client";
+import { Button } from "../../../components/ui/button";
+import { Badge } from "../../../components/ui/badge";
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardContent,
-  Button,
-} from "@/components/ui";
-import { useAuth } from "@/contexts";
-import { dashboardApi } from "@/api";
-import { cn } from "@/utils";
+} from "../../../components/ui/card";
+import { containerVariants, listItemVariants } from "../../../theme/motion";
 
-const workflowSteps = [
-  {
-    id: 1,
-    title: "Upload dataset",
-    description: "Bring your CSV or Excel file into the workspace.",
-    icon: CloudArrowUpIcon,
-    path: "/datasets",
-    color: "text-blue-600 dark:text-blue-400",
-    bg: "bg-blue-500/10",
-  },
-  {
-    id: 2,
-    title: "Analyze data",
-    description: "Run automated EDA for fast profiling.",
-    icon: ChartBarIcon,
-    path: "/datasets",
-    color: "text-purple-600 dark:text-purple-400",
-    bg: "bg-purple-500/10",
-  },
-  {
-    id: 3,
-    title: "Train models",
-    description: "AutoML searches and benchmarks candidates.",
-    icon: CpuChipIcon,
-    path: "/training/jobs",
-    color: "text-pink-600 dark:text-pink-400",
-    bg: "bg-pink-500/10",
-  },
-  {
-    id: 4,
-    title: "Generate reports",
-    description: "Share insights with stakeholders.",
-    icon: DocumentTextIcon,
-    path: "/reports",
-    color: "text-cyan-600 dark:text-cyan-400",
-    bg: "bg-cyan-500/10",
-  },
-];
+export const DashboardPage: React.FC = () => {
+  const navigate = useNavigate();
 
-const quickActions = [
-  { label: "Upload dataset", path: "/datasets", primary: true },
-  { label: "View models", path: "/models", primary: false },
-  { label: "Generate report", path: "/reports", primary: false },
-  { label: "AI assistant", path: "/assistant", primary: false },
-];
-
-export function DashboardPage() {
-  const { user } = useAuth();
-  const { data: stats, isLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
-    queryFn: dashboardApi.getStats,
+    queryFn: async () => {
+      const response = await apiClient.get("/core/dashboard/stats/");
+      return response.data;
+    },
   });
 
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+  const { data: recentDatasets } = useQuery({
+    queryKey: ["recent-datasets"],
+    queryFn: async () => {
+      const response = await apiClient.get("/datasets/?limit=5");
+      return response.data;
     },
-  };
+  });
 
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-  };
+  const datasetList = Array.isArray(recentDatasets)
+    ? recentDatasets
+    : recentDatasets?.results || [];
+
+  const statCards = [
+    {
+      title: "Datasets",
+      value: stats?.datasets_count ?? 0,
+      icon: Database,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+      description: "Total uploaded datasets",
+    },
+    {
+      title: "Models",
+      value: stats?.models_count ?? 0,
+      icon: Cpu,
+      color: "text-purple-500",
+      bg: "bg-purple-500/10",
+      description: "Trained ML models",
+    },
+    {
+      title: "Reports",
+      value: stats?.reports_count ?? 0,
+      icon: FileText,
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
+      description: "Generated analysis reports",
+    },
+    {
+      title: "Predictions",
+      value: "1.2k", // Placeholder or fetch from backend
+      icon: TrendingUp,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+      description: "Total predictions made",
+    },
+  ];
 
   return (
-    <motion.div
-      variants={container}
-      initial="hidden"
-      animate="show"
-      className="space-y-8"
-    >
-      {/* Hero */}
-      <motion.div variants={item}>
-        <Card className="relative overflow-hidden border-border bg-card">
-          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Welcome back! Here's an overview of your analytics workspace.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={() => navigate("/app/assistant")}>
+            Ask AI Assistant
+          </Button>
+          <Button onClick={() => navigate("/app/datasets/upload")}>
+            <Plus className="mr-2 h-4 w-4" />
+            Upload Dataset
+          </Button>
+        </div>
+      </div>
 
-          <div className="relative px-8 py-10 flex flex-wrap items-center justify-between gap-8">
-            <div className="space-y-4 max-w-2xl">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  DataForge Cockpit
-                </span>
-              </div>
-
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground tracking-tight">
-                Welcome back,{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
-                  {user?.first_name || "there"}
-                </span>
-              </h1>
-
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Launch analysis, automate training, and ship reports from one
-                unified workspace. Your data journey starts here.
-              </p>
-
-              <div className="flex flex-wrap gap-4 pt-2">
-                <Link to="/datasets">
-                  <Button
-                    size="lg"
-                    leftIcon={<CloudArrowUpIcon className="w-5 h-5" />}
-                    className="shadow-lg shadow-primary/20"
-                  >
-                    Upload Data
-                  </Button>
-                </Link>
-                <Link to="/assistant">
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    rightIcon={
-                      <SparklesIcon className="w-5 h-5 text-yellow-500 dark:text-yellow-400" />
-                    }
-                  >
-                    Ask AI Assistant
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            {/* Stats Grid in Hero */}
-            <div className="grid grid-cols-2 gap-4 min-w-[280px]">
-              {[
-                {
-                  label: "Datasets",
-                  value: isLoading ? "-" : (stats?.datasets_count ?? 0),
-                  hint: "Ready for ingestion",
-                  color: "text-blue-600 dark:text-blue-400",
-                },
-                {
-                  label: "Models",
-                  value: isLoading ? "-" : (stats?.models_count ?? 0),
-                  hint: "Train to unlock",
-                  color: "text-purple-600 dark:text-purple-400",
-                },
-                {
-                  label: "Reports",
-                  value: isLoading ? "-" : (stats?.reports_count ?? 0),
-                  hint: "Share insights",
-                  color: "text-pink-600 dark:text-pink-400",
-                },
-                {
-                  label: "Automation",
-                  value: "Live",
-                  hint: "Pipelines healthy",
-                  color: "text-green-600 dark:text-green-400",
-                },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-2xl border border-border bg-card/50 backdrop-blur-md p-4 hover:bg-muted/50 transition-colors"
-                >
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
-                    {stat.label}
-                  </p>
-                  <p className={cn("text-2xl font-bold mt-1", stat.color)}>
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-muted-foreground/70 mt-1">
-                    {stat.hint}
-                  </p>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="grid gap-6 md:grid-cols-2 lg:grid-cols-4"
+      >
+        {statCards.map((stat) => (
+          <motion.div key={stat.title} variants={listItemVariants}>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                <CardTitle className="text-sm font-medium">
+                  {stat.title}
+                </CardTitle>
+                <div className={`p-2 rounded-lg ${stat.bg}`}>
+                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
-              ))}
-            </div>
-          </div>
-        </Card>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {statsLoading ? "..." : stat.value}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stat.description}
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </motion.div>
 
-      {/* Workflow Steps */}
-      <motion.div variants={item}>
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground">
-              Getting Started
-            </h2>
-            <p className="text-muted-foreground mt-1">
-              A guided flow to ship analysis faster
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {workflowSteps.map((step) => (
-            <Link key={step.id} to={step.path} className="block h-full">
-              <Card
-                hoverable
-                className="h-full border-border bg-card hover:bg-muted/50 transition-colors"
-              >
-                <CardContent className="flex flex-col items-start p-6 space-y-4">
-                  <div
-                    className={cn(
-                      "w-14 h-14 rounded-2xl flex items-center justify-center mb-2",
-                      step.bg,
-                      step.color
-                    )}
-                  >
-                    <step.icon className="w-7 h-7" />
-                  </div>
-
-                  <div>
-                    <div className="text-xs font-bold text-muted-foreground tracking-wider uppercase mb-1">
-                      Step {step.id}
-                    </div>
-                    <h3 className="text-lg font-bold text-foreground mb-2">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Quick Actions */}
-      <motion.div variants={item}>
-        <Card className="bg-card border-border">
-          <CardHeader className="border-b border-border pb-4">
-            <CardTitle className="text-foreground text-lg m-0">
-              Quick Actions
-            </CardTitle>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="lg:col-span-4">
+          <CardHeader>
+            <CardTitle>Recent Datasets</CardTitle>
+            <CardDescription>
+              Your most recently uploaded data files.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="pt-6">
-            <div className="flex flex-wrap gap-4">
-              {quickActions.map((action) => (
-                <Link key={action.path} to={action.path}>
-                  <Button rightIcon={<ArrowRightIcon className="w-4 h-4" />}>
-                    {action.label}
-                  </Button>
-                </Link>
-              ))}
+          <CardContent>
+            <div className="space-y-4">
+              {datasetList.length > 0 ? (
+                datasetList.map(
+                  (ds: {
+                    id: string;
+                    name: string;
+                    created_at: string;
+                    file_size: number;
+                    status?: string;
+                    row_count?: number;
+                    file_type?: string;
+                  }) => (
+                    <div
+                      key={ds.id}
+                      className="flex items-center justify-between p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => navigate(`/app/eda?datasetId=${ds.id}`)}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/5 rounded text-primary">
+                          <Database className="h-4 w-4" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{ds.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(ds.file_type || "csv").toUpperCase()} •{" "}
+                            {ds.row_count || 0} rows
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <Badge
+                          variant={
+                            ds.status === "ready" ? "success" : "secondary"
+                          }
+                        >
+                          {ds.status || "uploaded"}
+                        </Badge>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    </div>
+                  )
+                )
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No datasets found. Upload one to get started.
+                </div>
+              )}
+              <Button variant="ghost" className="w-full" asChild>
+                <Link to="/app/datasets">View all datasets</Link>
+              </Button>
             </div>
           </CardContent>
         </Card>
-      </motion.div>
-    </motion.div>
-  );
-}
 
-export default DashboardPage;
+        <Card className="lg:col-span-3">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>
+              Common tasks to speed up your workflow.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-4">
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => navigate("/app/modeling")}
+            >
+              <div className="flex flex-col items-start text-left">
+                <span className="font-semibold flex items-center gap-2">
+                  <Cpu className="h-4 w-4 text-purple-500" />
+                  Train AutoML Model
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  Automatically find the best model for your data.
+                </span>
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => navigate("/app/reports")}
+            >
+              <div className="flex flex-col items-start text-left">
+                <span className="font-semibold flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-emerald-500" />
+                  Generate Report
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  Create a comprehensive PDF/HTML summary.
+                </span>
+              </div>
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-4 px-4"
+              onClick={() => navigate("/app/assistant")}
+            >
+              <div className="flex flex-col items-start text-left">
+                <span className="font-semibold flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-amber-500" />
+                  Get AI Insights
+                </span>
+                <span className="text-xs text-muted-foreground mt-1">
+                  Ask questions about your data in natural language.
+                </span>
+              </div>
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};

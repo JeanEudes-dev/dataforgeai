@@ -9,7 +9,7 @@ from celery import shared_task
 logger = logging.getLogger(__name__)
 
 
-@shared_task(bind=True, max_retries=0)
+@shared_task(bind=True, max_retries=0, time_limit=300, soft_time_limit=240)
 def run_eda_task(self, dataset_id: str, eda_result_id: str = None) -> dict:
     """
     Async task to run EDA analysis.

@@ -1,124 +1,58 @@
-import { forwardRef, type ButtonHTMLAttributes } from "react";
-import { motion, type HTMLMotionProps } from "framer-motion";
-import { cn } from "@/utils";
+import * as React from "react";
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 
-type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "glow";
-type ButtonSize = "sm" | "md" | "lg";
+import { cn } from "../../lib/utils";
 
-interface ButtonProps extends Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  "onAnimationStart" | "onAnimationEnd" | "onDrag" | "onDragStart" | "onDragEnd"
-> {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-  isLoading?: boolean;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
-}
-
-const variantStyles: Record<ButtonVariant, string> = {
-  primary: `
-    bg-primary text-primary-foreground border border-transparent
-    shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02]
-    active:scale-[0.98] transition-all duration-200
-  `,
-  secondary: `
-    glass text-foreground border border-border
-    hover:bg-accent/50 hover:border-accent
-    active:scale-[0.98] transition-all duration-200
-  `,
-  ghost: `
-    bg-transparent text-muted-foreground
-    hover:text-foreground hover:bg-accent/50
-    active:bg-accent active:scale-[0.98] transition-all duration-200
-  `,
-  danger: `
-    bg-destructive text-destructive-foreground border border-transparent
-    shadow-lg shadow-destructive/20 hover:shadow-destructive/40 hover:scale-[1.02]
-    active:scale-[0.98] transition-all duration-200
-  `,
-  glow: `
-    bg-primary/10 text-muted-foreground border border-primary/20
-    shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]
-    hover:bg-primary/20 hover:border-primary/30
-    active:scale-[0.98] transition-all duration-200
-  `,
-};
-
-const sizeStyles: Record<ButtonSize, string> = {
-  sm: "px-3 py-1.5 text-xs font-medium rounded-md",
-  md: "px-4 py-2 text-sm font-medium rounded-lg",
-  lg: "px-6 py-3 text-base font-medium rounded-xl",
-};
-
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    {
-      className,
-      variant = "primary",
-      size = "md",
-      isLoading = false,
-      disabled,
-      leftIcon,
-      rightIcon,
-      children,
-      ...props
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  {
+    variants: {
+      variant: {
+        default:
+          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+        destructive:
+          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+        outline:
+          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+        secondary:
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+        link: "text-primary underline-offset-4 hover:underline",
+      },
+      size: {
+        default: "h-9 px-4 py-2",
+        sm: "h-8 rounded-md px-3 text-xs",
+        lg: "h-10 rounded-md px-8",
+        icon: "h-9 w-9",
+      },
     },
-    ref
-  ) => {
-    const isDisabled = disabled || isLoading;
-
-    return (
-      <motion.button
-        ref={ref}
-        className={cn(
-          "inline-flex items-center justify-center gap-2 cursor-pointer",
-          "font-medium tracking-tight transition-all duration-200",
-          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2",
-          "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none",
-          variantStyles[variant],
-          sizeStyles[size],
-          className
-        )}
-        disabled={isDisabled}
-        whileHover={isDisabled ? {} : { scale: 1.01 }}
-        whileTap={isDisabled ? {} : { scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 400, damping: 17 }}
-        {...(props as HTMLMotionProps<"button">)}
-      >
-        {isLoading ? (
-          <svg
-            className="w-4 h-4 animate-spin"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
-          </svg>
-        ) : (
-          <>
-            {leftIcon && <span className="w-4 h-4">{leftIcon}</span>}
-            {children}
-            {rightIcon && <span className="w-4 h-4">{rightIcon}</span>}
-          </>
-        )}
-      </motion.button>
-    );
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
   }
 );
 
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, asChild = false, ...props }, ref) => {
+    const Comp = asChild ? Slot : "button";
+    return (
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
 Button.displayName = "Button";
 
-export default Button;
+// eslint-disable-next-line react-refresh/only-export-components
+export { Button, buttonVariants };
