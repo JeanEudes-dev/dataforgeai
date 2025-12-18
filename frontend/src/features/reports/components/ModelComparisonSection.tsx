@@ -110,7 +110,7 @@ export function ModelComparisonSection({
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-muted-foreground">
             Model comparison requires at least 2 trained models.
           </p>
         </CardContent>
@@ -141,11 +141,11 @@ export function ModelComparisonSection({
       className="space-y-6"
     >
       {/* Comparison Table */}
-      <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-        <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Model Comparison</CardTitle>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-muted-foreground">
               {models.length} models
             </span>
           </div>
@@ -154,10 +154,10 @@ export function ModelComparisonSection({
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
+                <tr className="border-b border-border">
                   <th
                     onClick={() => handleSort("name")}
-                    className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium cursor-pointer hover:text-gray-900 dark:hover:text-gray-100"
+                    className="px-4 py-3 text-left text-muted-foreground font-medium cursor-pointer hover:text-foreground"
                   >
                     <div className="flex items-center gap-1">
                       Model
@@ -166,7 +166,7 @@ export function ModelComparisonSection({
                   </th>
                   <th
                     onClick={() => handleSort("algorithm_type")}
-                    className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium cursor-pointer hover:text-gray-900 dark:hover:text-gray-100"
+                    className="px-4 py-3 text-left text-muted-foreground font-medium cursor-pointer hover:text-foreground"
                   >
                     <div className="flex items-center gap-1">
                       Algorithm
@@ -179,7 +179,7 @@ export function ModelComparisonSection({
                       <th
                         key={key}
                         onClick={() => handleSort(key as SortKey)}
-                        className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-medium cursor-pointer hover:text-gray-900 dark:hover:text-gray-100"
+                        className="px-4 py-3 text-left text-muted-foreground font-medium cursor-pointer hover:text-foreground"
                       >
                         <div className="flex items-center gap-1">
                           {label}
@@ -197,7 +197,7 @@ export function ModelComparisonSection({
                               <div className="font-semibold mb-1">
                                 {metricInfo.title}
                               </div>
-                              <div className="text-gray-300 text-[11px]">
+                              <div className="text-muted-foreground text-[11px]">
                                 {metricInfo.description}
                               </div>
                             </div>
@@ -210,7 +210,7 @@ export function ModelComparisonSection({
                     }
                     return headerContent;
                   })}
-                  <th className="px-4 py-3 text-center text-gray-500 dark:text-gray-400 font-medium">
+                  <th className="px-4 py-3 text-center text-muted-foreground font-medium">
                     Best
                   </th>
                 </tr>
@@ -223,14 +223,14 @@ export function ModelComparisonSection({
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.03 }}
                     className={`
-                      border-b border-gray-100 dark:border-gray-800
-                      ${model.is_best ? "bg-green-50 dark:bg-green-900/10" : "hover:bg-gray-50 dark:hover:bg-gray-800/50"}
+                      border-b border-border
+                      ${model.is_best ? "bg-success/10" : "hover:bg-muted/50"}
                     `}
                   >
-                    <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
+                    <td className="px-4 py-3 font-medium text-foreground">
                       {model.display_name}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400 capitalize">
+                    <td className="px-4 py-3 text-muted-foreground capitalize">
                       {model.algorithm_type?.replace(/_/g, " ")}
                     </td>
                     {metricOptions.map(({ key }) => {
@@ -243,7 +243,7 @@ export function ModelComparisonSection({
                       return (
                         <td
                           key={key}
-                          className="px-4 py-3 text-gray-600 dark:text-gray-400"
+                          className="px-4 py-3 text-muted-foreground"
                         >
                           {formatMetric(value, isError)}
                         </td>
@@ -251,7 +251,7 @@ export function ModelComparisonSection({
                     })}
                     <td className="px-4 py-3 text-center">
                       {model.is_best && (
-                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white text-xs">
+                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-success text-success-foreground text-xs">
                           ✓
                         </span>
                       )}
@@ -267,8 +267,8 @@ export function ModelComparisonSection({
       {/* Visual Comparisons */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bar Chart Comparison */}
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+        <Card className="border border-border shadow-sm">
+          <CardHeader className="border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
               <CardTitle className="text-base">
                 Performance Comparison
@@ -276,7 +276,7 @@ export function ModelComparisonSection({
               <select
                 value={selectedMetric || (isClassification ? "f1" : "r2")}
                 onChange={(e) => setSelectedMetric(e.target.value)}
-                className="text-sm px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                className="text-sm px-2 py-1 rounded border border-input bg-background text-foreground"
               >
                 {metricOptions.map(({ key, label }) => (
                   <option key={key} value={key}>
@@ -296,8 +296,8 @@ export function ModelComparisonSection({
         </Card>
 
         {/* Radar Chart */}
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+        <Card className="border border-border shadow-sm">
+          <CardHeader className="border-b border-border bg-muted/30">
             <CardTitle className="text-base">Multi-Metric Overview</CardTitle>
           </CardHeader>
           <CardContent>
@@ -308,20 +308,20 @@ export function ModelComparisonSection({
 
       {/* Best Model Summary */}
       {sortedModels.find((m) => m.is_best) && (
-        <Card className="border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/10">
+        <Card className="border-success/20 bg-success/10">
           <CardContent className="py-4">
             <div className="flex items-center gap-4">
               <div className="flex-shrink-0">
-                <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white text-xl">
+                <div className="w-12 h-12 rounded-full bg-success flex items-center justify-center text-success-foreground text-xl">
                   ✓
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold text-green-800 dark:text-green-200">
+                <h4 className="font-semibold text-success">
                   Best Model:{" "}
                   {sortedModels.find((m) => m.is_best)?.display_name}
                 </h4>
-                <p className="text-sm text-green-700 dark:text-green-300">
+                <p className="text-sm text-success/80">
                   Selected based on {isClassification ? "F1 Score" : "R2 Score"}{" "}
                   performance with cross-validation
                 </p>

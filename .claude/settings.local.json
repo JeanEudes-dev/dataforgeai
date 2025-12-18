@@ -17,7 +17,10 @@
       "Bash(npx eslint:*)",
       "Bash(docker ps:*)",
       "Bash(docker stop:*)",
-      "Bash(docker start:*)"
+      "Bash(docker start:*)",
+      "Bash(python:*)",
+      "Bash(D:\\\\dataforgeai\\\\backend\\\\venv\\\\Scripts\\\\python.exe:*)",
+      "Bash(docker cp:*)"
     ]
   }
 }

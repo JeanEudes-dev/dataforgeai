@@ -36,7 +36,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       className={cn(
         "fixed left-0 top-0 h-screen z-40",
         "glass-sidebar",
-        "flex flex-col py-4 text-white"
+        "flex flex-col py-4 text-foreground"
       )}
     >
       {/* Logo */}
@@ -58,8 +58,8 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <button
           onClick={onToggle}
           className={cn(
-            "p-1.5 rounded-md text-muted",
-            "hover:text-primary hover:bg-sunken",
+            "p-1.5 rounded-md text-muted-foreground",
+            "hover:text-muted-foreground hover:bg-accent/50",
             "transition-all duration-200",
             !isOpen && "mx-auto"
           )}
@@ -68,7 +68,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             animate={{ rotate: isOpen ? 0 : 180 }}
             transition={{ duration: 0.2 }}
           >
-            <ChevronLeftIcon className="w-4 h-4" />
+            <ChevronLeftIcon className="w-4 h-4 text-muted-foreground" />
           </motion.div>
         </button>
       </div>
@@ -88,14 +88,14 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 "group relative flex items-center gap-3 px-3 py-2.5 rounded-xl mx-2",
                 "transition-all duration-300 outline-none overflow-hidden",
                 isActive
-                  ? "text-white bg-white/10 shadow-[0_0_20px_rgba(255,255,255,0.1)] border border-white/10"
-                  : "text-gray-400 hover:text-white hover:bg-white/5"
+                  ? "bg-primary text-primary-foreground shadow-md shadow-blue-500/20"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
               {isActive && (
                 <motion.div
                   layoutId="active-nav"
-                  className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-xl"
+                  className="absolute inset-0 bg-white/10 rounded-xl"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -103,8 +103,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               )}
               <item.icon
                 className={cn(
-                  "w-5 h-5 shrink-0 relative z-10 transition-colors duration-300",
-                  isActive ? "text-blue-400" : "group-hover:text-blue-300"
+                  "w-5 h-5 shrink-0 relative z-10 transition-colors duration-300"
                 )}
               />
               {isOpen && (

@@ -66,7 +66,7 @@ export function Modal({
               <Dialog.Panel
                 className={cn(
                   "w-full rounded-3xl glass-card",
-                  "border border-white/10 shadow-2xl",
+                  "border border-border shadow-2xl",
                   "overflow-hidden relative",
                   sizeStyles[size]
                 )}
@@ -78,15 +78,15 @@ export function Modal({
 
                 {/* Header */}
                 {(title || showClose) && (
-                  <div className="flex items-start justify-between px-8 py-6 border-b border-white/10 bg-white/5 relative">
+                  <div className="flex items-start justify-between px-8 py-6 border-b border-border bg-accent/5 relative">
                     <div>
                       {title && (
-                        <Dialog.Title className="text-xl font-semibold text-white">
+                        <Dialog.Title className="text-xl font-semibold text-foreground">
                           {title}
                         </Dialog.Title>
                       )}
                       {description && (
-                        <Dialog.Description className="mt-2 text-sm text-gray-400 leading-relaxed">
+                        <Dialog.Description className="mt-2 text-sm text-muted-foreground leading-relaxed">
                           {description}
                         </Dialog.Description>
                       )}
@@ -95,8 +95,8 @@ export function Modal({
                       <button
                         onClick={onClose}
                         className={cn(
-                          "p-2 rounded-full text-gray-400 dark:text-gray-500",
-                          "hover:text-primary-700 dark:hover:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-800",
+                          "p-2 rounded-full text-muted-foreground",
+                          "hover:text-foreground hover:bg-accent",
                           "transition-colors duration-200",
                           "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                         )}
@@ -108,13 +108,13 @@ export function Modal({
                 )}
 
                 {/* Content */}
-                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto scrollbar-thin text-gray-300 relative">
+                <div className="px-8 py-6 max-h-[65vh] overflow-y-auto scrollbar-thin text-foreground relative">
                   {children}
                 </div>
 
                 {/* Footer */}
                 {footer && (
-                  <div className="px-8 py-5 border-t border-white/10 bg-white/5">
+                  <div className="px-8 py-5 border-t border-border bg-accent/5">
                     {footer}
                   </div>
                 )}

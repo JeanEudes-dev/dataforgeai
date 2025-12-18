@@ -1,11 +1,11 @@
-import { useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { useMemo } from "react";
+import { motion } from "framer-motion";
 
 interface ConfusionMatrixChartProps {
-  matrix: number[][]
-  labels?: string[]
-  height?: number
-  showMetrics?: boolean
+  matrix: number[][];
+  labels?: string[];
+  height?: number;
+  showMetrics?: boolean;
 }
 
 export function ConfusionMatrixChart({
@@ -17,75 +17,82 @@ export function ConfusionMatrixChart({
   // Generate cell data and calculate metrics
   const { maxValue, classMetrics, totalAccuracy } = useMemo(() => {
     if (!matrix || matrix.length === 0) {
-      return { maxValue: 0, classMetrics: [], totalAccuracy: 0 }
+      return { maxValue: 0, classMetrics: [], totalAccuracy: 0 };
     }
 
-    let maxVal = 0
-    let totalCorrect = 0
-    let totalSamples = 0
+    let maxVal = 0;
+    let totalCorrect = 0;
+    let totalSamples = 0;
 
     matrix.forEach((row, i) => {
       row.forEach((value, j) => {
-        maxVal = Math.max(maxVal, value)
-        totalSamples += value
-        if (i === j) totalCorrect += value
-      })
-    })
+        maxVal = Math.max(maxVal, value);
+        totalSamples += value;
+        if (i === j) totalCorrect += value;
+      });
+    });
 
     const classMetrics = matrix.map((row, i) => {
-      const tp = matrix[i][i]
-      const fp = matrix.reduce((sum, r, j) => (j !== i ? sum + r[i] : sum), 0)
-      const fn = row.reduce((sum, v, j) => (j !== i ? sum + v : sum), 0)
-      const precision = tp + fp > 0 ? tp / (tp + fp) : 0
-      const recall = tp + fn > 0 ? tp / (tp + fn) : 0
+      const tp = matrix[i][i];
+      const fp = matrix.reduce((sum, r, j) => (j !== i ? sum + r[i] : sum), 0);
+      const fn = row.reduce((sum, v, j) => (j !== i ? sum + v : sum), 0);
+      const precision = tp + fp > 0 ? tp / (tp + fp) : 0;
+      const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
 
       return {
         label: labels?.[i] || `Class ${i}`,
         precision,
         recall,
-        f1: precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0,
-      }
-    })
+        f1:
+          precision + recall > 0
+            ? (2 * precision * recall) / (precision + recall)
+            : 0,
+      };
+    });
 
     return {
       maxValue: maxVal,
       classMetrics,
       totalAccuracy: totalSamples > 0 ? totalCorrect / totalSamples : 0,
-    }
-  }, [matrix, labels])
+    };
+  }, [matrix, labels]);
 
   if (!matrix || matrix.length === 0) {
     return (
       <div className="w-full rounded-xl border border-subtle bg-surface p-4 text-sm text-muted-foreground">
         No confusion matrix data available.
       </div>
-    )
+    );
   }
 
-  const n = matrix.length
-  const cellSize = Math.min(60, (height - 80) / n)
+  const n = matrix.length;
+  const cellSize = Math.min(60, (height - 80) / n);
 
   // Color scale function (blue gradient)
   const getColor = (value: number, isCorrect: boolean) => {
-    if (maxValue === 0) return 'bg-gray-100 dark:bg-gray-700'
+    if (maxValue === 0) return "bg-gray-100 dark:bg-gray-700";
 
-    const intensity = value / maxValue
+    const intensity = value / maxValue;
 
     if (isCorrect) {
       // Green for correct predictions (diagonal)
-      if (intensity > 0.7) return 'bg-success-500 text-white'
-      if (intensity > 0.4) return 'bg-success-400 text-white'
-      if (intensity > 0.1) return 'bg-success-200 dark:bg-success-800 text-success-900 dark:text-success-100'
-      return 'bg-success-50 dark:bg-success-900/30 text-success-700 dark:text-success-300'
+      if (intensity > 0.7) return "bg-green-500 text-white";
+      if (intensity > 0.4) return "bg-green-400 text-white";
+      if (intensity > 0.1)
+        return "bg-green-200 dark:bg-green-800 text-green-900 dark:text-green-100";
+      return "bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300";
     } else {
       // Red for incorrect predictions (off-diagonal)
-      if (intensity > 0.7) return 'bg-error-500 text-white'
-      if (intensity > 0.4) return 'bg-error-400 text-white'
-      if (intensity > 0.1) return 'bg-error-200 dark:bg-error-800 text-error-900 dark:text-error-100'
-      if (intensity > 0) return 'bg-error-50 dark:bg-error-900/30 text-error-700 dark:text-error-300'
-      return 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500'
+      if (intensity > 0.7) return "bg-destructive text-destructive-foreground";
+      if (intensity > 0.4)
+        return "bg-destructive/80 text-destructive-foreground";
+      if (intensity > 0.1)
+        return "bg-destructive/20 dark:bg-destructive/40 text-destructive dark:text-destructive-foreground";
+      if (intensity > 0)
+        return "bg-destructive/10 dark:bg-destructive/20 text-destructive dark:text-destructive-foreground";
+      return "bg-muted text-muted-foreground";
     }
-  }
+  };
 
   return (
     <motion.div
@@ -113,16 +120,18 @@ export function ConfusionMatrixChart({
               {/* X-axis labels */}
               <div className="flex gap-1 mb-1">
                 <div style={{ width: cellSize }} />
-                {(labels || Array.from({ length: n }, (_, i) => `${i}`)).map((label, i) => (
-                  <div
-                    key={i}
-                    style={{ width: cellSize }}
-                    className="text-xs text-center text-foreground truncate"
-                    title={label}
-                  >
-                    {label.length > 8 ? `${label.slice(0, 8)}...` : label}
-                  </div>
-                ))}
+                {(labels || Array.from({ length: n }, (_, i) => `${i}`)).map(
+                  (label, i) => (
+                    <div
+                      key={i}
+                      style={{ width: cellSize }}
+                      className="text-xs text-center text-foreground truncate"
+                      title={label}
+                    >
+                      {label.length > 8 ? `${label.slice(0, 8)}...` : label}
+                    </div>
+                  )
+                )}
               </div>
 
               {/* Matrix rows */}
@@ -152,7 +161,7 @@ export function ConfusionMatrixChart({
                       `}
                       title={`Actual: ${labels?.[i] || i}, Predicted: ${labels?.[j] || j}, Count: ${value}`}
                     >
-                      {value > 0 ? value.toLocaleString() : '-'}
+                      {value > 0 ? value.toLocaleString() : "-"}
                     </motion.div>
                   ))}
                 </div>
@@ -182,8 +191,10 @@ export function ConfusionMatrixChart({
 
             {/* Overall accuracy */}
             <div className="mb-4 p-3 rounded-lg bg-primary-muted border border-primary-subtle">
-              <div className="text-xs text-primary">Overall Accuracy</div>
-              <div className="text-xl font-bold text-primary">
+              <div className="text-xstext-muted-foreground">
+                Overall Accuracy
+              </div>
+              <div className="text-xl font-boldtext-muted-foreground">
                 {(totalAccuracy * 100).toFixed(1)}%
               </div>
             </div>
@@ -194,7 +205,10 @@ export function ConfusionMatrixChart({
                   key={label}
                   className="p-2 rounded-lg bg-surface border border-subtle"
                 >
-                  <div className="font-medium text-sm text-foreground truncate mb-1" title={label}>
+                  <div
+                    className="font-medium text-sm text-foreground truncate mb-1"
+                    title={label}
+                  >
                     {label}
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-xs">
@@ -224,7 +238,7 @@ export function ConfusionMatrixChart({
         )}
       </div>
     </motion.div>
-  )
+  );
 }
 
-export default ConfusionMatrixChart
+export default ConfusionMatrixChart;

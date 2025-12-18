@@ -1,12 +1,12 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
+import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import {
   ArrowLeftIcon,
   PlayIcon,
   CloudArrowUpIcon,
-} from '@heroicons/react/24/outline'
+} from "@heroicons/react/24/outline";
 import {
   Card,
   CardHeader,
@@ -19,27 +19,29 @@ import {
   TabsTrigger,
   TabsContent,
   Skeleton,
-} from '@/components/ui'
-import { FileUpload } from '@/components/forms'
-import { mlApi, predictionsApi } from '@/api'
-import { useToastActions } from '@/contexts'
-import { formatNumber } from '@/utils'
-import type { SinglePredictionResponse } from '@/types'
+} from "@/components/ui";
+import { FileUpload } from "@/components/forms";
+import { mlApi, predictionsApi } from "@/api";
+import { useToastActions } from "@/contexts";
+import { formatNumber } from "@/utils";
+import type { SinglePredictionResponse } from "@/types";
 
 export function PredictionsPage() {
-  const { modelId } = useParams<{ modelId: string }>()
-  const queryClient = useQueryClient()
-  const toast = useToastActions()
+  const { modelId } = useParams<{ modelId: string }>();
+  const queryClient = useQueryClient();
+  const toast = useToastActions();
 
-  const [singleInputs, setSingleInputs] = useState<Record<string, string>>({})
-  const [batchFile, setBatchFile] = useState<File | null>(null)
-  const [prediction, setPrediction] = useState<SinglePredictionResponse | null>(null)
+  const [singleInputs, setSingleInputs] = useState<Record<string, string>>({});
+  const [batchFile, setBatchFile] = useState<File | null>(null);
+  const [prediction, setPrediction] = useState<SinglePredictionResponse | null>(
+    null
+  );
 
   const { data: model, isLoading: modelLoading } = useQuery({
-    queryKey: ['trained-models', modelId],
+    queryKey: ["trained-models", modelId],
     queryFn: () => mlApi.getModel(modelId!),
     enabled: !!modelId,
-  })
+  });
 
   const singlePredictMutation = useMutation({
     mutationFn: (inputs: Record<string, unknown>) =>
@@ -49,13 +51,13 @@ export function PredictionsPage() {
         include_probabilities: true,
       }),
     onSuccess: (data) => {
-      setPrediction(data)
-      toast.success('Prediction complete', 'Your prediction result is ready.')
+      setPrediction(data);
+      toast.success("Prediction complete", "Your prediction result is ready.");
     },
     onError: () => {
-      toast.error('Prediction failed', 'Could not make the prediction.')
+      toast.error("Prediction failed", "Could not make the prediction.");
     },
-  })
+  });
 
   const batchPredictMutation = useMutation({
     mutationFn: (file: File) =>
@@ -65,43 +67,53 @@ export function PredictionsPage() {
         async: true,
       }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['prediction-jobs'] })
-      toast.success('Batch prediction started', 'Your predictions are being processed.')
-      setBatchFile(null)
+      queryClient.invalidateQueries({ queryKey: ["prediction-jobs"] });
+      toast.success(
+        "Batch prediction started",
+        "Your predictions are being processed."
+      );
+      setBatchFile(null);
     },
     onError: () => {
-      toast.error('Batch prediction failed', 'Could not start the batch prediction.')
+      toast.error(
+        "Batch prediction failed",
+        "Could not start the batch prediction."
+      );
     },
-  })
+  });
 
   const handleSinglePredict = () => {
-    if (!model?.feature_columns) return
+    if (!model?.feature_columns) return;
 
-    const inputs: Record<string, unknown> = {}
+    const inputs: Record<string, unknown> = {};
     model.feature_columns.forEach((col) => {
-      const value = singleInputs[col]
-      if (value !== undefined && value !== '') {
+      const value = singleInputs[col];
+      if (value !== undefined && value !== "") {
         // Try to convert to number if possible
-        const numValue = parseFloat(value)
-        inputs[col] = isNaN(numValue) ? value : numValue
+        const numValue = parseFloat(value);
+        inputs[col] = isNaN(numValue) ? value : numValue;
       }
-    })
+    });
 
-    singlePredictMutation.mutate(inputs)
-  }
+    singlePredictMutation.mutate(inputs);
+  };
 
   const handleBatchPredict = () => {
-    if (!batchFile) return
-    batchPredictMutation.mutate(batchFile)
-  }
+    if (!batchFile) return;
+    batchPredictMutation.mutate(batchFile);
+  };
 
   if (modelLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
-        <Card><CardContent className="p-6"><Skeleton className="h-48" /></CardContent></Card>
+        <Card>
+          <CardContent className="p-6">
+            <Skeleton className="h-48" />
+          </CardContent>
+        </Card>
       </div>
-    )
+    );
   }
 
   if (!model) {
@@ -114,12 +126,12 @@ export function PredictionsPage() {
           </Link>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // Get the first prediction from results (since we sent single input)
-  const predictionValue = prediction?.predictions?.[0]
-  const probabilitiesMap = prediction?.probabilities?.[0]
+  const predictionValue = prediction?.predictions?.[0];
+  const probabilitiesMap = prediction?.probabilities?.[0];
 
   return (
     <div className="space-y-6">
@@ -132,7 +144,9 @@ export function PredictionsPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-primary">Make Predictions</h1>
+            <h1 className="text-2xl font-boldtext-muted-foreground">
+              Make Predictions
+            </h1>
             <p className="text-secondary mt-1">
               {model.display_name} • {model.target_column}
             </p>
@@ -159,7 +173,7 @@ export function PredictionsPage() {
                     <Input
                       key={col}
                       label={col}
-                      value={singleInputs[col] || ''}
+                      value={singleInputs[col] || ""}
                       onChange={(e) =>
                         setSingleInputs((prev) => ({
                           ...prev,
@@ -176,7 +190,9 @@ export function PredictionsPage() {
                     onClick={handleSinglePredict}
                     isLoading={singlePredictMutation.isPending}
                     leftIcon={<PlayIcon className="w-5 h-5" />}
-                    disabled={Object.values(singleInputs).filter(Boolean).length === 0}
+                    disabled={
+                      Object.values(singleInputs).filter(Boolean).length === 0
+                    }
                   >
                     Predict
                   </Button>
@@ -197,9 +213,9 @@ export function PredictionsPage() {
                     className="space-y-4"
                   >
                     <div className="p-4 rounded-xl neu-pressed text-center">
-                      <p className="text-sm text-muted mb-1">Predicted Value</p>
-                      <p className="text-3xl font-bold text-primary">
-                        {typeof predictionValue === 'number'
+                      <p className="text-sm text-muted-foreground mb-1">Predicted Value</p>
+                      <p className="text-3xl font-bold text-muted-foreground">
+                        {typeof predictionValue === "number"
                           ? formatNumber(predictionValue, 4)
                           : String(predictionValue)}
                       </p>
@@ -207,12 +223,17 @@ export function PredictionsPage() {
 
                     {probabilitiesMap && (
                       <div>
-                        <p className="text-sm text-muted mb-2">Class Probabilities</p>
+                        <p className="text-sm text-muted mb-2">
+                          Class Probabilities
+                        </p>
                         <div className="space-y-2">
                           {Object.entries(probabilitiesMap)
                             .sort(([, a], [, b]) => b - a)
                             .map(([cls, prob]) => (
-                              <div key={cls} className="flex items-center gap-3">
+                              <div
+                                key={cls}
+                                className="flex items-center gap-3"
+                              >
                                 <span className="text-sm text-secondary w-24 truncate">
                                   {cls}
                                 </span>
@@ -222,7 +243,7 @@ export function PredictionsPage() {
                                     style={{ width: `${prob * 100}%` }}
                                   />
                                 </div>
-                                <span className="text-sm text-primary w-16 text-right">
+                                <span className="text-sm text-muted-foreground w-16 text-right">
                                   {formatNumber(prob * 100, 1)}%
                                 </span>
                               </div>
@@ -253,14 +274,15 @@ export function PredictionsPage() {
               <CardContent>
                 <FileUpload
                   onFileSelect={setBatchFile}
-                  onError={(error) => toast.error('File error', error)}
+                  onError={(error) => toast.error("File error", error)}
                   isUploading={batchPredictMutation.isPending}
                 />
 
                 {batchFile && (
                   <div className="mt-4">
                     <p className="text-sm text-secondary">
-                      Selected: <span className="text-primary">{batchFile.name}</span>
+                      Selected:{" "}
+                      <span className="text-primary">{batchFile.name}</span>
                     </p>
                     <Button
                       onClick={handleBatchPredict}
@@ -307,7 +329,7 @@ export function PredictionsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
 
-export default PredictionsPage
+export default PredictionsPage;

@@ -24,26 +24,26 @@ export function JobsListPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <Card variant="premium" className="relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+      <Card className="relative overflow-hidden border-border bg-card">
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
 
         <div className="relative px-8 py-8 flex flex-wrap items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-purple-300 uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 AutoML Engine
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               Training Jobs
             </h1>
-            <p className="text-lg text-gray-300 leading-relaxed">
+            <p className="text-lg text-muted-foreground leading-relaxed">
               Monitor your model training jobs. Watch as the AutoML engine
               searches for the best algorithms and hyperparameters.
             </p>
           </div>
           <Link to="/datasets">
-            <Button size="lg" className="shadow-purple-500/25">
+            <Button size="lg" className="shadow-lg shadow-primary/20">
               <CpuChipIcon className="w-5 h-5 mr-2" />
               Start New Training
             </Button>
@@ -61,7 +61,7 @@ export function JobsListPage() {
       ) : error ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-error-500">
+            <p className="text-destructive">
               Failed to load training jobs. Please try again.
             </p>
           </CardContent>
@@ -93,31 +93,30 @@ export function JobsListPage() {
               >
                 <Card
                   hoverable
-                  variant="elevated"
-                  className="h-full border-white/10 bg-white/5 hover:bg-white/10"
+                  className="h-full border-border bg-card hover:bg-muted/50 transition-colors"
                 >
                   <CardContent className="p-5">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div
                           className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center border border-white/10",
+                            "w-10 h-10 rounded-xl flex items-center justify-center border border-border",
                             job.status === "completed"
-                              ? "bg-green-500/10 text-green-400"
+                              ? "bg-green-500/10 text-green-600 dark:text-green-400"
                               : job.status === "running"
-                                ? "bg-blue-500/10 text-blue-400"
+                                ? "bg-blue-500/10 text-blue-600 dark:text-blue-400"
                                 : job.status === "error"
-                                  ? "bg-red-500/10 text-red-400"
-                                  : "bg-white/5 text-gray-400"
+                                  ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                                  : "bg-muted text-muted-foreground"
                           )}
                         >
                           <CpuChipIcon className="w-5 h-5" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-primary truncate">
+                          <h3 className="font-semibold text-foreground truncate">
                             {job.dataset_name || `Job ${job.id.slice(0, 8)}`}
                           </h3>
-                          <p className="text-xs text-muted">
+                          <p className="text-xs text-muted-foreground">
                             {formatRelativeTime(job.created_at)}
                           </p>
                         </div>
@@ -127,27 +126,29 @@ export function JobsListPage() {
 
                     <div className="space-y-2 mb-4">
                       <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Task</span>
-                        <span className="text-primary capitalize">
+                        <span className="text-muted-foreground">Task</span>
+                        <span className="text-foreground capitalize">
                           {job.task_type}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Target</span>
-                        <span className="text-primary">
+                        <span className="text-muted-foreground">Target</span>
+                        <span className="text-foreground">
                           {job.target_column}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-secondary">Features</span>
-                        <span className="text-primary">
+                        <span className="text-muted-foreground">Features</span>
+                        <span className="text-foreground">
                           {job.feature_columns?.length || "-"}
                         </span>
                       </div>
                       {job.status === "completed" && job.best_model && (
                         <div className="flex justify-between text-sm">
-                          <span className="text-secondary">Best Model</span>
-                          <span className="text-primary">
+                          <span className="text-muted-foreground">
+                            Best Model
+                          </span>
+                          <span className="text-foreground">
                             {job.best_model.display_name}
                           </span>
                         </div>

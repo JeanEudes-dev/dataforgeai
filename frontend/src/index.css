@@ -112,30 +112,88 @@
 /* Base Styles */
 @layer base {
   :root {
-    --color-surface-val: #ffffff;
-    --color-background-val: #fafafa;
-    --color-foreground-val: #18181b;
-    --color-muted-val: #71717a;
-    --color-subtle-val: #e4e4e7;
-    --color-sunken-val: #f4f4f5;
+    /* Light Mode - Ultra Clean White */
+    --background: 0 0% 100%; /* Pure White */
+    --foreground: 222.2 84% 4.9%; /* Slate 950 */
 
-    --background: 255 255 255;
-    --foreground: 24 24 27;
+    --card: 0 0% 100%; /* Pure White */
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 221.2 83.2% 53.3%; /* Blue 600 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 98%; /* Slate 50 - Extremely subtle off-white */
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 98%; /* Slate 50 - Extremely subtle off-white */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Slate 500 */
+
+    --accent: 210 40% 98%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 210 40% 96.1%; /* Slate 100 - Very light, almost invisible */
+    --input: 210 40% 96.1%;
+    --ring: 221.2 83.2% 53.3%;
+
+    --radius: 0.75rem;
+
+    /* Legacy variables mapping - Force white/clean look */
+    --color-surface-val: #ffffff;
+    --color-background-val: #ffffff;
+    --color-foreground-val: #020617;
+    --color-muted-val: #f8fafc; /* Slate 50 */
+    --color-subtle-val: #f1f5f9; /* Slate 100 */
+    --color-sunken-val: #ffffff; /* White */
+
     color-scheme: light;
   }
 
   :root.dark,
   .dark,
   [data-theme="dark"] {
-    --color-surface-val: #18181b;
-    --color-background-val: #09090b;
-    --color-foreground-val: #fafafa;
-    --color-muted-val: #a1a1aa;
-    --color-subtle-val: #27272a;
-    --color-sunken-val: #27272a;
+    /* Dark Mode - Deep, Rich, Slate-based */
+    --background: 222.2 84% 4.9%; /* Slate 950 */
+    --foreground: 210 40% 98%; /* Slate 50 */
 
-    --background: 9 9 11;
-    --foreground: 250 250 250;
+    --card: 222.2 47.4% 11.2%; /* Slate 900 - Lighter than bg */
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 47.4% 11.2%; /* Slate 900 */
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217.2 91.2% 59.8%; /* Blue 500 */
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%; /* Slate 800 */
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%; /* Slate 800 */
+    --muted-foreground: 215 20.2% 65.1%; /* Slate 400 */
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 22%; /* Slate 700/800 mix - Visible border */
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+
+    /* Legacy variables mapping */
+    --color-surface-val: #0f172a;
+    --color-background-val: #020617;
+    --color-foreground-val: #f8fafc;
+    --color-muted-val: #1e293b;
+    --color-subtle-val: #334155;
+    --color-sunken-val: #0f172a;
+
     color-scheme: dark;
   }
 
@@ -204,13 +262,13 @@
 
 /* Utilities */
 @layer utilities {
-  .glass {
+  /* .glass {
     @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-sm dark:bg-gray-900/80 dark:border-white/10;
   }
 
   .glass-dark {
     @apply bg-gray-900/80 backdrop-blur-xl border border-white/10 shadow-sm;
-  }
+  } */
 
   .text-balance {
     text-wrap: balance;
@@ -389,35 +447,21 @@
 }
 
 /* Glassmorphism Utilities - Premium Upgrade */
-.glass {
-  background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+/* .glass {
+  @apply bg-white dark:bg-slate-900/70 backdrop-blur-xl border border-white dark:border-white/10 shadow-sm;
 }
 
 .glass-card {
-  background: rgba(15, 15, 20, 0.4);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  @apply bg-white dark:bg-slate-900/80 backdrop-blur-2xl border border-white dark:border-white/10 shadow-lg dark:shadow-2xl;
 }
 
 .glass-sidebar {
-  background: rgba(5, 5, 10, 0.3);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  @apply bg-white dark:bg-slate-950/80 backdrop-blur-2xl border-r border-white dark:border-slate-800;
 }
 
 .glass-header {
-  background: rgba(5, 5, 10, 0.3);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
+  @apply bg-white dark:bg-slate-950/80 backdrop-blur-2xl border-b border-white dark:border-slate-800;
+} */
 
 /* Text Gradients */
 .text-gradient {
@@ -447,15 +491,4 @@
 
 .animate-shine {
   animation: shine 2s linear infinite;
-}
-
-/* Dark Mode Overrides for Aurora */
-:root {
-  --color-background-val: #000000; /* Deep black for contrast */
-  --color-foreground-val: #ffffff;
-}
-
-body {
-  background-color: #000000;
-  color: #ffffff;
 }

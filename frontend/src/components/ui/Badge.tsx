@@ -18,16 +18,17 @@ interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  default: "bg-white/10 text-gray-300 border border-white/10 backdrop-blur-sm",
+  default:
+    "bg-muted text-muted-foreground border border-border backdrop-blur-sm",
   primary:
-    "bg-blue-500/20 text-blue-300 border border-blue-500/30 backdrop-blur-sm shadow-[0_0_10px_rgba(59,130,246,0.2)]",
+    "bg-primary/10 text-muted-foreground border border-primary/20 backdrop-blur-sm shadow-sm",
   success:
-    "bg-green-500/20 text-green-300 border border-green-500/30 backdrop-blur-sm shadow-[0_0_10px_rgba(34,197,94,0.2)]",
+    "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 backdrop-blur-sm shadow-sm",
   warning:
-    "bg-orange-500/20 text-orange-300 border border-orange-500/30 backdrop-blur-sm shadow-[0_0_10px_rgba(249,115,22,0.2)]",
+    "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20 backdrop-blur-sm shadow-sm",
   error:
-    "bg-red-500/20 text-red-300 border border-red-500/30 backdrop-blur-sm shadow-[0_0_10px_rgba(239,68,68,0.2)]",
-  info: "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 backdrop-blur-sm shadow-[0_0_10px_rgba(99,102,241,0.2)]",
+    "bg-destructive/10 text-destructive border border-destructive/20 backdrop-blur-sm shadow-sm",
+  info: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 backdrop-blur-sm shadow-sm",
 };
 
 const dotColors: Record<BadgeVariant, string> = {

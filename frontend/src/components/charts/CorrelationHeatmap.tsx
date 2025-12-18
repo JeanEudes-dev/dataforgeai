@@ -1,53 +1,60 @@
-import { useMemo } from 'react'
-import { motion } from 'framer-motion'
-import { cn } from '@/utils'
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/utils";
 
 interface CorrelationHeatmapProps {
-  matrix: Record<string, Record<string, number>>
-  maxItems?: number
+  matrix: Record<string, Record<string, number>>;
+  maxItems?: number;
 }
 
 function getCorrelationColor(value: number): string {
-  const absValue = Math.abs(value)
+  const absValue = Math.abs(value);
 
   if (value > 0) {
     // Positive correlations - blue
-    if (absValue >= 0.7) return 'bg-primary-500 text-white'
-    if (absValue >= 0.5) return 'bg-primary-400 text-white'
+    if (absValue >= 0.7)
+      return "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]";
+    if (absValue >= 0.5)
+      return "bg-[hsl(var(--primary))]/80 text-[hsl(var(--primary-foreground))]";
     if (absValue >= 0.3)
-      return 'bg-primary-300 text-primary-800 dark:bg-primary-700 dark:text-primary-100'
-    return 'bg-primary-100 text-primary-700 dark:bg-primary-900 dark:text-primary-200'
+      return "bg-[hsl(var(--primary))]/60 text-[hsl(var(--primary-foreground))]";
+    return "bg-[hsl(var(--primary))]/20 text-muted-foreground";
   } else if (value < 0) {
     // Negative correlations - red/orange
-    if (absValue >= 0.7) return 'bg-error-500 text-white'
-    if (absValue >= 0.5) return 'bg-error-400 text-white'
+    if (absValue >= 0.7)
+      return "bg-[hsl(var(--destructive))] text-[hsl(var(--destructive-foreground))]";
+    if (absValue >= 0.5)
+      return "bg-[hsl(var(--destructive))]/80 text-[hsl(var(--destructive-foreground))]";
     if (absValue >= 0.3)
-      return 'bg-warning-400 text-warning-900 dark:bg-warning-700 dark:text-warning-100'
-    return 'bg-warning-100 text-warning-700 dark:bg-warning-900 dark:text-warning-200'
+      return "bg-orange-500/60 text-orange-900 dark:text-orange-100";
+    return "bg-orange-500/20 text-orange-700 dark:text-orange-300";
   }
 
-  return 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+  return "bg-muted text-muted-foreground";
 }
 
 function getStrengthLabel(value: number): string {
-  const absValue = Math.abs(value)
-  if (absValue >= 0.7) return 'Strong'
-  if (absValue >= 0.5) return 'Moderate'
-  if (absValue >= 0.3) return 'Weak'
-  return 'Very weak'
+  const absValue = Math.abs(value);
+  if (absValue >= 0.7) return "Strong";
+  if (absValue >= 0.5) return "Moderate";
+  if (absValue >= 0.3) return "Weak";
+  return "Very weak";
 }
 
-export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapProps) {
+export function CorrelationHeatmap({
+  matrix,
+  maxItems = 8,
+}: CorrelationHeatmapProps) {
   const columns = useMemo(() => {
-    return Object.keys(matrix).slice(0, maxItems)
-  }, [matrix, maxItems])
+    return Object.keys(matrix).slice(0, maxItems);
+  }, [matrix, maxItems]);
 
   if (columns.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         No correlation data available
       </div>
-    )
+    );
   }
 
   return (
@@ -100,8 +107,8 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
 
             {/* Cells */}
             {columns.map((col, colIndex) => {
-              const value = matrix[row]?.[col] ?? 0
-              const isDiagonal = row === col
+              const value = matrix[row]?.[col] ?? 0;
+              const isDiagonal = row === col;
 
               return (
                 <motion.div
@@ -111,16 +118,18 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
                   transition={{ delay: (rowIndex + colIndex) * 0.02 }}
                   whileHover={{ scale: 1.1, zIndex: 10 }}
                   className={cn(
-                    'w-16 h-12 flex items-center justify-center m-0.5 rounded-md cursor-pointer transition-all',
-                    isDiagonal ? 'bg-muted text-muted-foreground' : getCorrelationColor(value)
+                    "w-16 h-12 flex items-center justify-center m-0.5 rounded-md cursor-pointer transition-all",
+                    isDiagonal
+                      ? "bg-muted text-muted-foreground"
+                      : getCorrelationColor(value)
                   )}
                   title={`${row} × ${col}: ${value.toFixed(3)} (${getStrengthLabel(value)})`}
                 >
                   <span className="text-xs font-medium">
-                    {isDiagonal ? '1.00' : value.toFixed(2)}
+                    {isDiagonal ? "1.00" : value.toFixed(2)}
                   </span>
                 </motion.div>
-              )
+              );
             })}
           </motion.div>
         ))}
@@ -149,7 +158,7 @@ export function CorrelationHeatmap({ matrix, maxItems = 8 }: CorrelationHeatmapP
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
-export default CorrelationHeatmap
+export default CorrelationHeatmap;

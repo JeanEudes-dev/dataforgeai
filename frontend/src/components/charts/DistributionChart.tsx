@@ -45,9 +45,9 @@ export function DistributionChart({
   const maxValue = Math.max(...data.counts, 0);
   const barColor =
     color ||
-    (data.type === 'numeric'
-      ? 'var(--color-primary-500)'
-      : 'var(--color-success-500)');
+    (data.type === "numeric"
+      ? "hsl(var(--primary))"
+      : "var(--color-success-500)");
 
   return (
     <motion.div
@@ -86,32 +86,35 @@ export function DistributionChart({
           </defs>
           <CartesianGrid
             strokeDasharray="3 3"
-            stroke="var(--color-subtle)"
+            stroke="hsl(var(--border))"
             vertical={false}
           />
           <XAxis
             dataKey="name"
-            tick={{ fontSize: 10, fill: "var(--color-muted)" }}
+            tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
             tickLine={false}
-            axisLine={{ stroke: "var(--color-subtle)" }}
+            axisLine={{ stroke: "hsl(var(--border))" }}
             interval={0}
             angle={-45}
             textAnchor="end"
             height={50}
           />
           <YAxis
-            tick={{ fontSize: 10, fill: "var(--color-muted)" }}
+            tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => value.toLocaleString()}
           />
           <Tooltip
+            cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const item = payload[0].payload;
               return (
-                <div className="bg-surface rounded-lg shadow-lg border border-subtle px-3 py-2">
-                  <p className="text-xs text-muted-foreground">{item.fullName}</p>
+                <div className="bg-popover rounded-lg shadow-lg border border-border px-3 py-2">
+                  <p className="text-xs text-muted-foreground">
+                    {item.fullName}
+                  </p>
                   <p className="text-sm font-semibold text-foreground">
                     {item.value.toLocaleString()} records
                   </p>

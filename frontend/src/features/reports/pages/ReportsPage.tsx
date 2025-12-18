@@ -110,19 +110,19 @@ export function ReportsPage() {
     <div className="space-y-8">
       {/* Header */}
       <Card variant="premium" className="relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
 
         <div className="relative px-8 py-8 flex flex-wrap items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-white/10 border border-white/10 text-xs font-medium text-pink-300 uppercase tracking-wider">
+              <span className="px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Insights
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
               Reports
             </h1>
-            <p className="text-lg text-gray-300 leading-relaxed">
+            <p className="text-lg text-muted-foreground leading-relaxed">
               Generate EDA summaries or model performance packs. Cards show
               status and freshness.
             </p>
@@ -131,7 +131,7 @@ export function ReportsPage() {
             size="lg"
             leftIcon={<PlusIcon className="w-5 h-5" />}
             onClick={() => setIsGenerateModalOpen(true)}
-            className="shadow-pink-500/25"
+            className="shadow-lg shadow-primary/25"
           >
             Generate report
           </Button>
@@ -178,22 +178,18 @@ export function ReportsPage() {
                 exit={{ opacity: 0, y: 10 }}
                 layout
               >
-                <Card
-                  hoverable
-                  variant="elevated"
-                  className="h-full border-white/10 bg-white/5 hover:bg-white/10"
-                >
+                <Card hoverable variant="elevated" className="h-full">
                   <CardContent className="p-5 space-y-4">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-pink-400">
+                        <div className="w-11 h-11 rounded-xl border border-border bg-muted/50 flex items-center justify-center text-muted-foreground">
                           <DocumentTextIcon className="w-6 h-6" />
                         </div>
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-white truncate text-lg">
+                          <h3 className="font-semibold text-foreground truncate text-lg">
                             {report.title}
                           </h3>
-                          <p className="text-xs text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {formatRelativeTime(report.created_at)}
                           </p>
                         </div>
@@ -202,24 +198,28 @@ export function ReportsPage() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-300 border border-blue-500/20 truncate max-w-[180px]">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-500 border border-blue-500/20 truncate max-w-[180px]">
                         {report.dataset.name}
                       </span>
-                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20 capitalize">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-500 border border-purple-500/20 capitalize">
                         {report.report_type} report
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-xl border border-white/10 bg-white/5">
-                        <p className="text-xs text-gray-400 mb-1">Status</p>
-                        <p className="text-sm font-semibold text-white capitalize">
+                      <div className="p-3 rounded-xl border border-border bg-muted/30">
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Status
+                        </p>
+                        <p className="text-sm font-semibold text-foreground capitalize">
                           {report.status}
                         </p>
                       </div>
-                      <div className="p-3 rounded-xl border border-white/10 bg-white/5">
-                        <p className="text-xs text-gray-400 mb-1">Updated</p>
-                        <p className="text-sm font-semibold text-white">
+                      <div className="p-3 rounded-xl border border-border bg-card">
+                        <p className="text-xs text-muted-foreground mb-1">
+                          Updated
+                        </p>
+                        <p className="text-sm font-semibold text-foreground">
                           {formatRelativeTime(
                             report.updated_at || report.created_at
                           )}
@@ -278,11 +278,13 @@ export function ReportsPage() {
         }
       >
         <div className="space-y-5">
-          <div className="rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 flex items-start gap-3 text-sm text-blue-200">
-            <SparklesIcon className="w-5 h-5 text-blue-400 mt-0.5" />
+          <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 flex items-start gap-3 text-sm text-muted-foreground">
+            <SparklesIcon className="w-5 h-5 text-muted-foreground mt-0.5" />
             <div>
-              <p className="font-semibold text-white">Background generation</p>
-              <p className="text-blue-200">
+              <p className="font-semibold text-foreground">
+                Background generation
+              </p>
+              <p className="text-muted-foreground">
                 We'll notify you and update the list when the report is ready.
                 You can navigate away safely.
               </p>
@@ -297,7 +299,6 @@ export function ReportsPage() {
               .filter((d) => d.status === "ready")
               .map((d) => ({ value: d.id, label: d.name }))}
             placeholder="Select a dataset..."
-            className="bg-black/20 border-white/10 text-white"
           />
 
           <Select
@@ -311,7 +312,6 @@ export function ReportsPage() {
               { value: "model", label: "Model only — performance report" },
               { value: "full", label: "Full report — analysis + model" },
             ]}
-            className="bg-black/20 border-white/10 text-white"
           />
 
           {(selectedReportType === "model" ||
@@ -325,7 +325,6 @@ export function ReportsPage() {
                 label: `${m.display_name} — ${m.target_column}`,
               }))}
               placeholder="Select a model..."
-              className="bg-black/20 border-white/10 text-white"
             />
           )}
         </div>

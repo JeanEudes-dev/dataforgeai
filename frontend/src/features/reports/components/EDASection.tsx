@@ -1,55 +1,57 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui'
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui";
 import {
   DistributionChart,
   CorrelationHeatmap,
   MissingValuesChart,
   OutliersChart,
   SummaryStatsTable,
-} from '@/components/charts'
-import type { EnhancedReport } from '@/types'
+} from "@/components/charts";
+import type { EnhancedReport } from "@/types";
 
 // Interface to handle both current and legacy backend outlier data formats
 interface RawOutlierData {
-  method?: 'iqr' | 'zscore'
-  count: number
-  ratio?: number
+  method?: "iqr" | "zscore";
+  count: number;
+  ratio?: number;
   bounds?: {
-    lower: number
-    upper: number
-  }
+    lower: number;
+    upper: number;
+  };
   // Legacy format fields
-  lower_bound?: number
-  upper_bound?: number
+  lower_bound?: number;
+  upper_bound?: number;
 }
 
 interface EDASectionProps {
-  report: EnhancedReport
+  report: EnhancedReport;
 }
 
 export function EDASection({ report }: EDASectionProps) {
-  const eda = report.content?.eda
-  const [showAllDistributions, setShowAllDistributions] = useState(false)
+  const eda = report.content?.eda;
+  const [showAllDistributions, setShowAllDistributions] = useState(false);
 
   if (!eda) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">No EDA data available.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            No EDA data available.
+          </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const distributions = eda.distributions || {}
-  const distributionKeys = Object.keys(distributions)
+  const distributions = eda.distributions || {};
+  const distributionKeys = Object.keys(distributions);
   const displayedDistributions = showAllDistributions
     ? distributionKeys
-    : distributionKeys.slice(0, 6)
+    : distributionKeys.slice(0, 6);
 
   // Transform correlation data for the heatmap
-  const correlationData = eda.correlation_matrix || {}
+  const correlationData = eda.correlation_matrix || {};
   // Transform missing analysis for the chart
   const missingData = Object.entries(eda.missing_analysis || {}).reduce(
     (acc, [col, data]) => {
@@ -57,30 +59,31 @@ export function EDASection({ report }: EDASectionProps) {
         count: data.count,
         ratio: data.ratio,
         pattern: data.pattern,
-      }
-      return acc
+      };
+      return acc;
     },
     {} as typeof eda.missing_analysis
-  )
+  );
 
   // Transform outlier analysis for the chart
   const outlierData = Object.entries(eda.outlier_analysis || {}).reduce(
     (acc, [col, data]) => {
-      const rawData = data as RawOutlierData
+      const rawData = data as RawOutlierData;
       acc[col] = {
-        method: rawData.method || 'iqr',
+        method: rawData.method || "iqr",
         count: rawData.count,
         ratio: rawData.ratio ?? 0,
-        bounds: rawData.bounds ||
+        bounds:
+          rawData.bounds ||
           (rawData.lower_bound !== undefined &&
-            rawData.upper_bound !== undefined
+          rawData.upper_bound !== undefined
             ? { lower: rawData.lower_bound, upper: rawData.upper_bound }
             : undefined),
-      }
-      return acc
+      };
+      return acc;
     },
     {} as typeof eda.outlier_analysis
-  )
+  );
 
   return (
     <motion.div
@@ -111,7 +114,9 @@ export function EDASection({ report }: EDASectionProps) {
                 onClick={() => setShowAllDistributions(!showAllDistributions)}
                 className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400"
               >
-                {showAllDistributions ? 'Show Less' : `Show All (${distributionKeys.length})`}
+                {showAllDistributions
+                  ? "Show Less"
+                  : `Show All (${distributionKeys.length})`}
               </button>
             )}
           </CardHeader>
@@ -123,7 +128,7 @@ export function EDASection({ report }: EDASectionProps) {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.2 }}
-                  className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                  className="p-4 rounded-lg border border-border bg-card"
                 >
                   <DistributionChart
                     data={distributions[col]}
@@ -184,14 +189,16 @@ export function EDASection({ report }: EDASectionProps) {
         <div className="flex items-center justify-center">
           <div className="px-4 py-2 rounded-lg bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
             <p className="text-sm text-yellow-700 dark:text-yellow-300">
-              Analysis performed on a sample of {eda.sample_size?.toLocaleString()} rows
-              {eda.computation_time && ` (computed in ${eda.computation_time.toFixed(2)}s)`}
+              Analysis performed on a sample of{" "}
+              {eda.sample_size?.toLocaleString()} rows
+              {eda.computation_time &&
+                ` (computed in ${eda.computation_time.toFixed(2)}s)`}
             </p>
           </div>
         </div>
       )}
     </motion.div>
-  )
+  );
 }
 
-export default EDASection
+export default EDASection;

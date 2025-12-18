@@ -126,22 +126,22 @@ export function BenchmarkComparison({
       {!collapsed && (
         <CardContent className="space-y-8">
           {/* Hero highlight */}
-          <div className="rounded-2xl overflow-hidden border border-primary-subtle bg-gradient-to-r from-primary-500 via-indigo-500 to-sky-500 text-white shadow-lg">
+          <div className="rounded-2xl overflow-hidden border border-primary/20 bg-gradient-to-r from-primary via-indigo-500 to-sky-500 text-primary-foreground shadow-lg">
             <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
               <div className="md:col-span-2 space-y-2">
-                <p className="text-xs uppercase tracking-[0.08em] text-white/80">
+                <p className="text-xs uppercase tracking-[0.08em] text-primary-foreground/80">
                   Impact
                 </p>
                 <p className="text-3xl font-semibold leading-tight">
                   AutoML vs. manual effort
                 </p>
-                <p className="text-sm text-white/80">
+                <p className="text-sm text-primary-foreground/80">
                   Time saved by letting DataForge orchestrate feature prep and
                   model search.
                 </p>
               </div>
               <div className="flex flex-col gap-2">
-                <span className="text-xs uppercase tracking-wide text-white/70">
+                <span className="text-xs uppercase tracking-wide text-primary-foreground/70">
                   Time saved
                 </span>
                 <p className="text-2xl font-semibold">
@@ -150,21 +150,21 @@ export function BenchmarkComparison({
                     : "N/A"}
                 </p>
                 {timeSavedPct !== null && (
-                  <span className="text-xs text-white/80">
+                  <span className="text-xs text-primary-foreground/80">
                     {formatNumber(timeSavedPct, 0)}% of manual effort
                   </span>
                 )}
               </div>
               <div className="flex flex-col gap-2">
-                <span className="text-xs uppercase tracking-wide text-white/70">
+                <span className="text-xs uppercase tracking-wide text-primary-foreground/70">
                   Speedup
                 </span>
                 <p className="text-2xl font-semibold">
                   {speedGain ? `${formatNumber(speedGain, 1)}x faster` : "N/A"}
                 </p>
                 <div className="flex items-center gap-2 text-sm">
-                  <ClockIcon className="w-4 h-4 text-white/80" />
-                  <span className="text-white/85">
+                  <ClockIcon className="w-4 h-4 text-primary-foreground/80" />
+                  <span className="text-primary-foreground/85">
                     {hasActualDuration
                       ? formatDurationLong(actualDuration!)
                       : "Pending"}{" "}
@@ -179,7 +179,7 @@ export function BenchmarkComparison({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="p-4 rounded-xl border border-subtle bg-surface shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
               <div className="flex items-center gap-2 mb-2">
-                <ClockIcon className="w-4 h-4 text-primary" />
+                <ClockIcon className="w-4 h-4text-muted-foreground" />
                 <span className="text-xs font-medium text-muted-foreground">
                   Actual time
                 </span>
@@ -203,7 +203,7 @@ export function BenchmarkComparison({
             </div>
             <div className="p-4 rounded-xl border border-subtle bg-surface shadow-[0_4px_12px_-6px_rgba(0,0,0,0.15)]">
               <div className="flex items-center gap-2 mb-2">
-                <ArrowTrendingDownIcon className="w-4 h-4 text-primary" />
+                <ArrowTrendingDownIcon className="w-4 h-4text-muted-foreground" />
                 <span className="text-xs font-medium text-muted-foreground">
                   Time saved
                 </span>
@@ -337,12 +337,12 @@ export function BenchmarkComparison({
 
             <div className="flex items-center justify-between p-3 rounded-lg border border-primary-subtle bg-primary-muted">
               <div className="flex items-center gap-2">
-                <CheckCircleIcon className="w-5 h-5 text-primary" />
+                <CheckCircleIcon className="w-5 h-5text-muted-foreground" />
                 <span className="font-semibold text-foreground">
                   Total manual estimate
                 </span>
               </div>
-              <span className="text-lg font-bold text-primary">
+              <span className="text-lg font-boldtext-muted-foreground">
                 {formatDurationLong(benchmark.manualEstimate)}
               </span>
             </div>

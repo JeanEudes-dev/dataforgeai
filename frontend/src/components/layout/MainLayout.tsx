@@ -9,7 +9,7 @@ export function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <AuroraBackground className="h-screen w-full !items-start !justify-start overflow-hidden text-white">
+    <AuroraBackground className="h-screen w-full !items-start !justify-start overflow-hidden text-foreground">
       <div className="flex h-full w-full relative z-10">
         {/* Sidebar */}
         <Sidebar

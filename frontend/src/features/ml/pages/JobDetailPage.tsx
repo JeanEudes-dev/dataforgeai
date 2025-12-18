@@ -71,8 +71,8 @@ export function JobDetailPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900" />
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-muted/20 via-card to-muted/20" />
         <div className="relative px-6 py-6 flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -80,22 +80,22 @@ export function JobDetailPage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="text-muted-foreground hover:bg-muted"
                 >
                   <ArrowLeftIcon className="w-4 h-4" />
                 </Button>
               </Link>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+                  <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                     Training job
                   </p>
                   <StatusBadge status={job.status} />
                 </div>
-                <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                <h1 className="text-2xl font-semibold text-foreground">
                   AutoML run
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   {job.dataset_name ||
                     `Dataset: ${job.dataset?.id?.slice(0, 8) || "Unknown"}`}
                 </p>
@@ -112,39 +112,35 @@ export function JobDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/50 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm font-semibold">
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-card/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-sm font-semibold">
                 01
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Task</p>
-                <p className="text-base font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                <p className="text-xs text-muted-foreground">Task</p>
+                <p className="text-base font-semibold text-foreground capitalize">
                   {job.task_type}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/50 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm font-semibold">
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-card/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-sm font-semibold">
                 02
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Target
-                </p>
-                <p className="text-base font-semibold text-gray-900 dark:text-gray-100 truncate">
+                <p className="text-xs text-muted-foreground">Target</p>
+                <p className="text-base font-semibold text-foreground truncate">
                   {job.target_column}
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/50 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-              <div className="h-10 w-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 text-sm font-semibold">
+            <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-card/80 px-4 py-3 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
+              <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground text-sm font-semibold">
                 03
               </div>
               <div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Progress
-                </p>
-                <p className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                <p className="text-xs text-muted-foreground">Progress</p>
+                <p className="text-base font-semibold text-foreground">
                   {job.progress ?? 0}%
                 </p>
               </div>
@@ -155,31 +151,31 @@ export function JobDetailPage() {
 
       {/* Progress */}
       {(job.status === "running" || job.status === "pending") && (
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardContent className="py-7">
             <div className="max-w-3xl mx-auto space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+                  <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                     Current step
                   </p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm font-semibold text-foreground">
                     {job.current_step || "Initializing..."}
                   </p>
                 </div>
-                <div className="rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300 px-3 py-1 text-sm font-semibold">
+                <div className="rounded-full bg-primary/10 text-muted-foreground px-3 py-1 text-sm font-semibold">
                   {job.progress || 0}%
                 </div>
               </div>
-              <div className="h-3 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden border border-gray-200 dark:border-gray-700">
+              <div className="h-3 rounded-full bg-muted overflow-hidden border border-border">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-primary-500 to-primary-400"
+                  className="h-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${job.progress || 0}%` }}
                   transition={{ duration: 0.5 }}
                 />
               </div>
-              <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-center text-sm text-muted-foreground">
                 This page refreshes automatically while your models train.
               </p>
             </div>
@@ -189,42 +185,34 @@ export function JobDetailPage() {
 
       {/* Key stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-              Task type
-            </p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 capitalize">
+            <p className="text-sm text-muted-foreground mb-1">Task type</p>
+            <p className="text-2xl font-semibold text-foreground capitalize">
               {job.task_type}
             </p>
           </CardContent>
         </Card>
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-              Target column
-            </p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100 truncate">
+            <p className="text-sm text-muted-foreground mb-1">Target column</p>
+            <p className="text-2xl font-semibold text-foreground truncate">
               {job.target_column}
             </p>
           </CardContent>
         </Card>
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-              Features
-            </p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-sm text-muted-foreground mb-1">Features</p>
+            <p className="text-2xl font-semibold text-foreground">
               {job.feature_columns?.length || 0}
             </p>
           </CardContent>
         </Card>
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardContent className="p-5">
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-              Duration
-            </p>
-            <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-sm text-muted-foreground mb-1">Duration</p>
+            <p className="text-2xl font-semibold text-foreground">
               {job.duration ? formatDuration(job.duration) : "In progress"}
             </p>
           </CardContent>
@@ -244,45 +232,45 @@ export function JobDetailPage() {
 
       {/* Details */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 border border-gray-200 dark:border-gray-800 shadow-sm">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+        <Card className="lg:col-span-2 border border-border shadow-sm">
+          <CardHeader className="border-b border-border bg-muted/30">
             <CardTitle>Configuration</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-5">
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
-                <dt className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+              <div className="rounded-lg border border-border bg-card px-4 py-3">
+                <dt className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                   Started
                 </dt>
-                <dd className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <dd className="text-sm font-semibold text-foreground">
                   {formatDateTime(job.created_at)}
                 </dd>
               </div>
               {job.completed_at && (
-                <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
-                  <dt className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+                <div className="rounded-lg border border-border bg-card px-4 py-3">
+                  <dt className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                     Completed
                   </dt>
-                  <dd className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <dd className="text-sm font-semibold text-foreground">
                     {formatDateTime(job.completed_at)}
                   </dd>
                 </div>
               )}
-              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
-                <dt className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+              <div className="rounded-lg border border-border bg-card px-4 py-3">
+                <dt className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                   Dataset rows
                 </dt>
-                <dd className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <dd className="text-sm font-semibold text-foreground">
                   {job.dataset?.row_count
                     ? formatNumber(job.dataset.row_count, 0)
                     : "Unknown"}
                 </dd>
               </div>
-              <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3">
-                <dt className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+              <div className="rounded-lg border border-border bg-card px-4 py-3">
+                <dt className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                   Columns
                 </dt>
-                <dd className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <dd className="text-sm font-semibold text-foreground">
                   {job.dataset?.column_count
                     ? formatNumber(job.dataset.column_count, 0)
                     : "Unknown"}
@@ -291,14 +279,14 @@ export function JobDetailPage() {
             </dl>
 
             <div className="space-y-2">
-              <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+              <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                 Feature columns
               </p>
               <div className="flex flex-wrap gap-2">
                 {job.feature_columns?.map((col) => (
                   <span
                     key={col}
-                    className="inline-flex items-center rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+                    className="inline-flex items-center rounded-full bg-card border border-border px-3 py-1 text-sm text-foreground shadow-sm"
                   >
                     {col}
                   </span>
@@ -321,11 +309,11 @@ export function JobDetailPage() {
           )}
 
           {job.status === "completed" && job.best_model && (
-            <Card className="border border-primary-100 dark:border-primary-900/50 bg-primary-50/70 dark:bg-primary-900/20">
+            <Card className="border border-primary-100 dark:border-primary-900/50 backdrop-blur-md bg-card/80">
               <CardContent className="p-4 flex items-start gap-3">
                 <InformationCircleIcon className="w-5 h-5 text-primary-500 dark:text-primary-400 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100">
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p className="font-semibold text-muted-foreground">
                     Best model
                   </p>
                   <p>{job.best_model.display_name}</p>
@@ -349,47 +337,47 @@ export function JobDetailPage() {
       {job.status === "completed" &&
         job.trained_models &&
         job.trained_models.length > 0 && (
-          <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+          <Card className="border border-border shadow-sm">
+            <CardHeader className="border-b border-border bg-muted/30">
               <CardTitle>Trained models</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                    <tr className="border-b border-border bg-card">
+                      <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                         Algorithm
                       </th>
                       {job.task_type === "classification" ? (
                         <>
-                          <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                          <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                             Accuracy
                           </th>
-                          <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                          <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                             Precision
                           </th>
-                          <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                          <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                             Recall
                           </th>
-                          <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                          <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                             F1 score
                           </th>
                         </>
                       ) : (
                         <>
-                          <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                          <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                             MAE
                           </th>
-                          <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                          <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                             RMSE
                           </th>
-                          <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold">
+                          <th className="px-4 py-3 text-left text-muted-foreground font-semibold">
                             R^2
                           </th>
                         </>
                       )}
-                      <th className="px-4 py-3 text-left text-gray-500 dark:text-gray-400 font-semibold"></th>
+                      <th className="px-4 py-3 text-left text-muted-foreground font-semibold"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -397,18 +385,17 @@ export function JobDetailPage() {
                       <tr
                         key={model.id}
                         className={cn(
-                          "border-b border-gray-200 dark:border-gray-800 last:border-0",
-                          model.is_best &&
-                            "bg-primary-50 dark:bg-primary-900/20"
+                          "border-b border-border last:border-0",
+                          model.is_best && "bg-primary/10"
                         )}
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-900 dark:text-gray-100">
+                            <span className="font-semibold text-foreground">
                               {model.display_name}
                             </span>
                             {model.is_best && (
-                              <span className="flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400">
+                              <span className="flex items-center gap-1 text-xstext-muted-foreground">
                                 <TrophyIcon className="w-3.5 h-3.5" />
                                 Best
                               </span>
@@ -417,28 +404,28 @@ export function JobDetailPage() {
                         </td>
                         {job.task_type === "classification" ? (
                           <>
-                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <td className="px-4 py-3 text-muted-foreground">
                               {formatNumber(model.metrics?.accuracy, 4)}
                             </td>
-                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <td className="px-4 py-3 text-muted-foreground">
                               {formatNumber(model.metrics?.precision, 4)}
                             </td>
-                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <td className="px-4 py-3 text-muted-foreground">
                               {formatNumber(model.metrics?.recall, 4)}
                             </td>
-                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <td className="px-4 py-3 text-muted-foreground">
                               {formatNumber(model.metrics?.f1_score, 4)}
                             </td>
                           </>
                         ) : (
                           <>
-                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <td className="px-4 py-3 text-muted-foreground">
                               {formatNumber(model.metrics?.mae, 4)}
                             </td>
-                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <td className="px-4 py-3 text-muted-foreground">
                               {formatNumber(model.metrics?.rmse, 4)}
                             </td>
-                            <td className="px-4 py-3 text-gray-700 dark:text-gray-300">
+                            <td className="px-4 py-3 text-muted-foreground">
                               {formatNumber(model.metrics?.r2_score, 4)}
                             </td>
                           </>

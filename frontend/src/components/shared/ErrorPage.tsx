@@ -40,19 +40,19 @@ export function ErrorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-muted/30 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 text-center"
+        className="max-w-md w-full bg-card rounded-2xl shadow-xl border border-border p-8 text-center"
       >
-        <div className="w-16 h-16 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-          <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
+        <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <ExclamationTriangleIcon className="w-8 h-8 text-destructive" />
         </div>
 
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">{title}</h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-8 text-balance">{message}</p>
+        <h1 className="text-2xl font-semibold text-foreground mb-2">{title}</h1>
+        <p className="text-muted-foreground mb-8 text-balance">{message}</p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button
@@ -71,7 +71,7 @@ export function ErrorPage() {
         </div>
 
         {import.meta.env.DEV && error instanceof Error && (
-          <div className="mt-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg text-left overflow-auto max-h-40 text-xs font-mono text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700">
+          <div className="mt-8 p-4 bg-muted rounded-lg text-left overflow-auto max-h-40 text-xs font-mono text-muted-foreground border border-border">
             {error.stack}
           </div>
         )}

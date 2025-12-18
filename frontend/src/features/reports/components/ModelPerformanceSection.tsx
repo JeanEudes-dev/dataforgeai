@@ -74,12 +74,12 @@ export function ModelPerformanceSection({
       className="space-y-6"
     >
       {/* Model Info */}
-      <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-        <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+      <Card className="border border-border shadow-sm">
+        <CardHeader className="border-b border-border bg-muted/30">
           <div className="flex items-center justify-between">
             <CardTitle className="text-base">Model overview</CardTitle>
             {model.is_best && (
-              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
+              <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-primary/10 text-muted-foreground">
                 Best model
               </span>
             )}
@@ -157,8 +157,8 @@ export function ModelPerformanceSection({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Confusion Matrix (Classification only) */}
         {isClassification && metrics.confusion_matrix && (
-          <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+          <Card className="border border-border shadow-sm">
+            <CardHeader className="border-b border-border bg-muted/30">
               <CardTitle className="text-base">Confusion matrix</CardTitle>
             </CardHeader>
             <CardContent>
@@ -173,8 +173,8 @@ export function ModelPerformanceSection({
 
         {/* ROC Curve (Classification only) */}
         {isClassification && rocData && (
-          <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+          <Card className="border border-border shadow-sm">
+            <CardHeader className="border-b border-border bg-muted/30">
               <CardTitle className="text-base">ROC curve</CardTitle>
             </CardHeader>
             <CardContent>
@@ -190,8 +190,8 @@ export function ModelPerformanceSection({
 
       {/* Feature Importance */}
       {model.feature_importance && model.feature_importance.length > 0 && (
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-          <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+        <Card className="border border-border shadow-sm">
+          <CardHeader className="border-b border-border bg-muted/30">
             <CardTitle className="text-base">Feature importance</CardTitle>
           </CardHeader>
           <CardContent>
@@ -217,23 +217,23 @@ export function ModelPerformanceSection({
               .reduce((a, b) => a + b, 0) / model.cross_val_scores.length
           );
           return (
-            <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-              <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex items-center justify-between">
+            <Card className="border border-border shadow-sm">
+              <CardHeader className="border-b border-border bg-muted/30 flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base">
                     Cross-validation scores
                   </CardTitle>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     {isClassification
                       ? "F1 score across folds"
                       : "R2 score across folds"}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-                  <span className="px-2 py-1 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="px-2 py-1 rounded-full bg-primary/10text-muted-foreground">
                     Mean: {formatNumber(cvMean, 3)}
                   </span>
-                  <span className="px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                  <span className="px-2 py-1 rounded-full bg-muted text-foreground">
                     Std: {formatNumber(cvStd, 3)}
                   </span>
                 </div>
@@ -249,11 +249,11 @@ export function ModelPerformanceSection({
           );
         })()}
 
-      {/* Hyperparameters */}
+      {/* Hyperparameter */}
       {model.hyperparameters &&
         Object.keys(model.hyperparameters).length > 0 && (
-          <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-            <CardHeader className="border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
+          <Card className="border border-border shadow-sm">
+            <CardHeader className="border-b border-border bg-muted/30">
               <CardTitle className="text-base">Hyperparameters</CardTitle>
             </CardHeader>
             <CardContent className="p-6">
@@ -261,16 +261,16 @@ export function ModelPerformanceSection({
                 {Object.entries(model.hyperparameters).map(([key, value]) => (
                   <div
                     key={key}
-                    className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                    className="p-3 rounded-lg border border-border bg-card"
                   >
                     <div
-                      className="text-xs text-gray-500 dark:text-gray-400 truncate"
+                      className="text-xs text-muted-foreground truncate"
                       title={key}
                     >
                       {key.replace(/_/g, " ")}
                     </div>
                     <div
-                      className="text-sm font-mono text-gray-900 dark:text-gray-100 truncate"
+                      className="text-sm font-mono text-foreground truncate"
                       title={String(value)}
                     >
                       {String(value)}
@@ -295,13 +295,13 @@ function InfoTile({
   highlight?: boolean;
 }) {
   return (
-    <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[0_4px_12px_-8px_rgba(0,0,0,0.12)]">
-      <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</p>
+    <div className="p-3 rounded-xl border border-border bg-card shadow-sm">
+      <p className="text-xs text-muted-foreground mb-1">{label}</p>
       <p
         className={
           highlight
-            ? "text-sm font-semibold text-primary-700 dark:text-primary-400"
-            : "text-sm font-semibold text-gray-900 dark:text-gray-100"
+            ? "text-sm font-semibold text-muted-foreground"
+            : "text-sm font-semibold text-foreground"
         }
       >
         {value ?? "N/A"}

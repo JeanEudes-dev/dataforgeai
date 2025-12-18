@@ -57,7 +57,7 @@ export function TabsList({ children, className }: TabsListProps) {
     <div
       className={cn(
         "inline-flex p-1 rounded-lg",
-        "bg-white/5 border border-white/10 backdrop-blur-sm",
+        "bg-muted border border-border backdrop-blur-sm",
         className
       )}
     >
@@ -90,9 +90,11 @@ export function TabsTrigger({
       className={cn(
         "relative px-3 py-1.5 text-sm font-medium rounded-md",
         "transition-all duration-200",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
         "disabled:opacity-50 disabled:cursor-not-allowed",
-        isActive ? "text-white" : "text-gray-400 hover:text-white",
+        isActive
+          ? "text-foreground"
+          : "text-muted-foreground hover:text-foreground",
         className
       )}
     >
@@ -101,7 +103,7 @@ export function TabsTrigger({
           layoutId="active-tab"
           className={cn(
             "absolute inset-0 rounded-md",
-            "bg-white/10 shadow-sm border border-white/10 backdrop-blur-md"
+            "bg-background shadow-sm border border-border backdrop-blur-md"
           )}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />

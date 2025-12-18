@@ -22,51 +22,80 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  // Force dark mode
-  const theme: Theme = "dark";
+  const [theme, setThemeState] = useState<Theme>(() => getTheme());
 
-  // Apply theme class/attributes to the document so tailwind dark: styles work everywhere
   useEffect(() => {
     const root = document.documentElement;
     const body = document.body;
-    const appRoot = document.getElementById("root");
 
-    const targets = [root, body, appRoot].filter(Boolean) as HTMLElement[];
+    // Remove both classes first
+    root.classList.remove("light", "dark");
+    body.classList.remove("light", "dark");
 
-    targets.forEach((el) => {
-      el.classList.remove("light");
-      el.classList.add("dark");
-      el.dataset.theme = "dark";
-      el.style.colorScheme = "dark";
-    });
-  }, []);
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light";
+      root.classList.add(systemTheme);
+      body.classList.add(systemTheme);
+      root.style.colorScheme = systemTheme;
+    } else {
+      root.classList.add(theme);
+      body.classList.add(theme);
+      root.style.colorScheme = theme;
+    }
+
+    // Save to storage
+    saveTheme(theme);
+  }, [theme]);
+
+  // Listen for system theme changes
+  useEffect(() => {
+    if (theme !== "system") return;
+
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      const root = document.documentElement;
+      const body = document.body;
+      const newSystemTheme = mediaQuery.matches ? "dark" : "light";
+
+      root.classList.remove("light", "dark");
+      body.classList.remove("light", "dark");
+      root.classList.add(newSystemTheme);
+      body.classList.add(newSystemTheme);
+      root.style.colorScheme = newSystemTheme;
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    // No-op
+    setThemeState((prev) => (prev === "dark" ? "light" : "dark"));
   }, []);
 
-  const setTheme = useCallback((_theme: Theme) => {
-    // No-op
+  const setTheme = useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
   }, []);
+
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   const value: ThemeContextType = {
-    theme: "dark",
+    theme,
     toggleTheme,
     setTheme,
-    isDark: true,
+    isDark,
   };
 
   return (
     <ThemeContext.Provider value={value}>
-      {/* Ensure dark mode class exists in the React tree for tailwind dark: utilities */}
       <div
-        className="dark theme-root"
-        data-theme="dark"
-        style={{
-          backgroundColor: "transparent", // Allow Aurora to show through if placed behind
-          color: "var(--color-foreground-val)",
-          minHeight: "100vh",
-        }}
+        className="theme-root min-h-screen bg-background text-foreground transition-colors duration-300"
+        data-theme={isDark ? "dark" : "light"}
       >
         {children}
       </div>

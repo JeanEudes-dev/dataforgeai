@@ -8,8 +8,10 @@ import {
   ArrowRightOnRectangleIcon,
   ArrowsPointingOutIcon,
   ArrowsPointingInIcon,
+  SunIcon,
+  MoonIcon,
 } from "@heroicons/react/24/outline";
-import { useAuth } from "@/contexts";
+import { useAuth, useTheme } from "@/contexts";
 import { cn } from "@/utils";
 
 interface HeaderProps {
@@ -20,6 +22,7 @@ interface HeaderProps {
 export function Header({ onMenuClick, title }: HeaderProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleLogout = async () => {
@@ -64,9 +67,8 @@ export function Header({ onMenuClick, title }: HeaderProps) {
       <div
         className={cn(
           "h-16 px-6 flex items-center justify-between gap-4",
-          "rounded-2xl glass-header border border-white/10",
-          "shadow-lg shadow-black/5 backdrop-blur-2xl",
-          "transition-all duration-300 text-white"
+          "rounded-2xl border border-border/50 shadow-sm",
+          "transition-all duration-300 text-foreground"
         )}
       >
         {/* Left side */}
@@ -74,8 +76,8 @@ export function Header({ onMenuClick, title }: HeaderProps) {
           <button
             onClick={onMenuClick}
             className={cn(
-              "p-2 rounded-xl text-gray-400 lg:hidden",
-              "hover:text-white hover:bg-white/10",
+              "p-2 rounded-xl text-muted-foreground lg:hidden",
+              "hover:text-foreground hover:bg-accent/50",
               "transition-colors duration-200"
             )}
           >
@@ -83,7 +85,7 @@ export function Header({ onMenuClick, title }: HeaderProps) {
           </button>
 
           <div>
-            <h1 className="text-lg font-bold tracking-tight text-white/90">
+            <h1 className="text-lg font-bold tracking-tight text-foreground/90">
               {title || "Dashboard"}
             </h1>
           </div>
@@ -91,6 +93,21 @@ export function Header({ onMenuClick, title }: HeaderProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-4">
+          <button
+            onClick={toggleTheme}
+            className={cn(
+              "p-2 rounded-xl text-muted-foreground",
+              "hover:text-foreground hover:bg-accent/50",
+              "transition-colors duration-200"
+            )}
+            title="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <SunIcon className="w-5 h-5" />
+            ) : (
+              <MoonIcon className="w-5 h-5" />
+            )}
+          </button>
           <button
             onClick={() => navigate("/datasets")}
             className={cn(
@@ -104,13 +121,13 @@ export function Header({ onMenuClick, title }: HeaderProps) {
             <span>New Project</span>
           </button>
 
-          <div className="h-6 w-px bg-white/10 mx-1 hidden sm:block" />
+          <div className="h-6 w-px bg-border mx-1 hidden sm:block" />
 
           <button
             onClick={toggleFullscreen}
             className={cn(
-              "p-2 rounded-xl text-gray-400",
-              "hover:text-white hover:bg-white/10",
+              "p-2 rounded-xl text-muted-foreground",
+              "hover:text-foreground hover:bg-accent/50",
               "transition-colors duration-200"
             )}
             title="Ctrl/Cmd + Shift + F to toggle fullscreen"
@@ -128,8 +145,8 @@ export function Header({ onMenuClick, title }: HeaderProps) {
             <Menu.Button
               className={cn(
                 "flex items-center gap-3 pl-2 pr-3 py-1.5 rounded-xl",
-                "text-gray-300 hover:text-white",
-                "hover:bg-white/5 border border-transparent hover:border-white/10",
+                "text-muted-foreground hover:text-foreground",
+                "hover:bg-accent/50 border border-transparent hover:border-border",
                 "transition-all duration-200"
               )}
             >
@@ -158,18 +175,18 @@ export function Header({ onMenuClick, title }: HeaderProps) {
                 className={cn(
                   "absolute right-0 mt-2 w-64 origin-top-right",
                   "rounded-2xl glass-card",
-                  "border border-white/10",
+                  "border border-border",
                   "shadow-2xl shadow-black/20",
-                  "divide-y divide-white/5",
+                  "divide-y divide-border",
                   "focus:outline-none z-50 overflow-hidden"
                 )}
               >
                 {/* User info */}
-                <div className="px-5 py-4 bg-white/5">
-                  <p className="text-sm font-semibold text-white">
+                <div className="px-5 py-4 bg-accent/20">
+                  <p className="text-sm font-semibold text-foreground">
                     {user?.full_name || "User"}
                   </p>
-                  <p className="text-xs text-gray-400 truncate mt-0.5">
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
                     {user?.email}
                   </p>
                 </div>
@@ -182,7 +199,9 @@ export function Header({ onMenuClick, title }: HeaderProps) {
                         onClick={() => navigate("/settings")}
                         className={cn(
                           "flex items-center gap-3 w-full px-3 py-2.5 text-sm rounded-xl transition-all",
-                          active ? "bg-white/10 text-white" : "text-gray-300"
+                          active
+                            ? "bg-accent text-foreground"
+                            : "text-muted-foreground"
                         )}
                       >
                         <Cog6ToothIcon className="w-4 h-4" />
@@ -200,8 +219,8 @@ export function Header({ onMenuClick, title }: HeaderProps) {
                         className={cn(
                           "flex items-center gap-3 w-full px-3 py-2.5 text-sm rounded-xl transition-all",
                           active
-                            ? "bg-red-500/10 text-red-400"
-                            : "text-gray-300"
+                            ? "bg-destructive/10 text-destructive"
+                            : "text-muted-foreground"
                         )}
                       >
                         <ArrowRightOnRectangleIcon className="w-4 h-4" />

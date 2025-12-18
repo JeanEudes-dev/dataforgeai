@@ -65,7 +65,7 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
       <span
         className={cn(
           sortKey === column && sortOrder === "asc"
-            ? "text-primary"
+            ? "text-[hsl(var(--primary))]"
             : "text-muted-foreground"
         )}
       >
@@ -74,7 +74,7 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
       <span
         className={cn(
           sortKey === column && sortOrder === "desc"
-            ? "text-primary"
+            ? "text-[hsl(var(--primary))]"
             : "text-muted-foreground"
         )}
       >
@@ -109,9 +109,7 @@ export function SummaryStatsTable({ data }: SummaryStatsTableProps) {
                   onClick={() => handleSort(key)}
                   className={cn(
                     "px-4 py-3 text-left font-medium text-muted-foreground cursor-pointer hover:bg-subtle transition-colors",
-                    key === "column"
-                      ? "sticky left-0 bg-muted z-10"
-                      : ""
+                    key === "column" ? "sticky left-0 bg-muted z-10" : ""
                   )}
                 >
                   <div className="flex items-center">

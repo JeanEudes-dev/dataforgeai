@@ -37,7 +37,7 @@ export const AuroraBackground = ({
   return (
     <div
       className={cn(
-        "relative flex flex-col h-[100vh] items-center justify-center bg-zinc-950 text-slate-950 transition-bg",
+        "relative flex flex-col h-[100vh] items-center justify-center bg-background text-foreground transition-bg",
         className
       )}
       {...props}
@@ -80,7 +80,7 @@ export const AuroraBackground = ({
                 ease: "easeInOut",
               }}
               className={cn(
-                "absolute top-0 left-0 w-[50vw] h-[50vw] rounded-full mix-blend-screen filter blur-[100px] opacity-50",
+                "absolute top-0 left-0 w-[50vw] h-[50vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-30 dark:opacity-50",
                 colors[0]
               )}
             />
@@ -97,7 +97,7 @@ export const AuroraBackground = ({
                 delay: 2,
               }}
               className={cn(
-                "absolute top-0 right-0 w-[50vw] h-[50vw] rounded-full mix-blend-screen filter blur-[100px] opacity-50",
+                "absolute top-0 right-0 w-[50vw] h-[50vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-30 dark:opacity-50",
                 colors[1]
               )}
             />
@@ -114,7 +114,7 @@ export const AuroraBackground = ({
                 delay: 4,
               }}
               className={cn(
-                "absolute -bottom-32 left-20 w-[50vw] h-[50vw] rounded-full mix-blend-screen filter blur-[100px] opacity-50",
+                "absolute -bottom-32 left-20 w-[50vw] h-[50vw] rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-30 dark:opacity-50",
                 colors[2]
               )}
             />

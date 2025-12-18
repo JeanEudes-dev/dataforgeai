@@ -10,10 +10,11 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles = {
-  elevated: "glass-card shadow-xl text-white border-white/10",
-  flat: "glass border-none text-white",
-  pressed: "bg-black/40 shadow-inner border border-white/5 text-white",
-  premium: "glass-card relative overflow-hidden border-white/10 shadow-2xl",
+  elevated: "glass-card shadow-xl text-foreground",
+  flat: "glass border-none text-foreground",
+  pressed:
+    "bg-black/5 dark:bg-black/40 shadow-inner border border-black/5 dark:border-white/5 text-foreground",
+  premium: "glass-card relative overflow-hidden shadow-2xl",
 };
 
 const paddingStyles = {
@@ -43,7 +44,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       paddingStyles[padding],
       hoverable &&
         variant === "elevated" &&
-        "hover:shadow-2xl hover:-translate-y-1 hover:border-white/20 hover:bg-white/5",
+        "hover:shadow-2xl hover:-translate-y-1 hover:border-primary/20 hover:bg-primary/5",
       clickable && "cursor-pointer",
       className
     );
@@ -100,7 +101,7 @@ export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
     <h3
       ref={ref}
       className={cn(
-        "text-base font-semibold text-primary m-2 rounded-2xl",
+        "text-base font-semibold text-muted-foreground m-2 rounded-2xl",
         className
       )}
       {...props}

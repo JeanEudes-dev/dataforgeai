@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
-import { motion } from 'framer-motion'
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import {
   ClipboardIcon,
   CheckIcon,
@@ -9,18 +9,18 @@ import {
   LockClosedIcon,
   ShieldCheckIcon,
   BellAlertIcon,
-} from '@heroicons/react/24/outline'
-import { Modal, Button } from '@/components/ui'
-import { reportsApi } from '@/api'
-import { useToastActions } from '@/contexts'
+} from "@heroicons/react/24/outline";
+import { Modal, Button } from "@/components/ui";
+import { reportsApi } from "@/api";
+import { useToastActions } from "@/contexts";
 
 interface ShareModalProps {
-  isOpen: boolean
-  onClose: () => void
-  reportId: string
-  currentShareUrl: string | null
-  isPublic: boolean
-  onShareToggle: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  reportId: string;
+  currentShareUrl: string | null;
+  isPublic: boolean;
+  onShareToggle: () => void;
 }
 
 export function ShareModal({
@@ -31,44 +31,47 @@ export function ShareModal({
   isPublic,
   onShareToggle,
 }: ShareModalProps) {
-  const toast = useToastActions()
-  const [copied, setCopied] = useState(false)
+  const toast = useToastActions();
+  const [copied, setCopied] = useState(false);
 
   const shareMutation = useMutation({
     mutationFn: (enable: boolean) => reportsApi.share(reportId, { enable }),
     onSuccess: (data) => {
       if (data.is_public) {
-        toast.success('Report shared', 'Anyone with the link can now view this report.')
+        toast.success(
+          "Report shared",
+          "Anyone with the link can now view this report."
+        );
       } else {
-        toast.success('Sharing disabled', 'The report is now private.')
+        toast.success("Sharing disabled", "The report is now private.");
       }
-      onShareToggle()
+      onShareToggle();
     },
     onError: () => {
-      toast.error('Failed', 'Could not update sharing settings.')
+      toast.error("Failed", "Could not update sharing settings.");
     },
-  })
+  });
 
   const fullShareUrl = currentShareUrl
     ? `${window.location.origin}${currentShareUrl}`
-    : null
+    : null;
 
   const handleCopyLink = async () => {
-    if (!fullShareUrl) return
+    if (!fullShareUrl) return;
 
     try {
-      await navigator.clipboard.writeText(fullShareUrl)
-      setCopied(true)
-      toast.success('Copied!', 'Link copied to clipboard.')
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(fullShareUrl);
+      setCopied(true);
+      toast.success("Copied!", "Link copied to clipboard.");
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Copy failed', 'Could not copy link to clipboard.')
+      toast.error("Copy failed", "Could not copy link to clipboard.");
     }
-  }
+  };
 
   const handleToggleShare = () => {
-    shareMutation.mutate(!isPublic)
-  }
+    shareMutation.mutate(!isPublic);
+  };
 
   return (
     <Modal
@@ -78,54 +81,56 @@ export function ShareModal({
       description="Control access and copy a lightweight share link"
     >
       <div className="space-y-6">
-        <div className="flex items-center justify-between p-4 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+        <div className="flex items-center justify-between p-4 rounded-2xl border border-border bg-card shadow-sm">
           <div className="flex items-center gap-3">
             {isPublic ? (
               <div className="w-11 h-11 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                 <GlobeAltIcon className="w-5 h-5" />
               </div>
             ) : (
-              <div className="w-11 h-11 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
+              <div className="w-11 h-11 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                 <LockClosedIcon className="w-5 h-5" />
               </div>
             )}
             <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-100">
-                {isPublic ? 'Public link active' : 'Private report'}
+              <p className="font-semibold text-foreground">
+                {isPublic ? "Public link active" : "Private report"}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {isPublic ? 'Anyone with the link can view.' : 'Only you can access this report.'}
+              <p className="text-sm text-muted-foreground">
+                {isPublic
+                  ? "Anyone with the link can view."
+                  : "Only you can access this report."}
               </p>
             </div>
           </div>
           <Button
-            variant={isPublic ? 'secondary' : 'primary'}
+            variant={isPublic ? "secondary" : "primary"}
             size="sm"
             onClick={handleToggleShare}
             isLoading={shareMutation.isPending}
           >
-            {isPublic ? 'Disable' : 'Enable'}
+            {isPublic ? "Disable" : "Enable"}
           </Button>
         </div>
 
         {isPublic && fullShareUrl && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="space-y-3"
           >
-            <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200">
+            <label className="block text-sm font-semibold text-foreground">
               Share link
             </label>
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 shadow-sm">
-                <LinkIcon className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+              <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-lg border border-input bg-background shadow-sm">
+                <LinkIcon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <input
                   type="text"
                   value={fullShareUrl}
                   readOnly
-                  className="flex-1 text-sm text-gray-900 dark:text-gray-100 bg-transparent outline-none truncate"
+                  className="flex-1 text-sm text-foreground bg-transparent outline-none truncate"
                 />
               </div>
               <Button
@@ -150,11 +155,11 @@ export function ShareModal({
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-          <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex items-start gap-3">
+          <div className="p-4 rounded-xl border border-border bg-card shadow-sm flex items-start gap-3">
             <ShieldCheckIcon className="w-5 h-5 text-primary-600 mt-0.5" />
-            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-100">What’s shared</p>
-              <ul className="space-y-1 text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p className="font-semibold text-foreground">What’s shared</p>
+              <ul className="space-y-1 text-muted-foreground">
                 <li>Dataset overview & stats</li>
                 <li>EDA visuals & insights</li>
                 <li>Model performance (if present)</li>
@@ -162,11 +167,13 @@ export function ShareModal({
               </ul>
             </div>
           </div>
-          <div className="p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm flex items-start gap-3">
+          <div className="p-4 rounded-xl border border-border bg-card shadow-sm flex items-start gap-3">
             <BellAlertIcon className="w-5 h-5 text-amber-600 mt-0.5" />
-            <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-100">What stays private</p>
-              <ul className="space-y-1 text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-muted-foreground space-y-1">
+              <p className="font-semibold text-foreground">
+                What stays private
+              </p>
+              <ul className="space-y-1 text-muted-foreground">
                 <li>Raw data rows</li>
                 <li>Owner details</li>
                 <li>Credentials or secrets</li>
@@ -176,7 +183,7 @@ export function ShareModal({
         </div>
       </div>
     </Modal>
-  )
+  );
 }
 
-export default ShareModal
+export default ShareModal;

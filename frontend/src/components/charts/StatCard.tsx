@@ -17,34 +17,34 @@ interface StatCardProps {
 
 const colorStyles = {
   default: {
-    bg: "bg-muted",
+    bg: "bg-muted/50",
     icon: "bg-muted text-muted-foreground",
     accent: "text-foreground",
   },
   primary: {
-    bg: "bg-primary-muted",
-    icon: "bg-primary-muted text-primary",
+    bg: "bg-primary/10",
+    icon: "bg-primary/20text-muted-foreground",
     accent: "text-primary",
   },
   success: {
-    bg: "bg-success-muted",
-    icon: "bg-success-muted text-success",
-    accent: "text-success",
+    bg: "bg-green-500/10",
+    icon: "bg-green-500/20 text-green-600 dark:text-green-400",
+    accent: "text-green-600 dark:text-green-400",
   },
   warning: {
-    bg: "bg-warning-muted",
-    icon: "bg-warning-muted text-warning",
-    accent: "text-warning",
+    bg: "bg-orange-500/10",
+    icon: "bg-orange-500/20 text-orange-600 dark:text-orange-400",
+    accent: "text-orange-600 dark:text-orange-400",
   },
   error: {
-    bg: "bg-error-muted",
-    icon: "bg-error-muted text-error",
-    accent: "text-error",
+    bg: "bg-destructive/10",
+    icon: "bg-destructive/20 text-destructive",
+    accent: "text-destructive",
   },
   info: {
-    bg: "bg-info-muted",
-    icon: "bg-info-muted text-info",
-    accent: "text-info",
+    bg: "bg-indigo-500/10",
+    icon: "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400",
+    accent: "text-indigo-600 dark:text-indigo-400",
   },
 };
 
@@ -91,7 +91,7 @@ export function StatCard({
       whileHover={{ y: -2, boxShadow: "0 8px 25px -5px rgb(0 0 0 / 0.1)" }}
       transition={{ duration: 0.2 }}
       className={cn(
-        "rounded-xl border border-subtle bg-surface",
+        "rounded-xl border border-border bg-card text-card-foreground shadow-sm",
         sizes.padding,
         "transition-all duration-200"
       )}
@@ -106,18 +106,11 @@ export function StatCard({
           >
             {title}
           </p>
-          <p
-            className={cn(
-              "font-bold text-foreground truncate",
-              sizes.value
-            )}
-          >
+          <p className={cn("font-bold text-foreground truncate", sizes.value)}>
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-muted-foreground mt-1">
-              {subtitle}
-            </p>
+            <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
           )}
           {trend && (
             <div className="flex items-center gap-1 mt-2">
@@ -130,7 +123,9 @@ export function StatCard({
                 {trend.value >= 0 ? "↑" : "↓"} {Math.abs(trend.value)}%
               </span>
               {trend.label && (
-                <span className="text-xs text-muted-foreground">{trend.label}</span>
+                <span className="text-xs text-muted-foreground">
+                  {trend.label}
+                </span>
               )}
             </div>
           )}

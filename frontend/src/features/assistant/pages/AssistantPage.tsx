@@ -127,20 +127,19 @@ export function AssistantPage() {
     <div className="h-[calc(100vh-12rem)] flex gap-6">
       {/* Chat Area */}
       <div className="flex-1 flex flex-col">
-        <Card
-          variant="premium"
-          className="flex-1 flex flex-col overflow-hidden border-white/10 bg-black/20 backdrop-blur-xl"
-        >
+        <Card className="flex-1 flex flex-col overflow-hidden border-border bg-card">
           {/* Chat Header */}
-          <CardHeader className="flex-shrink-0 border-b border-white/10 bg-white/5">
+          <CardHeader className="flex-shrink-0 border-b border-border bg-muted/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
                   <SparklesIcon className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-white">AI Assistant</CardTitle>
-                  <p className="text-sm text-gray-400">
+                  <CardTitle className="text-foreground">
+                    AI Assistant
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
                     {isAvailable ? "Ready to help" : "Currently unavailable"}
                   </p>
                 </div>
@@ -149,16 +148,16 @@ export function AssistantPage() {
           </CardHeader>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
             {messages.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-6 border border-white/10 backdrop-blur-md">
-                  <SparklesIcon className="w-10 h-10 text-blue-400" />
+                <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center mb-6 border border-border backdrop-blur-md">
+                  <SparklesIcon className="w-10 h-10text-muted-foreground" />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-3">
+                <h3 className="text-2xl font-bold text-foreground mb-3">
                   How can I help you?
                 </h3>
-                <p className="text-gray-400 max-w-md mb-8 text-lg">
+                <p className="text-muted-foreground max-w-md mb-8 text-lg">
                   Ask me anything about your data, models, or analysis results.
                   I can explain metrics, suggest improvements, and help you
                   understand your findings.
@@ -170,7 +169,7 @@ export function AssistantPage() {
                     <button
                       key={question}
                       onClick={() => handleSuggestedQuestion(question)}
-                      className="px-4 py-2.5 text-sm rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white transition-all duration-200"
+                      className="px-4 py-2.5 text-sm rounded-xl bg-card hover:bg-muted border border-border text-muted-foreground hover:text-foreground transition-all duration-200"
                     >
                       {question}
                     </button>
@@ -199,23 +198,23 @@ export function AssistantPage() {
                       className={cn(
                         "max-w-[75%] p-5 rounded-2xl text-sm leading-relaxed shadow-lg",
                         message.role === "user"
-                          ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white rounded-tr-sm"
-                          : "bg-white/10 border border-white/10 text-gray-100 rounded-tl-sm backdrop-blur-md"
+                          ? "bg-primary text-primary-foreground rounded-tr-sm"
+                          : "bg-muted border border-border text-foreground rounded-tl-sm"
                       )}
                     >
                       {message.role === "assistant" ? (
-                        <div className="prose prose-invert prose-sm max-w-none">
+                        <div className="prose prose-sm max-w-none dark:prose-invert">
                           <ReactMarkdown>{message.content}</ReactMarkdown>
                         </div>
                       ) : (
-                        <p className="whitespace-pre-wrap text-white font-medium">
+                        <p className="whitespace-pre-wrap font-medium">
                           {message.content}
                         </p>
                       )}
                     </div>
                     {message.role === "user" && (
-                      <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0 border border-white/10">
-                        <UserIcon className="w-4 h-4 text-gray-300" />
+                      <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0 border border-border">
+                        <UserIcon className="w-4 h-4 text-muted-foreground" />
                       </div>
                     )}
                   </motion.div>
@@ -233,7 +232,7 @@ export function AssistantPage() {
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
                   <SparklesIcon className="w-4 h-4 text-white" />
                 </div>
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/10 rounded-tl-sm">
+                <div className="p-4 rounded-2xl bg-muted border border-border rounded-tl-sm">
                   <div className="flex gap-1.5">
                     <span
                       className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"
@@ -256,7 +255,7 @@ export function AssistantPage() {
           </div>
 
           {/* Input */}
-          <div className="flex-shrink-0 p-4 border-t border-white/10 bg-white/5 backdrop-blur-md">
+          <div className="flex-shrink-0 p-4 border-t border-border bg-card backdrop-blur-md">
             <div className="flex gap-3">
               <div className="flex-1 relative">
                 <textarea
@@ -268,9 +267,9 @@ export function AssistantPage() {
                   rows={1}
                   className={cn(
                     "w-full px-4 py-3 rounded-xl resize-none",
-                    "bg-black/20 border border-white/10",
-                    "text-white placeholder:text-gray-500",
-                    "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent",
+                    "bg-muted/50 border border-border",
+                    "text-foreground placeholder:text-muted-foreground",
+                    "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent",
                     "disabled:opacity-50 disabled:cursor-not-allowed",
                     "transition-all duration-200"
                   )}
@@ -281,7 +280,7 @@ export function AssistantPage() {
                 disabled={
                   !input.trim() || askMutation.isPending || !isAvailable
                 }
-                className="flex-shrink-0 shadow-lg shadow-blue-500/20"
+                className="flex-shrink-0 shadow-lg shadow-primary/20"
                 variant="primary"
               >
                 <PaperAirplaneIcon className="w-5 h-5" />
@@ -293,9 +292,9 @@ export function AssistantPage() {
 
       {/* Context Panel */}
       <div className="w-80 flex-shrink-0 space-y-4">
-        <Card variant="elevated" className="border-white/10 bg-white/5">
-          <CardHeader className="border-b border-white/10 pb-4">
-            <CardTitle className="text-white">Context</CardTitle>
+        <Card className="border-border bg-card">
+          <CardHeader className="border-b border-border pb-4">
+            <CardTitle className="text-foreground">Context</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
             <Select
@@ -309,7 +308,7 @@ export function AssistantPage() {
                   .map((d) => ({ value: d.id, label: d.name })),
               ]}
               placeholder="Select a dataset..."
-              className="bg-black/20 border-white/10 text-white"
+              className="bg-background border-input text-foreground"
             />
 
             <Select
@@ -324,11 +323,11 @@ export function AssistantPage() {
                 })),
               ]}
               placeholder="Select a model..."
-              className="bg-black/20 border-white/10 text-white"
+              className="bg-background border-input text-foreground"
             />
 
-            <div className="p-3 rounded-xl border border-blue-500/20 bg-blue-500/10 text-xs text-blue-200 flex items-start gap-2">
-              <InformationCircleIcon className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="p-3 rounded-xl border border-blue-200 bg-blue-50 text-xs text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300 flex items-start gap-2">
+              <InformationCircleIcon className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
               <p>
                 Selecting context helps tailor answers to your dataset or model.
               </p>
@@ -337,9 +336,9 @@ export function AssistantPage() {
         </Card>
 
         {/* Quick Questions */}
-        <Card variant="elevated" className="border-white/10 bg-white/5">
-          <CardHeader className="border-b border-white/10 pb-4">
-            <CardTitle className="text-white">Quick Questions</CardTitle>
+        <Card className="border-border bg-card">
+          <CardHeader className="border-b border-border pb-4">
+            <CardTitle className="text-foreground">Quick Questions</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="space-y-2">
@@ -347,7 +346,7 @@ export function AssistantPage() {
                 <button
                   key={question}
                   onClick={() => handleSuggestedQuestion(question)}
-                  className="w-full text-left px-3 py-2.5 text-sm rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 transition-all text-gray-300 hover:text-white"
+                  className="w-full text-left px-3 py-2.5 text-sm rounded-lg bg-muted/50 hover:bg-muted border border-border transition-all text-muted-foreground hover:text-foreground"
                 >
                   {question}
                 </button>

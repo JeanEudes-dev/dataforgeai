@@ -18,29 +18,29 @@ interface ButtonProps extends Omit<
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary: `
-    bg-gradient-to-r from-blue-600 to-indigo-600 text-white border border-transparent
-    shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:scale-[1.02]
+    bg-primary text-primary-foreground border border-transparent
+    shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02]
     active:scale-[0.98] transition-all duration-200
   `,
   secondary: `
-    glass text-white border border-white/10
-    hover:bg-white/10 hover:border-white/20
+    glass text-foreground border border-border
+    hover:bg-accent/50 hover:border-accent
     active:scale-[0.98] transition-all duration-200
   `,
   ghost: `
-    bg-transparent text-gray-300
-    hover:text-white hover:bg-white/5
-    active:bg-white/10 active:scale-[0.98] transition-all duration-200
+    bg-transparent text-muted-foreground
+    hover:text-foreground hover:bg-accent/50
+    active:bg-accent active:scale-[0.98] transition-all duration-200
   `,
   danger: `
-    bg-gradient-to-r from-red-600 to-rose-600 text-white border border-transparent
-    shadow-lg shadow-red-500/20 hover:shadow-red-500/40 hover:scale-[1.02]
+    bg-destructive text-destructive-foreground border border-transparent
+    shadow-lg shadow-destructive/20 hover:shadow-destructive/40 hover:scale-[1.02]
     active:scale-[0.98] transition-all duration-200
   `,
   glow: `
-    bg-white/10 text-white border border-white/20
+    bg-primary/10 text-muted-foreground border border-primary/20
     shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)]
-    hover:bg-white/20 hover:border-white/30
+    hover:bg-primary/20 hover:border-primary/30
     active:scale-[0.98] transition-all duration-200
   `,
 };

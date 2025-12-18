@@ -1,17 +1,12 @@
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { AnimatePresence, motion } from 'framer-motion'
-import {
-  Card,
-  CardContent,
-  Skeleton,
-  Button,
-} from '@/components/ui'
-import { reportsApi } from '@/api'
-import { useToastActions } from '@/contexts'
-import { downloadFile } from '@/utils'
-import type { ReportSection, EnhancedReport } from '@/types'
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
+import { Card, CardContent, Skeleton, Button } from "@/components/ui";
+import { reportsApi } from "@/api";
+import { useToastActions } from "@/contexts";
+import { downloadFile } from "@/utils";
+import type { ReportSection, EnhancedReport } from "@/types";
 
 // Import report section components
 import {
@@ -23,55 +18,62 @@ import {
   ModelComparisonSection,
   InsightsSection,
   ShareModal,
-} from '../components'
+} from "../components";
 
 export function ReportDetailPage() {
-  const { reportId } = useParams<{ reportId: string }>()
-  const toast = useToastActions()
+  const { reportId } = useParams<{ reportId: string }>();
+  const toast = useToastActions();
 
-  const [activeSection, setActiveSection] = useState<ReportSection>('overview')
-  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [activeSection, setActiveSection] = useState<ReportSection>("overview");
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
-  const { data: report, isLoading, error, refetch } = useQuery({
-    queryKey: ['reports', reportId],
+  const {
+    data: report,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["reports", reportId],
     queryFn: () => reportsApi.get(reportId!),
     enabled: !!reportId,
-  })
+  });
 
   const exportMutation = useMutation({
-    mutationFn: () => reportsApi.export(reportId!, 'pdf'),
+    mutationFn: () => reportsApi.export(reportId!, "pdf"),
     onSuccess: (blob) => {
-      downloadFile(blob, `${report?.title || 'report'}.pdf`)
-      toast.success('Export started', 'Your PDF is downloading.')
+      downloadFile(blob, `${report?.title || "report"}.pdf`);
+      toast.success("Export started", "Your PDF is downloading.");
     },
     onError: () => {
-      toast.error('Export failed', 'Could not export the report.')
+      toast.error("Export failed", "Could not export the report.");
     },
-  })
+  });
 
   const handlePrint = () => {
-    window.print()
-  }
+    window.print();
+  };
 
   if (isLoading) {
-    return <ReportDetailSkeleton />
+    return <ReportDetailSkeleton />;
   }
 
   if (error || !report) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-error-500 mb-4">Report not found or failed to load.</p>
+          <p className="text-error-500 mb-4">
+            Report not found or failed to load.
+          </p>
           <Button variant="secondary" onClick={() => window.history.back()}>
             Go Back
           </Button>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   // For incomplete reports, show a simple status card
-  if (report.status !== 'completed') {
+  if (report.status !== "completed") {
     return (
       <div className="space-y-6">
         <ReportHeader
@@ -84,34 +86,36 @@ export function ReportDetailPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <div className="mb-4">
-              {report.status === 'generating' && (
+              {report.status === "generating" && (
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full border-4 border-primary-200 border-t-primary-500 animate-spin" />
               )}
-              {report.status === 'pending' && (
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              {report.status === "pending" && (
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
                   <span className="text-2xl">⏳</span>
                 </div>
               )}
-              {report.status === 'error' && (
+              {report.status === "error" && (
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
                   <span className="text-2xl">❌</span>
                 </div>
               )}
             </div>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-2">
-              {report.status === 'generating'
-                ? 'Report is being generated...'
-                : report.status === 'pending'
-                ? 'Report is queued for generation...'
-                : 'Report generation failed.'}
+              {report.status === "generating"
+                ? "Report is being generated..."
+                : report.status === "pending"
+                  ? "Report is queued for generation..."
+                  : "Report generation failed."}
             </p>
             {report.error_message && (
-              <p className="text-sm text-red-500 mt-2">{report.error_message}</p>
+              <p className="text-sm text-red-500 mt-2">
+                {report.error_message}
+              </p>
             )}
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -141,19 +145,19 @@ export function ReportDetailPage() {
           exit={{ opacity: 0, y: -10 }}
           transition={{ duration: 0.2 }}
         >
-          {activeSection === 'overview' && (
+          {activeSection === "overview" && (
             <DatasetOverviewSection report={report as EnhancedReport} />
           )}
-          {activeSection === 'eda' && (
+          {activeSection === "eda" && (
             <EDASection report={report as EnhancedReport} />
           )}
-          {activeSection === 'model' && (
+          {activeSection === "model" && (
             <ModelPerformanceSection report={report as EnhancedReport} />
           )}
-          {activeSection === 'comparison' && (
+          {activeSection === "comparison" && (
             <ModelComparisonSection report={report as EnhancedReport} />
           )}
-          {activeSection === 'insights' && (
+          {activeSection === "insights" && (
             <InsightsSection report={report as EnhancedReport} />
           )}
         </motion.div>
@@ -169,7 +173,7 @@ export function ReportDetailPage() {
         onShareToggle={refetch}
       />
     </div>
-  )
+  );
 }
 
 // Loading skeleton
@@ -215,7 +219,7 @@ function ReportDetailSkeleton() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
 
-export default ReportDetailPage
+export default ReportDetailPage;

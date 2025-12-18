@@ -26,10 +26,10 @@ export function AuthLayout() {
           <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full glass shadow-[0_18px_60px_rgba(15,23,42,0.12)]">
             <img src="/Icon.png" alt="DataForge AI" className="w-11 h-11" />
             <div className="text-left">
-              <h1 className="text-2xl font-semibold text-white leading-tight">
+              <h1 className="text-2xl font-semibold text-foreground leading-tight">
                 DataForge
               </h1>
-              <span className="text-sm text-gray-400 font-medium">
+              <span className="text-sm text-muted-foreground font-medium">
                 Calm AI workspace
               </span>
             </div>
@@ -40,14 +40,14 @@ export function AuthLayout() {
         <div
           className={cn(
             "rounded-2xl p-8 glass-card",
-            "border border-white/10 shadow-2xl"
+            "border border-border shadow-2xl"
           )}
         >
           <Outlet />
         </div>
 
         {/* Footer */}
-        <p className="text-center text-sm text-gray-400 mt-6">
+        <p className="text-center text-sm text-muted-foreground mt-6">
           Automated data analytics and machine learning
         </p>
       </motion.div>

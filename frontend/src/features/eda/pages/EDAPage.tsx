@@ -141,7 +141,7 @@ export function EDAPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-primary">
+            <h1 className="text-2xl font-boldtext-muted-foreground">
               Exploratory Data Analysis
             </h1>
             <p className="text-secondary mt-1">{dataset?.name}</p>
@@ -160,33 +160,33 @@ export function EDAPage() {
       </div>
 
       {isRequesting && (
-        <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+        <Card className="border border-border shadow-sm">
           <CardContent className="py-6 px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400">
+              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-centertext-muted-foreground">
                 <ArrowPathIcon className="w-5 h-5 animate-spin" />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+                <p className="text-xs uppercase tracking-[0.08em] text-muted-foreground">
                   Analysis in progress
                 </p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-muted-foreground">
                   EDA is running in the background. You can stay on this page;
                   we’ll refresh results automatically.
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
-              <span className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+            <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+              <span className="px-3 py-2 rounded-xl border border-border bg-muted/50">
                 Profiling columns
               </span>
-              <span className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <span className="px-3 py-2 rounded-xl border border-border bg-muted/50">
                 Computing stats
               </span>
-              <span className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <span className="px-3 py-2 rounded-xl border border-border bg-muted/50">
                 Detecting outliers
               </span>
-              <span className="px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+              <span className="px-3 py-2 rounded-xl border border-border bg-muted/50">
                 Building visuals
               </span>
             </div>
@@ -231,7 +231,7 @@ export function EDAPage() {
       ) : (
         <>
           {/* Tab Navigation */}
-          <div className="flex items-center gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl w-fit">
+          <div className="flex items-center gap-1 p-1 bg-muted rounded-xl w-fit">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -239,8 +239,8 @@ export function EDAPage() {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
                   activeTab === tab.id
-                    ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                    ? "bg-background text-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <tab.icon className="w-4 h-4" />
@@ -401,7 +401,7 @@ export function EDAPage() {
                   <Card padding="none">
                     <CardHeader className="px-6 pt-6">
                       <CardTitle>Column Distributions</CardTitle>
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Visualize the distribution of values in each column
                       </p>
                     </CardHeader>
@@ -412,7 +412,7 @@ export function EDAPage() {
                             ([col, data]) => (
                               <div
                                 key={col}
-                                className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4"
+                                className="bg-muted/50 rounded-xl p-4"
                               >
                                 <DistributionChart
                                   columnName={col}
@@ -424,7 +424,7 @@ export function EDAPage() {
                           )}
                         </div>
                       ) : (
-                        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                        <div className="text-center py-12 text-muted-foreground">
                           No distribution data available
                         </div>
                       )}
@@ -436,7 +436,7 @@ export function EDAPage() {
                     <Card padding="none">
                       <CardHeader className="px-6 pt-6">
                         <CardTitle>Summary Statistics</CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           Click on a row to see percentile details
                         </p>
                       </CardHeader>
@@ -455,7 +455,7 @@ export function EDAPage() {
                   <Card padding="none">
                     <CardHeader className="px-6 pt-6">
                       <CardTitle>Correlation Heatmap</CardTitle>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Hover over cells to see exact correlation values
                       </p>
                     </CardHeader>
@@ -472,7 +472,7 @@ export function EDAPage() {
                     <Card padding="none">
                       <CardHeader className="px-6 pt-6">
                         <CardTitle>Top Correlations</CardTitle>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           Strongest relationships between columns
                         </p>
                       </CardHeader>
@@ -480,25 +480,25 @@ export function EDAPage() {
                         <div className="overflow-x-auto">
                           <table className="w-full text-sm">
                             <thead>
-                              <tr className="border-b border-gray-200 dark:border-gray-700">
-                                <th className="px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-400">
+                              <tr className="border-b border-border">
+                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                   Column 1
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-400">
+                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                   Column 2
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-400">
+                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                   Correlation
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-400">
+                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                   Strength
                                 </th>
-                                <th className="px-4 py-3 text-left font-medium text-gray-600 dark:text-gray-400">
+                                <th className="px-4 py-3 text-left font-medium text-muted-foreground">
                                   Visual
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tbody className="divide-y divide-border">
                               {edaResult.top_correlations
                                 .slice(0, 15)
                                 .map((corr, i) => (
@@ -507,15 +507,15 @@ export function EDAPage() {
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
                                     transition={{ delay: i * 0.03 }}
-                                    className="hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                                    className="hover:bg-muted/50"
                                   >
-                                    <td className="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium">
+                                    <td className="px-4 py-3 text-foreground font-medium">
                                       {corr.column1}
                                     </td>
-                                    <td className="px-4 py-3 text-gray-900 dark:text-gray-100 font-medium">
+                                    <td className="px-4 py-3 text-foreground font-medium">
                                       {corr.column2}
                                     </td>
-                                    <td className="px-4 py-3 font-mono text-gray-700 dark:text-gray-300">
+                                    <td className="px-4 py-3 font-mono text-muted-foreground">
                                       {formatNumber(corr.correlation, 3)}
                                     </td>
                                     <td className="px-4 py-3">
@@ -523,23 +523,23 @@ export function EDAPage() {
                                         className={cn(
                                           "px-2.5 py-1 rounded-full text-xs font-medium",
                                           corr.strength === "strong"
-                                            ? "bg-success-100 dark:bg-success-900/30 text-success-700 dark:text-success-300"
+                                            ? "bg-green-500/10 text-green-600 dark:text-green-400"
                                             : corr.strength === "moderate"
-                                              ? "bg-warning-100 dark:bg-warning-900/30 text-warning-700 dark:text-warning-300"
-                                              : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                                              ? "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                                              : "bg-muted text-muted-foreground"
                                         )}
                                       >
                                         {corr.strength}
                                       </span>
                                     </td>
                                     <td className="px-4 py-3">
-                                      <div className="w-24 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                                      <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                                         <div
                                           className={cn(
                                             "h-full rounded-full",
                                             corr.correlation >= 0
-                                              ? "bg-primary-500"
-                                              : "bg-error-500"
+                                              ? "bg-primary"
+                                              : "bg-destructive"
                                           )}
                                           style={{
                                             width: `${Math.abs(corr.correlation) * 100}%`,
@@ -568,10 +568,10 @@ export function EDAPage() {
                     className={cn(
                       "p-6 rounded-2xl text-white",
                       dataQualityScore && dataQualityScore >= 90
-                        ? "bg-gradient-to-r from-success-500 to-success-600"
+                        ? "bg-gradient-to-r from-green-500 to-green-600"
                         : dataQualityScore && dataQualityScore >= 70
-                          ? "bg-gradient-to-r from-warning-500 to-warning-600"
-                          : "bg-gradient-to-r from-error-500 to-error-600"
+                          ? "bg-gradient-to-r from-yellow-500 to-yellow-600"
+                          : "bg-gradient-to-r from-red-500 to-red-600"
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -590,7 +590,7 @@ export function EDAPage() {
                               : "Consider cleaning your data before proceeding."}
                         </p>
                       </div>
-                      <div className="w-24 h-24 rounded-full bg-white/20 dark:bg-gray-900/30 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full bg-background/20 flex items-center justify-center">
                         <span className="text-3xl font-bold">
                           {dataQualityScore}%
                         </span>
@@ -602,7 +602,7 @@ export function EDAPage() {
                   <Card padding="none">
                     <CardHeader className="px-6 pt-6">
                       <CardTitle>Missing Values Analysis</CardTitle>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Identify columns with missing data
                       </p>
                     </CardHeader>
@@ -618,7 +618,7 @@ export function EDAPage() {
                   <Card padding="none">
                     <CardHeader className="px-6 pt-6">
                       <CardTitle>Outlier Detection</CardTitle>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Values that fall outside the expected range
                       </p>
                     </CardHeader>
@@ -656,7 +656,7 @@ export function EDAPage() {
                   <Card padding="none">
                     <CardHeader className="px-6 pt-6">
                       <CardTitle>Automated Insights</CardTitle>
-                      <p className="text-sm text-gray-500 mt-1">
+                      <p className="text-sm text-muted-foreground mt-1">
                         Key findings from your data analysis
                       </p>
                     </CardHeader>
@@ -677,7 +677,7 @@ export function EDAPage() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex items-center gap-2 px-4 py-3 bg-info-50 dark:bg-info-900/30 border border-info-200 dark:border-info-800 rounded-xl text-sm text-info-700 dark:text-info-300"
+              className="flex items-center gap-2 px-4 py-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-sm text-blue-600 dark:text-blue-400"
             >
               <ExclamationTriangleIcon className="w-5 h-5 shrink-0" />
               <span>

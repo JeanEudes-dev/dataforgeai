@@ -48,7 +48,9 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
     >
       <div className="flex-shrink-0">{iconMap[toast.type]}</div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-primary">{toast.title}</p>
+        <p className="text-sm font-mediumtext-muted-foreground">
+          {toast.title}
+        </p>
         {toast.message && (
           <p className="mt-1 text-sm text-secondary">{toast.message}</p>
         )}
@@ -57,7 +59,7 @@ function ToastItem({ toast, onDismiss }: ToastItemProps) {
         onClick={onDismiss}
         className={cn(
           "flex-shrink-0 p-1 rounded-lg text-muted",
-          "hover:text-primary hover:bg-sunken",
+          "hover:text-muted-foreground hover:bg-sunken",
           "transition-colors duration-200"
         )}
       >

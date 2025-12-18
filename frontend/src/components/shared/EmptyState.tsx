@@ -41,7 +41,9 @@ export function EmptyState({
           {icon}
         </div>
       )}
-      <h3 className="text-lg font-semibold text-primary mb-2">{title}</h3>
+      <h3 className="text-lg font-semibold text-muted-foreground mb-2">
+        {title}
+      </h3>
       <p className="text-secondary max-w-sm mb-6">{description}</p>
       {(action || secondaryAction) && (
         <div className="flex items-center gap-3">
