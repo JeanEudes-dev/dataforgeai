@@ -57,14 +57,29 @@ export default function ReportDetailPage() {
     enabled: !!reportId,
   });
 
-  const features = report?.content?.eda?.distributions
-    ? Object.keys(report.content.eda.distributions)
-    : [];
+  const content = useMemo(() => {
+    if (!report?.content) return null;
+    if (typeof report.content === "string") {
+      try {
+        return JSON.parse(report.content);
+      } catch (e) {
+        console.error("Failed to parse report content", e);
+        return null;
+      }
+    }
+    return report.content;
+  }, [report]);
+
+  const features = useMemo(() => {
+    if (!content?.eda?.distributions) return [];
+    return Object.keys(content.eda.distributions);
+  }, [content]);
+
   const activeFeature =
     selectedFeature || (features.length > 0 ? features[0] : null);
 
   const heatmapOption = useMemo(() => {
-    const correlationMatrix = report?.content?.eda?.correlation_matrix || {};
+    const correlationMatrix = content?.eda?.correlation_matrix || {};
     const columns = Object.keys(correlationMatrix);
     const heatmapData = [];
     for (let i = 0; i < columns.length; i++) {
@@ -108,10 +123,10 @@ export default function ReportDetailPage() {
         },
       ],
     };
-  }, [report?.content?.eda?.correlation_matrix, theme]);
+  }, [content?.eda?.correlation_matrix, theme]);
 
   const missingOption = useMemo(() => {
-    const missingAnalysis = report?.content?.eda?.missing_analysis || {};
+    const missingAnalysis = content?.eda?.missing_analysis || {};
     const missingCols = Object.keys(missingAnalysis);
     const missingRatios = missingCols.map((col) =>
       ((missingAnalysis[col].ratio || 0) * 100).toFixed(2)
@@ -131,16 +146,16 @@ export default function ReportDetailPage() {
         },
       ],
     };
-  }, [report?.content?.eda?.missing_analysis]);
+  }, [content?.eda?.missing_analysis]);
 
   const distributionOption = useMemo(() => {
     if (
       !activeFeature ||
-      !report?.content?.eda?.distributions?.[activeFeature]
+      !content?.eda?.distributions?.[activeFeature]
     )
       return null;
 
-    const dist = report.content.eda.distributions[activeFeature];
+    const dist = content.eda.distributions[activeFeature];
     const isNumeric = dist.type === "numeric";
 
     if (isNumeric) {
@@ -202,7 +217,7 @@ export default function ReportDetailPage() {
         ],
       };
     }
-  }, [activeFeature, report?.content?.eda?.distributions]);
+  }, [activeFeature, content?.eda?.distributions]);
 
   if (isLoading) {
     return (
@@ -377,17 +392,17 @@ export default function ReportDetailPage() {
                   <Select
                     value={activeFeature || ""}
                     onValueChange={setSelectedFeature}
+                    disabled={features.length === 0}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select feature" />
                     </SelectTrigger>
                     <SelectContent>
-                      {report?.content?.eda?.distributions &&
-                        Object.keys(report.content.eda.distributions).map((col) => (
-                          <SelectItem key={col} value={col}>
-                            {col}
-                          </SelectItem>
-                        ))}
+                      {features.map((col) => (
+                        <SelectItem key={col} value={col}>
+                          {col}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

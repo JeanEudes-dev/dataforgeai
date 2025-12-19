@@ -9,7 +9,6 @@ import {
   MessageSquare,
   Settings,
   Layers,
-  ChevronLeft,
   Sparkles,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
@@ -49,19 +48,6 @@ export const Sidebar: React.FC = () => {
           <span className="text-lg font-bold tracking-tight text-foreground">
             DataForge AI
           </span>
-        </Link>
-      </div>
-
-      <div className="px-4 py-4">
-        <Link to="/app/projects">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back to Projects
-          </Button>
         </Link>
       </div>
 

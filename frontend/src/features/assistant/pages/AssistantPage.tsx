@@ -78,16 +78,21 @@ export const AssistantPage: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Fetch all datasets
-  const { data: datasets } = useQuery({
+  const { data: datasetsData } = useQuery({
     queryKey: ["datasets"],
     queryFn: () => datasetsApi.list(),
   });
 
+  const datasets = Array.isArray(datasetsData) ? datasetsData : [];
+
   // Fetch models (optionally filtered by dataset if selected)
-  const { data: models } = useQuery({
+  const { data: modelsData } = useQuery({
     queryKey: ["models", selectedDatasetId],
     queryFn: () => mlApi.list(selectedDatasetId || undefined),
   });
+
+  const models =
+    modelsData && "results" in modelsData ? modelsData.results : [];
 
   // Fetch selected dataset details for display
   const { data: selectedDataset } = useQuery({
@@ -176,10 +181,6 @@ export const AssistantPage: React.FC = () => {
                 </Badge>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Gemini 3 Flash
-                </span>
                 {selectedDataset && (
                   <>
                     <span>•</span>
@@ -347,7 +348,7 @@ export const AssistantPage: React.FC = () => {
       </motion.div>
 
       {/* Context Panel */}
-      <div className="w-80 flex-shrink-0 space-y-4">
+      <div className="w-80 shrink-0 space-y-4">
         <Card className="border-border bg-card">
           <CardHeader className="border-b border-border pb-4">
             <CardTitle className="text-foreground">Context</CardTitle>
