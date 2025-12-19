@@ -13,8 +13,16 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { pageVariants } from "../../../theme/motion";
+import { containerVariants, listItemVariants } from "../../../theme/motion";
 import { Chart } from "../../../components/ui/chart";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import { Badge } from "../../../components/ui/badge";
 
 interface Job {
   id: string;
@@ -153,20 +161,23 @@ export const ModelingPage: React.FC = () => {
 
   return (
     <motion.div
-      variants={pageVariants}
+      variants={containerVariants}
       initial="initial"
       animate="animate"
-      className="space-y-8"
+      className="space-y-10"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">AutoML Modeling</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            AutoML Modeling
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Train and compare models for your data
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Button
+            className="shadow-sm"
             onClick={() => triggerTraining.mutate()}
             disabled={isTraining || triggerTraining.isPending || !targetColumn}
           >
@@ -182,217 +193,316 @@ export const ModelingPage: React.FC = () => {
 
       {/* Configuration Section */}
       {!isTraining && (
-        <div className="bg-card p-6 rounded-xl border border-border">
-          <div className="flex items-center gap-2 mb-4">
-            <Target className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold">Training Configuration</h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">
-                Target Column
-              </label>
-              <select
-                className="w-full p-2 rounded-md border border-border bg-background"
-                value={targetColumn}
-                onChange={(e) => setTargetColumn(e.target.value)}
-              >
-                <option value="">Select target...</option>
-                {latestEDA?.summary_stats &&
-                  Object.keys(latestEDA.summary_stats)
-                    .filter(
-                      (key) =>
-                        ![
-                          "row_count",
-                          "column_count",
-                          "total_missing",
-                        ].includes(key)
-                    )
-                    .map((col) => (
-                      <option key={col} value={col}>
-                        {col}
-                      </option>
-                    ))}
-              </select>
-              <p className="text-xs text-muted-foreground">
-                The column you want to predict.
-              </p>
-            </div>
-
-            {latestEDA?.target_analysis?.warnings?.length > 0 && (
-              <div className="p-4 bg-amber-50 border border-amber-100 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <ShieldAlert className="h-4 w-4 text-amber-600" />
-                  <span className="text-xs font-bold text-amber-800 uppercase">
-                    Target Warnings
-                  </span>
-                </div>
-                <ul className="space-y-1">
-                  {latestEDA.target_analysis.warnings.map(
-                    (w: string, i: number) => (
-                      <li key={i} className="text-xs text-amber-700">
-                        • {w}
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {isTraining && (
-        <div className="bg-primary/5 border border-primary/10 rounded-xl p-8 text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <h3 className="text-lg font-semibold mt-4">Training in Progress</h3>
-          <p className="text-muted-foreground mt-2">
-            We're testing multiple algorithms and tuning hyperparameters. This
-            may take a minute.
-          </p>
-        </div>
-      )}
-
-      {!isTraining && models?.results?.length > 0 ? (
-        <div className="space-y-8">
-          {/* Leaderboard */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="p-6 border-b border-border flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Trophy className="h-5 w-5 text-amber-500" />
-                <h3 className="font-semibold">Model Leaderboard</h3>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-neutral-50 text-muted-foreground font-medium">
-                  <tr>
-                    <th className="px-6 py-3">Model Type</th>
-                    <th className="px-6 py-3">Accuracy / R²</th>
-                    <th className="px-6 py-3">F1 / RMSE</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {models.results.map((model: Model, i: number) => (
-                    <tr
-                      key={model.id}
-                      className="hover:bg-neutral-50/50 transition-colors"
+        <motion.div variants={listItemVariants}>
+          <Card className="border-none shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Target className="h-4 w-4 text-primary" />
+                Training Configuration
+              </CardTitle>
+              <CardDescription>
+                Define the parameters for your automated machine learning run
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-foreground">
+                      Target Column
+                    </label>
+                    <select
+                      className="w-full p-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                      value={targetColumn}
+                      onChange={(e) => setTargetColumn(e.target.value)}
                     >
-                      <td className="px-6 py-4 font-medium">
-                        {i === 0 && (
-                          <span className="mr-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                            Best
-                          </span>
-                        )}
-                        {model.model_type_display || model.model_type}
-                      </td>
-                      <td className="px-6 py-4">
-                        {(
-                          model.metrics?.accuracy ||
-                          model.metrics?.r2 ||
-                          0
-                        ).toFixed(4)}
-                      </td>
-                      <td className="px-6 py-4">
-                        {(
-                          model.metrics?.f1_score ||
-                          model.metrics?.rmse ||
-                          0
-                        ).toFixed(4)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Ready
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => navigate(`/app/modeling/${model.id}`)}
-                        >
-                          Details
-                        </Button>
-                        <Link to={`/app/predictions?modelId=${model.id}`}>
-                          <Button variant="outline" size="sm">
-                            Predict
-                            <ArrowRight className="ml-2 h-3 w-3" />
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Best Model Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-card p-6 rounded-xl border border-border">
-              <h3 className="font-semibold mb-6 flex items-center gap-2">
-                <BarChart2 className="h-5 w-5 text-primary" />
-                Feature Importance
-              </h3>
-              <div className="h-[400px]">
-                {featureImportanceOption ? (
-                  <Chart option={featureImportanceOption} />
-                ) : (
-                  <div className="h-full flex items-center justify-center bg-neutral-50 rounded-lg border border-dashed border-border">
-                    <p className="text-sm text-muted-foreground">
-                      No feature importance data available for this model.
+                      <option value="">Select target...</option>
+                      {latestEDA?.summary_stats &&
+                        Object.keys(latestEDA.summary_stats)
+                          .filter(
+                            (key) =>
+                              ![
+                                "row_count",
+                                "column_count",
+                                "total_missing",
+                              ].includes(key)
+                          )
+                          .map((col) => (
+                            <option key={col} value={col}>
+                              {col}
+                            </option>
+                          ))}
+                    </select>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      The column you want to predict. Our system will
+                      automatically detect if this is a classification or
+                      regression task.
                     </p>
+                  </div>
+                </div>
+
+                {latestEDA?.target_analysis?.warnings?.length > 0 && (
+                  <div className="p-5 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-xl">
+                    <div className="flex items-center gap-2 mb-3">
+                      <ShieldAlert className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                      <span className="text-xs font-bold text-amber-800 dark:text-amber-200 uppercase tracking-wider">
+                        Target Warnings
+                      </span>
+                    </div>
+                    <ul className="space-y-2">
+                      {latestEDA.target_analysis.warnings.map(
+                        (w: string, i: number) => (
+                          <li
+                            key={i}
+                            className="text-xs text-amber-700 dark:text-amber-400 flex items-start gap-2"
+                          >
+                            <span className="mt-1 h-1 w-1 rounded-full bg-amber-400 shrink-0" />
+                            {w}
+                          </li>
+                        )
+                      )}
+                    </ul>
                   </div>
                 )}
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {isTraining && (
+        <motion.div
+          variants={listItemVariants}
+          className="bg-primary/5 dark:bg-primary/10 border border-primary/10 rounded-2xl p-12 text-center"
+        >
+          <div className="relative inline-block mb-6">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Cpu className="h-6 w-6 text-primary/50" />
             </div>
-            <div className="bg-card p-6 rounded-xl border border-border">
-              <h3 className="font-semibold mb-6">Model Summary</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Algorithm</span>
-                  <span className="font-medium">
-                    {models.results[0].model_type_display}
-                  </span>
+          </div>
+          <h3 className="text-2xl font-bold text-foreground">
+            Training in Progress
+          </h3>
+          <p className="text-muted-foreground mt-2 max-w-md mx-auto leading-relaxed">
+            We're testing multiple algorithms, tuning hyperparameters, and
+            evaluating performance. This usually takes about a minute.
+          </p>
+          <div className="mt-8 max-w-xs mx-auto bg-muted rounded-full h-1.5 overflow-hidden">
+            <motion.div
+              className="bg-primary h-full"
+              initial={{ width: "0%" }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 60, ease: "linear" }}
+            />
+          </div>
+        </motion.div>
+      )}
+
+      {!isTraining && models?.results?.length > 0 ? (
+        <div className="space-y-10">
+          {/* Leaderboard */}
+          <motion.div variants={listItemVariants}>
+            <Card className="border-none shadow-sm overflow-hidden">
+              <CardHeader className="bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Trophy className="h-5 w-5 text-amber-500" />
+                    <CardTitle className="text-lg">Model Leaderboard</CardTitle>
+                  </div>
+                  <Badge variant="outline" className="bg-background">
+                    {models.results.length} Models Trained
+                  </Badge>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Task Type</span>
-                  <span className="font-medium capitalize">
-                    {models.results[0].task_type}
-                  </span>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left">
+                    <thead className="bg-muted/50 text-muted-foreground font-medium">
+                      <tr>
+                        <th className="px-6 py-4">Model Type</th>
+                        <th className="px-6 py-4">Accuracy / R²</th>
+                        <th className="px-6 py-4">F1 / RMSE</th>
+                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {models.results.map((model: Model, i: number) => (
+                        <tr
+                          key={model.id}
+                          className="hover:bg-muted/20 transition-colors group"
+                        >
+                          <td className="px-6 py-4 font-semibold text-foreground">
+                            <div className="flex items-center gap-3">
+                              {i === 0 && (
+                                <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-100 border-none text-[10px] px-1.5 py-0">
+                                  BEST
+                                </Badge>
+                              )}
+                              {model.model_type_display || model.model_type}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 font-mono text-xs">
+                            {(
+                              model.metrics?.accuracy ||
+                              model.metrics?.r2 ||
+                              0
+                            ).toFixed(4)}
+                          </td>
+                          <td className="px-6 py-4 font-mono text-xs">
+                            {(
+                              model.metrics?.f1_score ||
+                              model.metrics?.rmse ||
+                              0
+                            ).toFixed(4)}
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge
+                              variant="outline"
+                              className="bg-emerald-50 text-emerald-700  border-emerald-200 font-medium"
+                            >
+                              Ready
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8"
+                                onClick={() =>
+                                  navigate(`/app/modeling/${model.id}`)
+                                }
+                              >
+                                Details
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 shadow-sm"
+                                onClick={() =>
+                                  navigate(
+                                    `/app/predictions?modelId=${model.id}`
+                                  )
+                                }
+                              >
+                                Predict
+                                <ArrowRight className="ml-2 h-3 w-3" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Trained On</span>
-                  <span className="font-medium">
-                    {new Date(
-                      models.results[0].created_at
-                    ).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="pt-4 border-t border-border">
-                  <Link to={`/app/reports?datasetId=${datasetId}`}>
-                    <Button variant="outline" className="w-full">
-                      View Full Report
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Best Model Details */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <motion.div variants={listItemVariants} className="lg:col-span-2">
+              <Card className="border-none shadow-sm h-full">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <BarChart2 className="h-5 w-5 text-primary" />
+                    Feature Importance
+                  </CardTitle>
+                  <CardDescription>
+                    Top factors influencing the best model's predictions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px]">
+                    {featureImportanceOption ? (
+                      <Chart option={featureImportanceOption} />
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center border-2 border-dashed border-muted rounded-2xl">
+                        <BarChart2 className="h-10 w-10 mb-3 opacity-20" />
+                        <p className="text-sm text-muted-foreground">
+                          No feature importance data available.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm h-full">
+                <CardHeader>
+                  <CardTitle className="text-lg">Model Summary</CardTitle>
+                  <CardDescription>
+                    Key details of the top performer
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Algorithm
+                      </span>
+                      <span className="text-sm font-bold">
+                        {models.results[0].model_type_display}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Task Type
+                      </span>
+                      <span className="text-sm font-bold capitalize">
+                        {models.results[0].task_type}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Trained On
+                      </span>
+                      <span className="text-sm font-bold">
+                        {new Date(
+                          models.results[0].created_at
+                        ).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="pt-4">
+                    <Button
+                      variant="outline"
+                      className="w-full shadow-sm"
+                      asChild
+                    >
+                      <Link to={`/app/reports?datasetId=${datasetId}`}>
+                        View Full Report
+                      </Link>
                     </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       ) : !isTraining ? (
-        <div className="text-center py-20 bg-card rounded-xl border border-dashed border-border">
-          <Cpu className="mx-auto h-12 w-12 text-muted-foreground/50" />
-          <h3 className="mt-4 text-lg font-medium">No models trained</h3>
-          <p className="text-muted-foreground">
-            Run AutoML to find the best model for your data.
+        <motion.div
+          variants={listItemVariants}
+          className="text-center py-24 bg-card rounded-2xl border-2 border-dashed border-muted"
+        >
+          <div className="h-20 w-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Cpu className="h-10 w-10 text-muted-foreground/50" />
+          </div>
+          <h3 className="text-xl font-bold text-foreground">
+            No models trained yet
+          </h3>
+          <p className="text-muted-foreground mt-2 max-w-xs mx-auto">
+            Select a target column and run AutoML to find the best model for
+            your data.
           </p>
           <Button
-            className="mt-6"
+            className="mt-8 shadow-md"
             onClick={() => triggerTraining.mutate()}
-            disabled={triggerTraining.isPending}
+            disabled={triggerTraining.isPending || !targetColumn}
           >
             {triggerTraining.isPending ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -401,7 +511,7 @@ export const ModelingPage: React.FC = () => {
             )}
             Start Training
           </Button>
-        </div>
+        </motion.div>
       ) : null}
     </motion.div>
   );

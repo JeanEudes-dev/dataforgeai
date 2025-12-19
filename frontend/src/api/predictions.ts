@@ -13,14 +13,42 @@ export interface PredictionJob {
 export const predictionsApi = {
   predict: (modelId: string, data: Record<string, unknown>) => {
     return apiClient
-      .post("/predictions/predict/", { model_id: modelId, input_data: data })
-      .then((res) => res.data);
+      .post("/predictions/predict/", {
+        model_id: modelId,
+        data: [data],
+        include_probabilities: true,
+      })
+      .then((res) => {
+        const { predictions, probabilities } = res.data;
+        const prediction = predictions[0];
+        let probability: number | undefined;
+
+        if (probabilities && probabilities[0]) {
+          const probs = probabilities[0];
+          // If prediction is a key in probs, use that.
+          if (
+            (typeof prediction === "string" ||
+              typeof prediction === "number") &&
+            probs[prediction] !== undefined
+          ) {
+            probability = probs[prediction];
+          } else {
+            // Fallback: max probability
+            const values = Object.values(probs) as number[];
+            if (values.length > 0) {
+              probability = Math.max(...values);
+            }
+          }
+        }
+
+        return { prediction, probability };
+      });
   },
 
   batchPredict: (modelId: string, file: File) => {
     const formData = new FormData();
     formData.append("model_id", modelId);
-    formData.append("input_file", file);
+    formData.append("file", file);
     return apiClient
       .post<PredictionJob>("/predictions/batch/", formData, {
         headers: { "Content-Type": "multipart/form-data" },

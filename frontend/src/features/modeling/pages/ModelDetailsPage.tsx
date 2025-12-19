@@ -10,6 +10,8 @@ import {
   Info,
   CheckCircle2,
   Loader2,
+  Upload,
+  FileText,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -46,6 +48,7 @@ export default function ModelDetailsPage() {
     prediction?: string | number;
     probability?: number;
   } | null>(null);
+  const [batchFile, setBatchFile] = useState<File | null>(null);
 
   const { data: model, isLoading } = useQuery({
     queryKey: ["model", modelId],
@@ -74,6 +77,140 @@ export default function ModelDetailsPage() {
     },
   });
 
+  const batchPredictMutation = useMutation({
+    mutationFn: (file: File) => predictionsApi.batchPredict(modelId!, file),
+    onSuccess: () => {
+      toast({
+        title: "Batch prediction started",
+        description: "Your batch prediction job has been queued.",
+      });
+      setBatchFile(null);
+    },
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { detail?: string } } };
+      toast({
+        title: "Batch prediction failed",
+        description:
+          err.response?.data?.detail ||
+          "An error occurred during batch prediction.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handlePredict = (e: React.FormEvent) => {
+    e.preventDefault();
+    predictMutation.mutate(predictionInput);
+  };
+
+  const handleBatchPredict = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (batchFile) {
+      batchPredictMutation.mutate(batchFile);
+    }
+  };
+
+  const features = React.useMemo(() => {
+    if (!model) return [];
+
+    // Priority 1: Use explicit feature columns from the model metadata
+    if (model.feature_columns && model.feature_columns.length > 0) {
+      return model.feature_columns;
+    }
+
+    // Priority 2: Fallback to feature importance keys
+    if (
+      model.feature_importance &&
+      Object.keys(model.feature_importance).length > 0
+    ) {
+      return Object.keys(model.feature_importance);
+    }
+
+    // Priority 3: Fallback to SHAP importance keys
+    if (
+      model.shap_values?.shap_importance &&
+      Object.keys(model.shap_values.shap_importance).length > 0
+    ) {
+      return Object.keys(model.shap_values.shap_importance);
+    }
+    return [];
+  }, [model]);
+
+  const featureImportanceOption = React.useMemo(() => {
+    if (!model) return {};
+
+    // Try to get importance from feature_importance or shap_values
+    let importanceData: Record<string, number> = {};
+
+    if (
+      model.feature_importance &&
+      Object.keys(model.feature_importance).length > 0
+    ) {
+      importanceData = model.feature_importance;
+    } else if (
+      model.shap_values?.shap_importance &&
+      Object.keys(model.shap_values.shap_importance).length > 0
+    ) {
+      importanceData = model.shap_values.shap_importance;
+    }
+
+    // Sort and limit to top 20 for better visualization
+    const data = Object.entries(importanceData)
+      .sort((a, b) => (a[1] as number) - (b[1] as number))
+      .slice(-20); // Take top 20 (since it's sorted ascending for the bar chart)
+
+    return {
+      tooltip: {
+        trigger: "axis",
+        axisPointer: { type: "shadow" },
+        formatter: (params: unknown) => {
+          if (!Array.isArray(params) || params.length === 0) return "";
+          const p = params[0];
+          return `${p.name}<br/>Importance: ${Number(p.value).toFixed(4)}`;
+        },
+      },
+      grid: {
+        left: "3%",
+        right: "8%",
+        bottom: "3%",
+        top: "3%",
+        containLabel: true,
+      },
+      xAxis: {
+        type: "value",
+        name: "Importance",
+        nameLocation: "middle",
+        nameGap: 25,
+        splitLine: { show: true, lineStyle: { type: "dashed", opacity: 0.2 } },
+      },
+      yAxis: {
+        type: "category",
+        data: data.map((item) => item[0]),
+        axisLabel: {
+          interval: 0,
+          width: 150,
+          overflow: "truncate",
+        },
+      },
+      series: [
+        {
+          name: "Importance",
+          type: "bar",
+          data: data.map((item) => item[1]),
+          itemStyle: {
+            color: "#3b82f6",
+            borderRadius: [0, 4, 4, 0],
+          },
+          emphasis: {
+            itemStyle: {
+              color: "#2563eb",
+            },
+          },
+        },
+      ],
+    };
+  }, [model]);
+
   if (isLoading) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -83,42 +220,6 @@ export default function ModelDetailsPage() {
   }
 
   if (!model) return <div>Model not found</div>;
-
-  const featureImportanceOption = {
-    tooltip: {
-      trigger: "axis",
-      axisPointer: { type: "shadow" },
-    },
-    grid: {
-      left: "3%",
-      right: "4%",
-      bottom: "3%",
-      containLabel: true,
-    },
-    xAxis: {
-      type: "value",
-      boundaryGap: [0, 0.01],
-    },
-    yAxis: {
-      type: "category",
-      data: Object.keys(model.feature_importance || {}).reverse(),
-    },
-    series: [
-      {
-        name: "Importance",
-        type: "bar",
-        data: Object.values(model.feature_importance || {}).reverse(),
-        itemStyle: {
-          color: "#3b82f6",
-        },
-      },
-    ],
-  };
-
-  const handlePredict = (e: React.FormEvent) => {
-    e.preventDefault();
-    predictMutation.mutate(predictionInput);
-  };
 
   return (
     <div className="space-y-8">
@@ -166,9 +267,7 @@ export default function ModelDetailsPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Features</CardDescription>
-            <CardTitle className="text-2xl">
-              {Object.keys(model.feature_importance || {}).length}
-            </CardTitle>
+            <CardTitle className="text-2xl">{features.length}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
@@ -193,7 +292,7 @@ export default function ModelDetailsPage() {
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="importance">Feature Importance</TabsTrigger>
-          <TabsTrigger value="try">Try it out</TabsTrigger>
+          <TabsTrigger value="predictions">Predictions</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -270,93 +369,183 @@ export default function ModelDetailsPage() {
                 predictions.
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[500px]">
-              <Chart option={featureImportanceOption} />
+            <CardContent className="h-125">
+              {features.length > 0 ? (
+                <Chart option={featureImportanceOption} />
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed rounded-xl">
+                  <BarChart3 className="h-12 w-12 mb-4 opacity-20" />
+                  <p>No feature importance data available for this model.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="try">
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Single Prediction</CardTitle>
-                <CardDescription>
-                  Enter feature values to get a real-time prediction.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handlePredict} className="space-y-4">
-                  {Object.keys(model.feature_importance || {}).map(
-                    (feature) => (
-                      <div key={feature} className="space-y-2">
-                        <Label htmlFor={feature}>{feature}</Label>
+        <TabsContent value="predictions">
+          <Tabs defaultValue="single" className="w-full">
+            <TabsList className="w-full justify-start mb-4 bg-transparent border-b rounded-none h-auto p-0 space-x-6">
+              <TabsTrigger
+                value="single"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2"
+              >
+                Single Prediction
+              </TabsTrigger>
+              <TabsTrigger
+                value="batch"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-0 py-2"
+              >
+                Batch Prediction
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="single">
+              <div className="grid gap-6 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Input Features</CardTitle>
+                    <CardDescription>
+                      Enter feature values to get a real-time prediction.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <form onSubmit={handlePredict} className="space-y-4">
+                      {features.map((feature) => (
+                        <div key={feature} className="space-y-2">
+                          <Label htmlFor={feature}>{feature}</Label>
+                          <Input
+                            id={feature}
+                            placeholder={`Enter ${feature}`}
+                            value={predictionInput[feature] || ""}
+                            onChange={(
+                              e: React.ChangeEvent<HTMLInputElement>
+                            ) =>
+                              setPredictionInput({
+                                ...predictionInput,
+                                [feature]: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                      ))}
+                      <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={predictMutation.isPending}
+                      >
+                        {predictMutation.isPending && (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Predict
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Result</CardTitle>
+                    <CardDescription>
+                      Prediction output from the model.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex flex-col items-center justify-center h-full min-h-[300px]">
+                    {predictionResult ? (
+                      <motion.div
+                        initial={{ scale: 0.9, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        className="text-center space-y-4"
+                      >
+                        <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">
+                          Predicted Value
+                        </div>
+                        <div className="text-6xl font-bold text-primary">
+                          {typeof predictionResult.prediction === "number"
+                            ? predictionResult.prediction.toFixed(4)
+                            : predictionResult.prediction}
+                        </div>
+                        {typeof predictionResult.probability === "number" && (
+                          <div className="text-lg text-muted-foreground">
+                            Confidence:{" "}
+                            {(predictionResult.probability * 100).toFixed(2)}%
+                          </div>
+                        )}
+                      </motion.div>
+                    ) : (
+                      <div className="text-center text-muted-foreground">
+                        <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                        <p>Enter values and click Predict to see results.</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="batch">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Batch Prediction</CardTitle>
+                  <CardDescription>
+                    Upload a CSV file containing multiple rows to predict.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleBatchPredict} className="space-y-6">
+                    <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-12 text-center hover:bg-muted/50 transition-colors">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="p-4 bg-primary/10 rounded-full">
+                          <Upload className="h-8 w-8 text-primary" />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-lg">
+                            Upload CSV File
+                          </h3>
+                          <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                            Drag and drop your file here, or click to select.
+                            Ensure columns match the training data.
+                          </p>
+                        </div>
                         <Input
-                          id={feature}
-                          placeholder={`Enter ${feature}`}
-                          value={predictionInput[feature] || ""}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setPredictionInput({
-                              ...predictionInput,
-                              [feature]: e.target.value,
-                            })
+                          type="file"
+                          accept=".csv"
+                          className="max-w-xs mx-auto mt-4"
+                          onChange={(e) =>
+                            setBatchFile(
+                              e.target.files ? e.target.files[0] : null
+                            )
                           }
                         />
                       </div>
-                    )
-                  )}
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={predictMutation.isPending}
-                  >
-                    {predictMutation.isPending && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Predict
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+                    </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Result</CardTitle>
-                <CardDescription>
-                  Prediction output from the model.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col items-center justify-center h-full min-h-[300px]">
-                {predictionResult ? (
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="text-center space-y-4"
-                  >
-                    <div className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">
-                      Predicted Value
-                    </div>
-                    <div className="text-6xl font-bold text-primary">
-                      {typeof predictionResult.prediction === "number"
-                        ? predictionResult.prediction.toFixed(4)
-                        : predictionResult.prediction}
-                    </div>
-                    {typeof predictionResult.probability === "number" && (
-                      <div className="text-lg text-muted-foreground">
-                        Confidence:{" "}
-                        {(predictionResult.probability * 100).toFixed(2)}%
+                    {batchFile && (
+                      <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                        <FileText className="h-5 w-5 text-primary" />
+                        <span className="text-sm font-medium flex-1">
+                          {batchFile.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {(batchFile.size / 1024).toFixed(1)} KB
+                        </span>
                       </div>
                     )}
-                  </motion.div>
-                ) : (
-                  <div className="text-center text-muted-foreground">
-                    <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                    <p>Enter values and click Predict to see results.</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={!batchFile || batchPredictMutation.isPending}
+                    >
+                      {batchPredictMutation.isPending && (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      )}
+                      Run Batch Prediction
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>

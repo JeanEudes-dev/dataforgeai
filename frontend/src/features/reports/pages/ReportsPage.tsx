@@ -132,25 +132,37 @@ export default function ReportsPage() {
     switch (status) {
       case "completed":
         return (
-          <Badge variant="success" className="gap-1">
+          <Badge
+            variant="outline"
+            className="gap-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30"
+          >
             <CheckCircle2 className="h-3 w-3" /> Ready
           </Badge>
         );
       case "processing":
         return (
-          <Badge variant="secondary" className="gap-1 animate-pulse">
+          <Badge
+            variant="outline"
+            className="gap-1 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/30 animate-pulse"
+          >
             <Loader2 className="h-3 w-3 animate-spin" /> Processing
           </Badge>
         );
       case "pending":
         return (
-          <Badge variant="outline" className="gap-1">
+          <Badge
+            variant="outline"
+            className="gap-1 bg-muted/50 text-muted-foreground border-border"
+          >
             <Clock className="h-3 w-3" /> Pending
           </Badge>
         );
       case "failed":
         return (
-          <Badge variant="destructive" className="gap-1">
+          <Badge
+            variant="outline"
+            className="gap-1 bg-destructive/10 text-destructive border-destructive/20"
+          >
             <AlertCircle className="h-3 w-3" /> Failed
           </Badge>
         );
@@ -160,32 +172,41 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+      className="space-y-10"
+    >
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Reports
+          </h1>
+          <p className="text-muted-foreground mt-1">
             Generate and manage comprehensive analysis reports.
           </p>
         </div>
         <Dialog open={isGenerateOpen} onOpenChange={setIsGenerateOpen}>
           <DialogTrigger asChild>
-            <Button className="gap-2">
+            <Button className="gap-2 shadow-sm">
               <Plus className="h-4 w-4" />
               Generate Report
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Generate New Report</DialogTitle>
+              <DialogTitle className="text-xl">Generate New Report</DialogTitle>
               <DialogDescription>
                 Create a detailed report including EDA insights and model
                 performance.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleGenerate} className="space-y-4 py-4">
+            <form onSubmit={handleGenerate} className="space-y-6 py-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Report Title</Label>
+                <Label htmlFor="title" className="text-sm font-semibold">
+                  Report Title
+                </Label>
                 <Input
                   id="title"
                   placeholder="e.g., Q3 Sales Analysis"
@@ -193,13 +214,16 @@ export default function ReportsPage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setTitle(e.target.value)
                   }
+                  className="rounded-lg"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="dataset">Dataset</Label>
+                <Label htmlFor="dataset" className="text-sm font-semibold">
+                  Dataset
+                </Label>
                 <Select value={datasetId} onValueChange={setDatasetId} required>
-                  <SelectTrigger>
+                  <SelectTrigger className="rounded-lg">
                     <SelectValue placeholder="Select a dataset" />
                   </SelectTrigger>
                   <SelectContent>
@@ -212,18 +236,20 @@ export default function ReportsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="model">Model (Optional)</Label>
+                <Label htmlFor="model" className="text-sm font-semibold">
+                  Model (Optional)
+                </Label>
                 <Select value={modelId} onValueChange={setModelId}>
-                  <SelectTrigger>
+                  <SelectTrigger className="rounded-lg">
                     <SelectValue placeholder="Select a model" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">No model (EDA only)</SelectItem>
                     {models?.results?.map((m) => (
                       <SelectItem key={m.id} value={m.id}>
-                        {m.algorithm} (
-                        {typeof m.metric_value === "number"
-                          ? m.metric_value.toFixed(4)
+                        {m.display_name} (
+                        {typeof m.metrics?.[m.primary_metric] === "number"
+                          ? m.metrics[m.primary_metric].toFixed(4)
                           : "N/A"}
                         )
                       </SelectItem>
@@ -232,9 +258,11 @@ export default function ReportsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="type">Report Type</Label>
+                <Label htmlFor="type" className="text-sm font-semibold">
+                  Report Type
+                </Label>
                 <Select value={reportType} onValueChange={setReportType}>
-                  <SelectTrigger>
+                  <SelectTrigger className="rounded-lg">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -248,15 +276,16 @@ export default function ReportsPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <DialogFooter>
+              <DialogFooter className="pt-4">
                 <Button
                   type="submit"
+                  className="w-full sm:w-auto px-8"
                   disabled={generateMutation.isPending || !title || !datasetId}
                 >
                   {generateMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Generate
+                  Generate Report
                 </Button>
               </DialogFooter>
             </form>
@@ -266,62 +295,72 @@ export default function ReportsPage() {
 
       {isLoading ? (
         <div className="flex h-64 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary/50" />
         </div>
       ) : reports?.results?.length === 0 ? (
-        <Card className="flex flex-col items-center justify-center py-12 text-center">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <FileText className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <CardTitle>No reports yet</CardTitle>
-          <CardDescription className="max-w-sm mt-2">
-            You haven't generated any reports for this project. Click the button
-            above to create your first one.
-          </CardDescription>
-        </Card>
+        <motion.div variants={listItemVariants}>
+          <Card className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-muted bg-transparent">
+            <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center mb-6">
+              <FileText className="h-10 w-10 text-muted-foreground/50" />
+            </div>
+            <CardTitle className="text-xl">No reports yet</CardTitle>
+            <CardDescription className="max-w-sm mt-2 text-base">
+              You haven't generated any reports for this project. Click the
+              button above to create your first one.
+            </CardDescription>
+            <Button
+              variant="outline"
+              className="mt-8 shadow-sm"
+              onClick={() => setIsGenerateOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create First Report
+            </Button>
+          </Card>
+        </motion.div>
       ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-        >
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <AnimatePresence mode="popLayout">
             {reports?.results?.map((report) => (
               <motion.div key={report.id} variants={listItemVariants} layout>
-                <Card className="h-full flex flex-col">
-                  <CardHeader className="pb-3">
+                <Card className="h-full flex flex-col border-none shadow-sm hover:shadow-md transition-all duration-200 group">
+                  <CardHeader className="pb-4">
                     <div className="flex items-start justify-between">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <FileText className="h-5 w-5 text-primary" />
+                      <div className="p-3 bg-primary/5 dark:bg-primary/10 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                        <FileText className="h-6 w-6" />
                       </div>
                       {getStatusBadge(report.status)}
                     </div>
-                    <CardTitle className="mt-4 line-clamp-1">
+                    <CardTitle className="mt-5 text-lg font-bold line-clamp-1">
                       {report.title}
                     </CardTitle>
-                    <CardDescription>
-                      Created{" "}
+                    <CardDescription className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
                       {format(new Date(report.created_at), "MMM d, yyyy")}
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="flex-1">
-                    <div className="text-sm space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Type:</span>
-                        <span className="font-medium capitalize">
-                          {report.report_type}
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center p-2.5 bg-muted/30 rounded-lg text-sm">
+                        <span className="text-muted-foreground font-medium">
+                          Type
                         </span>
+                        <Badge
+                          variant="secondary"
+                          className="capitalize font-semibold text-[10px]"
+                        >
+                          {report.report_type}
+                        </Badge>
                       </div>
                     </div>
                   </CardContent>
-                  <div className="p-4 pt-0 flex gap-2">
+                  <div className="p-5 pt-0 flex gap-2">
                     {report.status === "completed" && (
                       <>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="flex-1 gap-1"
+                          className="flex-1 gap-2 shadow-sm border-muted hover:border-primary/50 hover:bg-primary/5 transition-all"
                           asChild
                         >
                           <a
@@ -329,29 +368,33 @@ export default function ReportsPage() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <Download className="h-3 w-3" /> Download
+                            <Download className="h-3.5 w-3.5" /> Download
                           </a>
                         </Button>
-                        <Button variant="outline" size="sm" className="px-2">
-                          <Share2 className="h-3 w-3" />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="px-3 shadow-sm border-muted hover:border-primary/50 hover:bg-primary/5 transition-all"
+                        >
+                          <Share2 className="h-3.5 w-3.5" />
                         </Button>
                       </>
                     )}
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="px-3 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                       onClick={() => deleteMutation.mutate(report.id)}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 </Card>
               </motion.div>
             ))}
           </AnimatePresence>
-        </motion.div>
+        </div>
       )}
-    </div>
+    </motion.div>
   );
 }

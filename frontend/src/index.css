@@ -56,18 +56,21 @@
 
 @layer base {
   :root {
+    /* Notion-like clean surfaces */
     --background: hsl(0 0% 100%);
-    --foreground: hsl(222.2 84% 4.9%);
+    --foreground: hsl(224 71% 4%);
 
     --card: hsl(0 0% 100%);
-    --card-foreground: hsl(222.2 84% 4.9%);
+    --card-foreground: hsl(224 71% 4%);
 
     --popover: hsl(0 0% 100%);
-    --popover-foreground: hsl(222.2 84% 4.9%);
+    --popover-foreground: hsl(224 71% 4%);
 
-    --primary: hsl(221.2 83.2% 53.3%);
+    /* Corporate Blue - Professional & Trustworthy */
+    --primary: hsl(221 83% 53%);
     --primary-foreground: hsl(210 40% 98%);
 
+    /* Soft Grays for secondary surfaces */
     --secondary: hsl(210 40% 96.1%);
     --secondary-foreground: hsl(222.2 47.4% 11.2%);
 
@@ -80,41 +83,43 @@
     --destructive: hsl(0 84.2% 60.2%);
     --destructive-foreground: hsl(210 40% 98%);
 
+    /* Subtle borders */
     --border: hsl(214.3 31.8% 91.4%);
     --input: hsl(214.3 31.8% 91.4%);
-    --ring: hsl(221.2 83.2% 53.3%);
+    --ring: hsl(221 83% 53%);
 
-    --radius: 0.5rem;
+    --radius: 0.6rem;
   }
 
   .dark {
-    --background: hsl(222.2 84% 4.9%);
-    --foreground: hsl(210 40% 98%);
+    /* Deep, intentional dark mode */
+    --background: hsl(224 71% 4%);
+    --foreground: hsl(213 31% 91%);
 
-    --card: hsl(222.2 84% 4.9%);
-    --card-foreground: hsl(210 40% 98%);
+    --card: hsl(224 71% 4%);
+    --card-foreground: hsl(213 31% 91%);
 
-    --popover: hsl(222.2 84% 4.9%);
-    --popover-foreground: hsl(210 40% 98%);
+    --popover: hsl(224 71% 4%);
+    --popover-foreground: hsl(213 31% 91%);
 
-    --primary: hsl(217.2 91.2% 59.8%);
-    --primary-foreground: hsl(222.2 47.4% 11.2%);
+    --primary: hsl(217 91% 60%);
+    --primary-foreground: hsl(224 71% 4%);
 
-    --secondary: hsl(217.2 32.6% 17.5%);
-    --secondary-foreground: hsl(210 40% 98%);
+    --secondary: hsl(222 47% 11%);
+    --secondary-foreground: hsl(213 31% 91%);
 
-    --muted: hsl(217.2 32.6% 17.5%);
-    --muted-foreground: hsl(215 20.2% 65.1%);
+    --muted: hsl(222 47% 11%);
+    --muted-foreground: hsl(215 20% 65%);
 
-    --accent: hsl(217.2 32.6% 17.5%);
-    --accent-foreground: hsl(210 40% 98%);
+    --accent: hsl(222 47% 11%);
+    --accent-foreground: hsl(213 31% 91%);
 
-    --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(210 40% 98%);
+    --destructive: hsl(0 63% 31%);
+    --destructive-foreground: hsl(213 31% 91%);
 
-    --border: hsl(217.2 32.6% 17.5%);
-    --input: hsl(217.2 32.6% 17.5%);
-    --ring: hsl(224.3 76.3% 48%);
+    --border: hsl(216 34% 17%);
+    --input: hsl(216 34% 17%);
+    --ring: hsl(217 91% 60%);
   }
 }
 
@@ -123,7 +128,31 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 dark:bg-black/70 backdrop-blur-md border border-white/20 dark:border-white/10;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/40 transition-colors;
   }
 }

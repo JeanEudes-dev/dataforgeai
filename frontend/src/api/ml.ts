@@ -16,8 +16,8 @@ export interface TrainingJob {
 
 export interface TrainedModel {
   id: string;
-  dataset: any;
-  training_job: any;
+  dataset: string | { id: string; name: string };
+  training_job: string | { id: string };
   name: string;
   display_name: string;
   algorithm_type: string;
@@ -25,7 +25,14 @@ export interface TrainedModel {
   metrics: Record<string, number>;
   primary_metric: string;
   hyperparameters?: Record<string, unknown>;
+  feature_columns: string[];
   feature_importance: Record<string, number>;
+  shap_values?: {
+    shap_importance: Record<string, number>;
+    top_features: Array<{ feature: string; importance: number }>;
+    num_samples_explained: number;
+    num_features: number;
+  };
   created_at: string;
 }
 

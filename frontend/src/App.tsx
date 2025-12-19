@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { router } from "./app/router";
 import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { ThemeProvider } from "./components/theme-provider";
 import "./App.css";
 
 const queryClient = new QueryClient({
@@ -18,10 +19,12 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <RouterProvider router={router} />
-        <Toaster />
-      </TooltipProvider>
+      <ThemeProvider defaultTheme="system" storageKey="dataforge-ui-theme">
+        <TooltipProvider>
+          <RouterProvider router={router} />
+          <Toaster />
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

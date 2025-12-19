@@ -2,8 +2,22 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiClient } from "../../../api/client";
 import { Button } from "../../../components/ui/button";
-import { Upload, File, X, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Upload,
+  X,
+  AlertCircle,
+  ArrowLeft,
+  Database,
+  ShieldCheck,
+  Zap,
+  FileText,
+} from "lucide-react";
 import { motion } from "framer-motion";
+import { containerVariants, listItemVariants } from "../../../theme/motion";
+import { Card, CardContent } from "../../../components/ui/card";
+import { Input } from "../../../components/ui/input";
+import { Label } from "../../../components/ui/label";
+import { Progress } from "../../../components/ui/progress";
 
 export const UploadDatasetPage: React.FC = () => {
   const navigate = useNavigate();
@@ -58,128 +72,200 @@ export const UploadDatasetPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Upload Dataset</h1>
-        <p className="text-muted-foreground">
-          Supported formats: CSV, XLSX (max 50MB)
-        </p>
+    <motion.div
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+      className="max-w-4xl mx-auto space-y-10"
+    >
+      <div className="flex items-center gap-4">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate("/app/datasets")}
+          className="rounded-full"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Upload Dataset
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Import your data to start generating insights.
+          </p>
+        </div>
       </div>
 
-      <div className="bg-card p-8 rounded-xl border border-border space-y-6">
-        {!file ? (
-          <div
-            className="border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
-            onClick={() => document.getElementById("file-upload")?.click()}
-          >
-            <Upload className="mx-auto h-12 w-12 text-muted-foreground/50" />
-            <p className="mt-4 text-sm font-medium">
-              Click to upload or drag and drop
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              CSV or Excel files only
-            </p>
-            <input
-              id="file-upload"
-              type="file"
-              className="hidden"
-              accept=".csv,.xlsx"
-              onChange={handleFileChange}
-            />
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg border border-border">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary/10 rounded text-primary">
-                  <File className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{file.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(file.size / 1024 / 1024).toFixed(2)} MB
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <Card className="border-none shadow-sm overflow-hidden">
+            <CardContent className="p-0">
+              {!file ? (
+                <div
+                  className="group relative border-2 border-dashed border-muted-foreground/20 rounded-xl p-16 text-center hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
+                  onClick={() =>
+                    document.getElementById("file-upload")?.click()
+                  }
+                >
+                  <div className="mx-auto h-20 w-20 rounded-full bg-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Upload className="h-10 w-10 text-primary/60" />
+                  </div>
+                  <h3 className="mt-6 text-lg font-semibold">
+                    Drop your file here
+                  </h3>
+                  <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
+                    Support for CSV and Excel files up to 50MB.
                   </p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setFile(null)}
-                disabled={isUploading}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Dataset Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                placeholder="Enter a name for this dataset"
-                disabled={isUploading}
-              />
-            </div>
-
-            {isUploading && (
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-medium">
-                  <span>Uploading...</span>
-                  <span>{uploadProgress}%</span>
-                </div>
-                <div className="h-2 bg-neutral-100 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-primary"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${uploadProgress}%` }}
+                  <Button variant="outline" className="mt-8 shadow-sm">
+                    Select File
+                  </Button>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    className="hidden"
+                    accept=".csv,.xlsx"
+                    onChange={handleFileChange}
                   />
                 </div>
-              </div>
-            )}
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-8 space-y-8"
+                >
+                  <div className="flex items-center justify-between p-5 bg-muted/30 rounded-xl border border-border/50">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-primary/10 rounded-xl text-primary">
+                        <FileText className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">{file.name}</p>
+                        <p className="text-xs text-muted-foreground font-medium">
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setFile(null)}
+                      disabled={isUploading}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
 
-            {error && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive text-sm rounded-md">
-                <AlertCircle className="h-4 w-4" />
-                {error}
-              </div>
-            )}
+                  <div className="space-y-3">
+                    <Label htmlFor="dataset-name" className="text-sm font-bold">
+                      Dataset Name
+                    </Label>
+                    <Input
+                      id="dataset-name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      className="h-12 rounded-xl border-muted-foreground/20 focus:border-primary"
+                      placeholder="e.g., Customer Churn 2024"
+                      disabled={isUploading}
+                    />
+                  </div>
 
-            <div className="flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setFile(null)}
-                disabled={isUploading}
+                  {isUploading && (
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        <span>Uploading...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <Progress value={uploadProgress} className="h-2" />
+                    </div>
+                  )}
+
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center gap-3 p-4 bg-destructive/10 text-destructive text-sm font-medium rounded-xl border border-destructive/20"
+                    >
+                      <AlertCircle className="h-5 w-5 shrink-0" />
+                      {error}
+                    </motion.div>
+                  )}
+
+                  <div className="flex justify-end gap-4 pt-4">
+                    <Button
+                      variant="ghost"
+                      className="px-8"
+                      onClick={() => setFile(null)}
+                      disabled={isUploading}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="px-10 h-12 rounded-xl shadow-lg shadow-primary/20"
+                      onClick={handleUpload}
+                      disabled={isUploading || !name}
+                    >
+                      {isUploading ? "Processing..." : "Start Analysis"}
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground px-1">
+            What happens next?
+          </h3>
+          <div className="space-y-4">
+            {[
+              {
+                title: "Schema Detection",
+                desc: "We'll automatically identify data types and structures.",
+                icon: <Database className="h-5 w-5" />,
+              },
+              {
+                title: "Data Validation",
+                desc: "Checks for missing values, outliers, and inconsistencies.",
+                icon: <ShieldCheck className="h-5 w-5" />,
+              },
+              {
+                title: "Auto-EDA",
+                desc: "Instant visual summaries and statistical insights.",
+                icon: <Zap className="h-5 w-5" />,
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                variants={listItemVariants}
+                className="p-5 bg-card rounded-xl border border-border/50 flex items-start gap-4 shadow-sm"
               >
-                Cancel
-              </Button>
-              <Button onClick={handleUpload} disabled={isUploading || !name}>
-                {isUploading ? "Uploading..." : "Start Analysis"}
-              </Button>
-            </div>
+                <div className="p-2 bg-primary/5 rounded-lg text-primary shrink-0">
+                  {item.icon}
+                </div>
+                <div>
+                  <p className="text-sm font-bold">{item.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
           </div>
-        )}
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { title: "Schema Detection", desc: "Automatic type inference" },
-          { title: "Data Validation", desc: "Checks for errors & nulls" },
-          { title: "Auto-EDA", desc: "Instant visual summaries" },
-        ].map((item, i) => (
-          <div
-            key={i}
-            className="p-4 bg-card rounded-lg border border-border flex items-start gap-3"
-          >
-            <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-            <div>
-              <p className="text-sm font-medium">{item.title}</p>
-              <p className="text-xs text-muted-foreground">{item.desc}</p>
-            </div>
-          </div>
-        ))}
+          <Card className="bg-primary/5 border-none shadow-none">
+            <CardContent className="p-5">
+              <p className="text-xs text-primary/80 font-medium leading-relaxed">
+                Your data is encrypted and processed securely. We never share
+                your raw datasets with third parties.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

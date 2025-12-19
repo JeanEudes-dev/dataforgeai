@@ -1,11 +1,37 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "../../../api/client";
+import type { Dataset } from "../../../api/datasets";
 import { Button } from "../../../components/ui/button";
-import { Plus, FileSpreadsheet, Trash2, ExternalLink } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  Plus,
+  FileSpreadsheet,
+  Trash2,
+  ExternalLink,
+  Database,
+  Clock,
+  BarChart3,
+  MoreVertical,
+  Download,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { containerVariants, listItemVariants } from "../../../theme/motion";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import { Badge } from "../../../components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../../components/ui/dropdown-menu";
+import { format } from "date-fns";
 
 export const DatasetsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,146 +48,183 @@ export const DatasetsPage: React.FC = () => {
     : datasets?.results || [];
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "ready":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+          <Badge
+            variant="outline"
+            className="bg-emerald-50 text-emerald-700 border-emerald-200"
+          >
             Ready
-          </span>
+          </Badge>
         );
       case "processing":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+          <Badge
+            variant="outline"
+            className="bg-blue-50 text-blue-700 border-blue-200 animate-pulse"
+          >
             Processing
-          </span>
+          </Badge>
         );
       case "error":
         return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+          <Badge
+            variant="destructive"
+            className="bg-destructive/10 text-destructive border-destructive/20"
+          >
             Error
-          </span>
+          </Badge>
         );
       default:
-        return (
-          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-neutral-100 text-neutral-800">
-            {status}
-          </span>
-        );
+        return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <motion.div
+      variants={containerVariants}
+      initial="initial"
+      animate="animate"
+      className="space-y-10"
+    >
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Datasets</h1>
-          <p className="text-muted-foreground">
-            Upload and manage your data files
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            Datasets
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Upload and manage your data sources for analysis.
           </p>
         </div>
         <Link to="/app/datasets/upload">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
+          <Button className="gap-2 shadow-sm">
+            <Plus className="h-4 w-4" />
             Upload Dataset
           </Button>
         </Link>
       </div>
 
       {isLoading ? (
-        <div className="space-y-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-20 bg-card animate-pulse rounded-lg border border-border"
+              className="h-48 bg-card/50 animate-pulse rounded-xl border border-border"
             />
           ))}
         </div>
-      ) : (
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-4"
-        >
-          {datasetList.map(
-            (dataset: {
-              id: string;
-              name: string;
-              created_at: string;
-              file_size: number;
-              file_size_display?: string;
-              row_count?: number;
-              column_count?: number;
-              status: string;
-            }) => (
-              <motion.div
-                key={dataset.id}
-                variants={listItemVariants}
-                className="flex items-center justify-between p-4 bg-card rounded-lg border border-border hover:border-primary/50 transition-all group cursor-pointer"
-                onClick={() => navigate(`/app/eda?datasetId=${dataset.id}`)}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="p-2 bg-primary/10 rounded text-primary">
-                    <FileSpreadsheet className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-medium">{dataset.name}</h3>
-                      {getStatusBadge(dataset.status)}
-                    </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                      <span>{dataset.file_size_display || "Unknown size"}</span>
-                      <span>•</span>
-                      <span>{dataset.row_count || 0} rows</span>
-                      <span>•</span>
-                      <span>{dataset.column_count || 0} columns</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/app/eda?datasetId=${dataset.id}`);
-                    }}
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Add delete logic here if needed
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </motion.div>
-            )
-          )}
+      ) : datasetList.length === 0 ? (
+        <motion.div variants={listItemVariants}>
+          <Card className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed border-muted bg-transparent">
+            <div className="h-20 w-20 rounded-full bg-muted/50 flex items-center justify-center mb-6">
+              <Database className="h-10 w-10 text-muted-foreground/50" />
+            </div>
+            <CardTitle className="text-xl">No datasets yet</CardTitle>
+            <CardDescription className="max-w-sm mt-2 text-base">
+              Upload your first CSV or XLSX file to start your data journey.
+            </CardDescription>
+            <Link to="/app/datasets/upload" className="mt-8">
+              <Button variant="outline" className="shadow-sm">
+                <Plus className="mr-2 h-4 w-4" />
+                Upload First Dataset
+              </Button>
+            </Link>
+          </Card>
         </motion.div>
-      )}
-
-      {!isLoading && datasetList.length === 0 && (
-        <div className="text-center py-20 bg-card rounded-xl border border-dashed border-border">
-          <FileSpreadsheet className="mx-auto h-12 w-12 text-muted-foreground/50" />
-          <h3 className="mt-4 text-lg font-medium">No datasets yet</h3>
-          <p className="text-muted-foreground">
-            Upload your first CSV or XLSX file to start analyzing.
-          </p>
-          <Link to="/app/datasets/upload" className="mt-6 inline-block">
-            <Button variant="outline">
-              <Plus className="mr-2 h-4 w-4" />
-              Upload Dataset
-            </Button>
-          </Link>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <AnimatePresence mode="popLayout">
+            {datasetList.map((dataset: Dataset) => (
+              <motion.div key={dataset.id} variants={listItemVariants} layout>
+                <Card
+                  className="h-full flex flex-col border-none shadow-sm hover:shadow-md transition-all duration-200 group cursor-pointer"
+                  onClick={() => navigate(`/app/eda?datasetId=${dataset.id}`)}
+                >
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="p-3 bg-primary/5 dark:bg-primary/10 rounded-xl text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                        <FileSpreadsheet className="h-6 w-6" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(dataset.status)}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            asChild
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/app/eda?datasetId=${dataset.id}`);
+                              }}
+                            >
+                              <BarChart3 className="mr-2 h-4 w-4" /> Analyze
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Download className="mr-2 h-4 w-4" /> Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                    <CardTitle className="mt-5 text-lg font-bold line-clamp-1">
+                      {dataset.name}
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" />
+                      {format(new Date(dataset.created_at), "MMM d, yyyy")}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="p-2.5 bg-muted/30 rounded-lg">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                          Rows
+                        </p>
+                        <p className="text-sm font-semibold mt-0.5">
+                          {dataset.row_count?.toLocaleString() || "0"}
+                        </p>
+                      </div>
+                      <div className="p-2.5 bg-muted/30 rounded-lg">
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                          Columns
+                        </p>
+                        <p className="text-sm font-semibold mt-0.5">
+                          {dataset.column_count || "0"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{dataset.file_size_display || "Unknown size"}</span>
+                      <div className="flex items-center gap-1 text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        Analyze <ExternalLink className="h-3 w-3" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };

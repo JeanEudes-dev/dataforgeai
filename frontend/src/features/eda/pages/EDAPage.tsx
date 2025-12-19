@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -18,10 +19,35 @@ import {
   Activity,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { pageVariants } from "../../../theme/motion";
+import { containerVariants, listItemVariants } from "../../../theme/motion";
 import { Chart } from "../../../components/ui/chart";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import { Badge } from "../../../components/ui/badge";
+import { useTheme } from "../../../components/theme-provider";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../../../components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../../components/ui/table";
+import { datasetsApi } from "../../../api/datasets";
 
 export const EDAPage: React.FC = () => {
+  const { theme } = useTheme();
   const [searchParams] = useSearchParams();
   const datasetId = searchParams.get("datasetId");
   const [selectedFeature, setSelectedFeature] = React.useState<string | null>(
@@ -44,6 +70,18 @@ export const EDAPage: React.FC = () => {
       const status = query.state.data?.status;
       return status === "pending" || status === "running" ? 2000 : false;
     },
+  });
+
+  const { data: previewData } = useQuery({
+    queryKey: ["dataset-preview", datasetId],
+    queryFn: () => datasetsApi.getPreview(datasetId!),
+    enabled: !!datasetId,
+  });
+
+  const { data: schemaData } = useQuery({
+    queryKey: ["dataset-schema", datasetId],
+    queryFn: () => datasetsApi.getSchema(datasetId!),
+    enabled: !!datasetId,
   });
 
   // Set initial selected feature
@@ -89,7 +127,7 @@ export const EDAPage: React.FC = () => {
 
     return {
       tooltip: { position: "top" },
-      grid: { height: "70%", top: "10%" },
+      grid: { height: "70%", top: "10%", containLabel: true },
       xAxis: { type: "category", data: columns, splitArea: { show: true } },
       yAxis: { type: "category", data: columns, splitArea: { show: true } },
       visualMap: {
@@ -99,7 +137,12 @@ export const EDAPage: React.FC = () => {
         orient: "horizontal",
         left: "center",
         bottom: "0%",
-        inRange: { color: ["#ef4444", "#f8fafc", "#3b82f6"] },
+        inRange: {
+          color:
+            theme === "dark"
+              ? ["#f87171", "#1e293b", "#60a5fa"]
+              : ["#ef4444", "#f8fafc", "#3b82f6"],
+        },
       },
       series: [
         {
@@ -113,7 +156,7 @@ export const EDAPage: React.FC = () => {
         },
       ],
     };
-  }, [latestEDA?.correlation_matrix]);
+  }, [latestEDA?.correlation_matrix, theme]);
 
   const missingOption = React.useMemo(() => {
     const missingAnalysis = latestEDA?.missing_analysis || {};
@@ -320,7 +363,7 @@ export const EDAPage: React.FC = () => {
         </p>
         <Button
           className="mt-6"
-          onClick={() => triggerEDA.mutate()}
+          onClick={() => triggerEDA.mutate(false)}
           disabled={triggerEDA.isPending}
         >
           {triggerEDA.isPending ? (
@@ -419,7 +462,7 @@ export const EDAPage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-8 p-4 bg-amber-50 border border-amber-100 rounded-lg text-amber-800 text-sm"
+            className="mt-8 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50 rounded-lg text-amber-950 dark:text-amber-200 text-sm"
           >
             <p className="mb-3">
               This is taking longer than expected. The background worker might
@@ -428,7 +471,7 @@ export const EDAPage: React.FC = () => {
             <Button
               variant="outline"
               size="sm"
-              className="bg-white border-amber-200 hover:bg-amber-100 text-amber-800"
+              className="bg-white dark:bg-background border-amber-200 dark:border-amber-800 hover:bg-amber-50 dark:hover:bg-amber-900/20 text-amber-900 dark:text-amber-200"
               onClick={() => triggerEDA.mutate(true)}
               disabled={triggerEDA.isPending}
             >
@@ -459,7 +502,7 @@ export const EDAPage: React.FC = () => {
         <Button
           className="mt-6"
           variant="outline"
-          onClick={() => triggerEDA.mutate()}
+          onClick={() => triggerEDA.mutate(false)}
         >
           <RefreshCw className="mr-2 h-4 w-4" />
           Retry Analysis
@@ -473,27 +516,35 @@ export const EDAPage: React.FC = () => {
 
   return (
     <motion.div
-      variants={pageVariants}
+      variants={containerVariants}
       initial="initial"
       animate="animate"
-      className="space-y-8"
+      className="space-y-10"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Exploratory Data Analysis
           </h1>
-          <p className="text-muted-foreground">
-            Insights for {latestEDA.dataset_name}
+          <p className="text-muted-foreground mt-1">
+            Insights and patterns for {latestEDA.dataset_name}
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={() => triggerEDA.mutate()}>
-            <RefreshCw className="mr-2 h-4 w-4" />
+          <Button
+            variant="outline"
+            className="shadow-sm"
+            onClick={() => triggerEDA.mutate(true)}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${
+                triggerEDA.isPending ? "animate-spin" : ""
+              }`}
+            />
             Refresh
           </Button>
           <Link to={`/app/modeling?datasetId=${datasetId}`}>
-            <Button>
+            <Button className="shadow-sm">
               Continue to Modeling
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -501,445 +552,663 @@ export const EDAPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-card p-6 rounded-xl border border-border relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Rows
-              </p>
-              <p className="text-2xl font-bold mt-1">
-                {globalMetrics.total_rows?.toLocaleString() ||
-                  latestEDA.summary_stats?.row_count?.toLocaleString() ||
-                  latestEDA.dataset?.row_count?.toLocaleString() ||
-                  "N/A"}
-              </p>
-            </div>
-            <Database className="h-5 w-5 text-muted-foreground/40" />
-          </div>
-          {globalMetrics.duplicate_rows > 0 && (
-            <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
-              <ShieldAlert className="h-3 w-3" />
-              {globalMetrics.duplicate_rows} duplicates found
-            </p>
-          )}
-        </div>
+      <Tabs defaultValue="analysis" className="space-y-8">
+        <TabsList>
+          <TabsTrigger value="analysis">Analysis</TabsTrigger>
+          <TabsTrigger value="preview">Data Preview</TabsTrigger>
+          <TabsTrigger value="schema">Schema</TabsTrigger>
+        </TabsList>
 
-        <div className="bg-card p-6 rounded-xl border border-border relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Columns
-              </p>
-              <p className="text-2xl font-bold mt-1">
-                {globalMetrics.total_columns ||
-                  latestEDA.summary_stats?.column_count ||
-                  latestEDA.dataset?.column_count ||
-                  "N/A"}
-              </p>
-            </div>
-            <Layers className="h-5 w-5 text-muted-foreground/40" />
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Memory: {globalMetrics.memory_usage_display || "N/A"}
-          </p>
-        </div>
-
-        <div className="bg-card p-6 rounded-xl border border-border relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Quality Score
-              </p>
-              <div className="flex items-baseline gap-1">
-                <p
-                  className={`text-2xl font-bold mt-1 ${
-                    globalMetrics.quality_score >= 80
-                      ? "text-green-600"
-                      : globalMetrics.quality_score >= 50
-                      ? "text-amber-600"
-                      : "text-destructive"
-                  }`}
-                >
-                  {globalMetrics.quality_score || 0}
-                </p>
-                <span className="text-xs text-muted-foreground">/100</span>
-              </div>
-            </div>
-            <Zap className="h-5 w-5 text-muted-foreground/40" />
-          </div>
-          <div className="mt-3 w-full bg-muted rounded-full h-1.5 overflow-hidden">
-            <div
-              className={`h-full ${
-                globalMetrics.quality_score >= 80
-                  ? "bg-green-500"
-                  : globalMetrics.quality_score >= 50
-                  ? "bg-amber-500"
-                  : "bg-destructive"
-              }`}
-              style={{ width: `${globalMetrics.quality_score || 0}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="bg-card p-6 rounded-xl border border-border relative overflow-hidden">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Target Analysis
-              </p>
-              <p className="text-lg font-bold mt-1 text-primary truncate max-w-[150px]">
-                {targetAnalysis.target_column || "Auto-detect"}
-              </p>
-            </div>
-            <Activity className="h-5 w-5 text-muted-foreground/40" />
-          </div>
-          <p className="text-xs font-medium text-muted-foreground mt-2 capitalize">
-            Task: {targetAnalysis.task_type || "Unknown"}
-          </p>
-        </div>
-      </div>
-
-      {/* Target & AI Insights Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Target Analysis Details */}
-        <div className="lg:col-span-1 bg-card border border-border rounded-xl p-6">
-          <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <Activity className="h-4 w-4 text-primary" />
-            Target Diagnostics
-          </h3>
-          <div className="space-y-4">
-            <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">Task Type</p>
-              <p className="font-medium capitalize">
-                {targetAnalysis.task_type || "Not detected"}
-              </p>
-            </div>
-
-            {targetAnalysis.warnings?.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-amber-600 flex items-center gap-1">
-                  <ShieldAlert className="h-3 w-3" />
-                  Warnings
-                </p>
-                {targetAnalysis.warnings.map((warning: any, i: number) => (
-                  <div
-                    key={i}
-                    className="text-xs p-2 bg-amber-50 border border-amber-100 rounded text-amber-800"
-                  >
-                    {typeof warning === "string" ? warning : warning.message}
+        <TabsContent value="analysis" className="space-y-10">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm bg-card">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Rows
+                  </CardTitle>
+                  <div className="p-2 rounded-lg">
+                    <Database className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                   </div>
-                ))}
-              </div>
-            )}
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {globalMetrics.total_rows?.toLocaleString() ||
+                      latestEDA.summary_stats?.row_count?.toLocaleString() ||
+                      latestEDA.dataset?.row_count?.toLocaleString() ||
+                      "N/A"}
+                  </div>
+                  {globalMetrics.duplicate_rows > 0 ? (
+                    <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 flex items-center gap-1">
+                      <ShieldAlert className="h-3 w-3" />
+                      {globalMetrics.duplicate_rows} duplicates found
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      No duplicates detected
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            {targetAnalysis.distribution &&
-              targetAnalysis.task_type === "classification" && (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">Class Balance</p>
-                  {Object.entries(targetAnalysis.distribution).map(
-                    ([label, info]: [string, any]) => (
-                      <div key={label} className="space-y-1">
-                        <div className="flex justify-between text-[10px]">
-                          <span className="truncate max-w-[100px]">
-                            {label}
-                          </span>
-                          <span>{info.percentage}%</span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-1">
-                          <div
-                            className="bg-primary h-full rounded-full"
-                            style={{ width: `${info.percentage}%` }}
-                          />
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm bg-card">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Columns
+                  </CardTitle>
+                  <div className="p-2 rounded-lg">
+                    <Layers className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {globalMetrics.total_columns ||
+                      latestEDA.summary_stats?.column_count ||
+                      latestEDA.dataset?.column_count ||
+                      "N/A"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Memory: {globalMetrics.memory_usage_display || "N/A"}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm bg-card">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Quality Score
+                  </CardTitle>
+                  <div className="p-2 rounded-lg">
+                    <Zap className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-baseline gap-1">
+                    <div
+                      className={`text-2xl font-bold ${
+                        globalMetrics.quality_score >= 80
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : globalMetrics.quality_score >= 50
+                          ? "text-amber-600 dark:text-amber-400"
+                          : "text-destructive"
+                      }`}
+                    >
+                      {globalMetrics.quality_score || 0}
+                    </div>
+                    <span className="text-xs text-muted-foreground">/100</span>
+                  </div>
+                  <div className="mt-2 w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className={`h-full ${
+                        globalMetrics.quality_score >= 80
+                          ? "bg-emerald-500"
+                          : globalMetrics.quality_score >= 50
+                          ? "bg-amber-500"
+                          : "bg-destructive"
+                      }`}
+                      style={{ width: `${globalMetrics.quality_score || 0}%` }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm bg-card">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Target Column
+                  </CardTitle>
+                  <div className="p-2 rounded-lg">
+                    <Activity className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-lg font-bold truncate">
+                    {targetAnalysis.target_column || "Auto-detect"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 capitalize">
+                    Task: {targetAnalysis.task_type || "Unknown"}
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Target & AI Insights Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Target Analysis Details */}
+            <motion.div variants={listItemVariants} className="lg:col-span-1">
+              <Card className="h-full border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-primary" />
+                    Target Diagnostics
+                  </CardTitle>
+                  <CardDescription>
+                    Health check for your target variable
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
+                    <p className="text-xs text-muted-foreground mb-1 font-medium uppercase tracking-wider">
+                      Task Type
+                    </p>
+                    <p className="text-lg font-semibold capitalize">
+                      {targetAnalysis.task_type || "Not detected"}
+                    </p>
+                  </div>
+
+                  {targetAnalysis.warnings?.length > 0 && (
+                    <div className="space-y-3">
+                      <p className="text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        Warnings
+                      </p>
+                      <div className="space-y-2">
+                        {targetAnalysis.warnings.map(
+                          (warning: any, i: number) => (
+                            <div
+                              key={i}
+                              className="text-xs p-3 bg-amber-50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/30 rounded-lg text-amber-800 dark:text-amber-200 leading-relaxed"
+                            >
+                              {typeof warning === "string"
+                                ? warning
+                                : warning.message}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {targetAnalysis.distribution &&
+                    targetAnalysis.task_type === "classification" && (
+                      <div className="space-y-4">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                          Class Balance
+                        </p>
+                        <div className="space-y-3">
+                          {Object.entries(targetAnalysis.distribution).map(
+                            ([label, info]: [string, any]) => (
+                              <div key={label} className="space-y-1.5">
+                                <div className="flex justify-between text-xs">
+                                  <span className="font-medium truncate max-w-37.5">
+                                    {label}
+                                  </span>
+                                  <span className="text-muted-foreground">
+                                    {info.percentage}%
+                                  </span>
+                                </div>
+                                <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${info.percentage}%` }}
+                                    className="bg-primary h-full rounded-full"
+                                  />
+                                </div>
+                              </div>
+                            )
+                          )}
                         </div>
                       </div>
-                    )
-                  )}
-                </div>
-              )}
-          </div>
-        </div>
+                    )}
+                </CardContent>
+              </Card>
+            </motion.div>
 
-        {/* AI Insights */}
-        <div className="lg:col-span-2 bg-primary/5 border border-primary/10 rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <CheckCircle2 className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold text-primary">AI Insights</h3>
-          </div>
-          <ul className="space-y-3">
-            {(typeof latestEDA.ai_insights === "string"
-              ? latestEDA.ai_insights
-                  .split("\n")
-                  .filter((line) => line.trim().length > 0)
-              : Array.isArray(latestEDA.ai_insights)
-              ? latestEDA.ai_insights
-              : []
-            ).map((insight: string, i: number) => (
-              <li key={i} className="flex items-start gap-3 text-sm">
-                <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                {insight.replace(/^[*-]\s*/, "")}
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* Distribution Analysis Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Target Distribution */}
-        <div className="lg:col-span-1 bg-card border border-border rounded-xl p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
-              Target Distribution
-            </h3>
-            <span className="text-[10px] font-medium px-2 py-0.5 bg-primary/10 text-primary rounded-full uppercase">
-              {targetAnalysis.task_type}
-            </span>
-          </div>
-          <div className="h-[300px]">
-            {targetDistributionOption ? (
-              <Chart option={targetDistributionOption} />
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground text-sm italic">
-                No distribution data available
-              </div>
-            )}
-          </div>
-          {targetAnalysis.task_type === "regression" &&
-            targetAnalysis.distribution?.skewness && (
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                <div className="flex items-center gap-2 text-blue-800 text-xs font-medium mb-1">
-                  <Info className="h-3 w-3" />
-                  Distribution Insight
-                </div>
-                <p className="text-[11px] text-blue-700">
-                  {Math.abs(targetAnalysis.distribution.skewness || 0) > 1
-                    ? `Heavy skew detected (${(
-                        targetAnalysis.distribution.skewness || 0
-                      ).toFixed(
-                        2
-                      )}). A log transformation might improve model performance.`
-                    : `Target distribution is relatively symmetric (skew: ${(
-                        targetAnalysis.distribution.skewness || 0
-                      ).toFixed(2)}).`}
-                </p>
-              </div>
-            )}
-        </div>
-
-        {/* Feature Distributions */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h3 className="font-semibold flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-primary" />
-              Feature Distributions
-            </h3>
-            <select
-              className="text-sm border border-border rounded-md bg-background px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary/20"
-              value={selectedFeature || ""}
-              onChange={(e) => setSelectedFeature(e.target.value)}
-            >
-              <option value="" disabled>
-                Select a feature to visualize
-              </option>
-              {Object.keys(latestEDA.distributions || {})
-                .filter((col) => col !== targetAnalysis.target_column)
-                .map((col) => (
-                  <option key={col} value={col}>
-                    {col}
-                  </option>
-                ))}
-            </select>
-          </div>
-
-          <div className="h-[300px]">
-            {selectedFeature ? (
-              <Chart option={distributionOption!} />
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-sm italic border-2 border-dashed border-muted rounded-xl">
-                <BarChart3 className="h-8 w-8 mb-2 opacity-20" />
-                Select a feature from the dropdown to see its distribution
-              </div>
-            )}
-          </div>
-
-          {selectedFeature &&
-            latestEDA.summary_stats?.[selectedFeature]?.skewness !==
-              undefined && (
-              <div className="mt-4 flex items-center gap-4">
-                <div className="text-xs">
-                  <span className="text-muted-foreground">Skewness:</span>{" "}
-                  <span
-                    className={
-                      Math.abs(
-                        latestEDA.summary_stats[selectedFeature].skewness || 0
-                      ) > 1
-                        ? "text-amber-600 font-bold"
-                        : "text-foreground font-medium"
-                    }
-                  >
-                    {(
-                      latestEDA.summary_stats[selectedFeature].skewness || 0
-                    ).toFixed(2)}
-                  </span>
-                </div>
-                {Math.abs(
-                  latestEDA.summary_stats[selectedFeature].skewness || 0
-                ) > 1 && (
-                  <div className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded flex items-center gap-1">
-                    <Zap className="h-3 w-3" />
-                    Consider Log Transform
-                  </div>
-                )}
-              </div>
-            )}
-        </div>
-      </div>
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-card p-6 rounded-xl border border-border">
-          <h3 className="font-semibold mb-6">Correlation Heatmap</h3>
-          <div className="h-[400px]">
-            <Chart option={heatmapOption} />
-          </div>
-        </div>
-
-        <div className="bg-card p-6 rounded-xl border border-border">
-          <h3 className="font-semibold mb-6">Missing Values by Column</h3>
-          <div className="h-[400px]">
-            <Chart option={missingOption} />
-          </div>
-        </div>
-      </div>
-
-      {/* Redundant Features (Multicollinearity) */}
-      {globalMetrics.multicollinearity?.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <ShieldAlert className="h-5 w-5 text-amber-600" />
-            <h3 className="font-semibold text-amber-900">
-              Redundant Features Detected
-            </h3>
-          </div>
-          <p className="text-sm text-amber-800 mb-4">
-            The following pairs of columns are highly correlated. Consider
-            removing one of them to improve model stability and
-            interpretability.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {globalMetrics.multicollinearity.map((item: any, i: number) => (
-              <div
-                key={i}
-                className="bg-white/50 border border-amber-100 rounded-lg p-3 flex justify-between items-center"
-              >
-                <div className="text-xs font-medium">
-                  <span className="text-amber-900">{item.column1}</span>
-                  <span className="mx-2 text-amber-400">↔</span>
-                  <span className="text-amber-900">{item.column2}</span>
-                </div>
-                <span
-                  className={`text-xs font-bold ${
-                    item.severity === "high"
-                      ? "text-destructive"
-                      : "text-amber-600"
-                  }`}
-                >
-                  {(item.correlation * 100).toFixed(1)}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Column Diagnostics Table */}
-      <div className="bg-card border border-border rounded-xl overflow-hidden">
-        <div className="p-6 border-b border-border">
-          <h3 className="font-semibold">Column Diagnostics</h3>
-          <p className="text-sm text-muted-foreground">
-            Detailed health check for each feature
-          </p>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="bg-muted/50 text-muted-foreground font-medium">
-              <tr>
-                <th className="px-6 py-3">Column</th>
-                <th className="px-6 py-3">Type</th>
-                <th className="px-6 py-3">Missing</th>
-                <th className="px-6 py-3">Unique</th>
-                <th className="px-6 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {Object.entries(latestEDA.summary_stats || {})
-                .filter(
-                  ([key]) =>
-                    !["row_count", "column_count", "total_missing"].includes(
-                      key
-                    )
-                )
-                .map(([colName, stats]: [string, any]) => {
-                  const missing = latestEDA.missing_analysis?.[colName] || {};
-                  const isConstant = stats.unique_count === 1;
-                  const highMissing = missing.ratio > 0.5;
-                  const highCardinality =
-                    stats.unique_count > globalMetrics.total_rows * 0.9 &&
-                    stats.type === "object";
-
-                  return (
-                    <tr
-                      key={colName}
-                      className="hover:bg-muted/30 transition-colors"
-                    >
-                      <td className="px-6 py-4 font-medium">{colName}</td>
-                      <td className="px-6 py-4 text-muted-foreground capitalize">
-                        {stats.type}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={
-                            missing.count > 0
-                              ? "text-amber-600 font-medium"
-                              : "text-green-600"
-                          }
-                        >
-                          {missing.count || 0} (
-                          {(missing.ratio * 100 || 0).toFixed(1)}%)
+            {/* AI Insights */}
+            <motion.div variants={listItemVariants} className="lg:col-span-2">
+              <Card className="h-full border-none shadow-sm bg-primary/5 dark:bg-primary/10 border-primary/10">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2 text-primary">
+                    <Zap className="h-5 w-5" />
+                    AI Insights
+                  </CardTitle>
+                  <CardDescription className="text-primary/70">
+                    Automated observations from your data
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {(typeof latestEDA.ai_insights === "string"
+                      ? latestEDA.ai_insights
+                          .split("\n")
+                          .filter((line: string) => line.trim().length > 0)
+                      : Array.isArray(latestEDA.ai_insights)
+                      ? latestEDA.ai_insights
+                      : []
+                    ).map((insight: string, i: number) => (
+                      <li
+                        key={i}
+                        className="flex items-start gap-3 p-4 bg-background/50 dark:bg-background/20 rounded-xl border border-primary/10 shadow-sm"
+                      >
+                        <div className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0 shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
+                        <span className="text-sm leading-relaxed">
+                          {insight.replace(/^[*-]\s*/, "")}
                         </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        {stats.unique_count || "N/A"}
-                      </td>
-                      <td className="px-6 py-4">
-                        {isConstant ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-destructive/10 text-destructive">
-                            Constant
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Distribution Analysis Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Target Distribution */}
+            <motion.div variants={listItemVariants} className="lg:col-span-1">
+              <Card className="border-none shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-lg">
+                      Target Distribution
+                    </CardTitle>
+                    <CardDescription>
+                      Spread of the target variable
+                    </CardDescription>
+                  </div>
+                  <Badge variant="secondary" className="uppercase text-[10px]">
+                    {targetAnalysis.task_type}
+                  </Badge>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    {targetDistributionOption ? (
+                      <Chart option={targetDistributionOption} />
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-muted-foreground text-sm italic border-2 border-dashed border-muted rounded-xl">
+                        No distribution data available
+                      </div>
+                    )}
+                  </div>
+                  {targetAnalysis.task_type === "regression" &&
+                    targetAnalysis.distribution?.skewness && (
+                      <div className="mt-6 p-4 bg-blue-50 border border-blue-100 rounded-xl">
+                        <div className="flex items-center gap-2 text-blue-800 text-xs font-semibold mb-1.5">
+                          <Info className="h-3.5 w-3.5" />
+                          Distribution Insight
+                        </div>
+                        <p className="text-xs text-blue-700 dark:text-blue-400 leading-relaxed">
+                          {Math.abs(targetAnalysis.distribution.skewness || 0) >
+                          1
+                            ? `Heavy skew detected (${(
+                                targetAnalysis.distribution.skewness || 0
+                              ).toFixed(
+                                2
+                              )}). A log transformation might improve model performance.`
+                            : `Target distribution is relatively symmetric (skew: ${(
+                                targetAnalysis.distribution.skewness || 0
+                              ).toFixed(2)}).`}
+                        </p>
+                      </div>
+                    )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Feature Distributions */}
+            <motion.div variants={listItemVariants} className="lg:col-span-2">
+              <Card className="border-none shadow-sm">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-lg">
+                      Feature Distributions
+                    </CardTitle>
+                    <CardDescription>
+                      Visualize individual column spreads
+                    </CardDescription>
+                  </div>
+                  <select
+                    className="text-sm border border-border rounded-lg bg-background px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    value={selectedFeature || ""}
+                    onChange={(e) => setSelectedFeature(e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Select a feature
+                    </option>
+                    {Object.keys(latestEDA.distributions || {})
+                      .filter((col) => col !== targetAnalysis.target_column)
+                      .map((col) => (
+                        <option key={col} value={col}>
+                          {col}
+                        </option>
+                      ))}
+                  </select>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[300px]">
+                    {selectedFeature ? (
+                      <Chart option={distributionOption!} />
+                    ) : (
+                      <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-sm italic border-2 border-dashed border-muted rounded-xl">
+                        <BarChart3 className="h-10 w-10 mb-3 opacity-20" />
+                        Select a feature from the dropdown to see its
+                        distribution
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedFeature &&
+                    latestEDA.summary_stats?.[selectedFeature]?.skewness !==
+                      undefined && (
+                      <div className="mt-6 flex items-center gap-4">
+                        <div className="text-xs font-medium px-3 py-1.5 bg-muted rounded-lg">
+                          <span className="text-muted-foreground">
+                            Skewness:
+                          </span>{" "}
+                          <span
+                            className={
+                              Math.abs(
+                                latestEDA.summary_stats[selectedFeature]
+                                  .skewness || 0
+                              ) > 1
+                                ? "text-amber-700 dark:text-amber-400 font-bold"
+                                : "text-foreground"
+                            }
+                          >
+                            {(
+                              latestEDA.summary_stats[selectedFeature]
+                                .skewness || 0
+                            ).toFixed(2)}
                           </span>
-                        ) : highMissing ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                            High Missing
-                          </span>
-                        ) : highCardinality ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                            ID-like
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                            Healthy
-                          </span>
+                        </div>
+                        {Math.abs(
+                          latestEDA.summary_stats[selectedFeature].skewness || 0
+                        ) > 1 && (
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/30"
+                          >
+                            <Zap className="h-3 w-3 mr-1" />
+                            Consider Log Transform
+                          </Badge>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                      </div>
+                    )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Charts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Correlation Heatmap</CardTitle>
+                  <CardDescription>
+                    Relationships between numeric features
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px]">
+                    <Chart option={heatmapOption} />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg">Missing Values</CardTitle>
+                  <CardDescription>Data completeness by column</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-[400px]">
+                    <Chart option={missingOption} />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Redundant Features (Multicollinearity) */}
+          {globalMetrics.multicollinearity?.length > 0 && (
+            <motion.div variants={listItemVariants}>
+              <Card className="border-none shadow-sm  border-amber-900">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2 text-amber-950">
+                    <ShieldAlert className="h-5 w-5 text-amber-950" />
+                    Redundant Features Detected
+                  </CardTitle>
+                  <CardDescription className="text-amber-900">
+                    Highly correlated column pairs that might affect model
+                    stability
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {globalMetrics.multicollinearity.map(
+                      (item: any, i: number) => (
+                        <div
+                          key={i}
+                          className="bg-white/80 dark:bg-background/40 border border-amber-200/50 rounded-xl p-4 flex justify-between items-center shadow-sm"
+                        >
+                          <div className="text-xs font-semibold">
+                            <span className="text-amber-950">
+                              {item.column1}
+                            </span>
+                            <span className="mx-2 text-amber-600">↔</span>
+                            <span className="text-amber-950">
+                              {item.column2}
+                            </span>
+                          </div>
+                          <Badge
+                            variant="outline"
+                            className="bg-amber-100/50 font-bold text-amber-700 border-amber-200"
+                          >
+                            {(item.correlation * 100).toFixed(1)}%
+                          </Badge>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {/* Column Diagnostics Table */}
+          <motion.div variants={listItemVariants}>
+            <Card className="border-none shadow-sm overflow-hidden">
+              <CardHeader className="bg-muted/30">
+                <CardTitle className="text-lg">Column Diagnostics</CardTitle>
+                <CardDescription>
+                  Detailed health check for each feature
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm text-left">
+                    <thead className="bg-muted/50 text-muted-foreground font-medium">
+                      <tr>
+                        <th className="px-6 py-4">Column</th>
+                        <th className="px-6 py-4">Type</th>
+                        <th className="px-6 py-4">Missing</th>
+                        <th className="px-6 py-4">Unique</th>
+                        <th className="px-6 py-4">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {Object.entries(latestEDA.summary_stats || {})
+                        .filter(
+                          ([key]) =>
+                            ![
+                              "row_count",
+                              "column_count",
+                              "total_missing",
+                            ].includes(key)
+                        )
+                        .map(([colName, stats]: [string, any]) => {
+                          const missing =
+                            latestEDA.missing_analysis?.[colName] || {};
+                          const isConstant = stats.unique_count === 1;
+                          const highMissing = missing.ratio > 0.5;
+                          const highCardinality =
+                            stats.unique_count >
+                              globalMetrics.total_rows * 0.9 &&
+                            stats.type === "object";
+
+                          return (
+                            <tr
+                              key={colName}
+                              className="hover:bg-muted/20 transition-colors group"
+                            >
+                              <td className="px-6 py-4 font-semibold text-foreground">
+                                {colName}
+                              </td>
+                              <td className="px-6 py-4">
+                                <Badge
+                                  variant="outline"
+                                  className="font-normal capitalize "
+                                >
+                                  {stats.type}
+                                </Badge>
+                              </td>
+                              <td className="px-6 py-4">
+                                <span
+                                  className={
+                                    missing.count > 0
+                                      ? "text-amber-600 dark:text-amber-400 font-medium"
+                                      : "text-emerald-600 dark:text-emerald-400"
+                                  }
+                                >
+                                  {missing.count || 0} (
+                                  {(missing.ratio * 100 || 0).toFixed(1)}%)
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-muted-foreground">
+                                {stats.unique_count?.toLocaleString() || "N/A"}
+                              </td>
+                              <td className="px-6 py-4">
+                                {isConstant ? (
+                                  <Badge
+                                    variant="destructive"
+                                    className="font-medium"
+                                  >
+                                    Constant
+                                  </Badge>
+                                ) : highMissing ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="bg-amber-100 text-amber-700 border-amber-200 "
+                                  >
+                                    High Missing
+                                  </Badge>
+                                ) : highCardinality ? (
+                                  <Badge
+                                    variant="outline"
+                                    className="bg-blue-100  text-blue-800 border-blue-200 "
+                                  >
+                                    ID-like
+                                  </Badge>
+                                ) : (
+                                  <Badge
+                                    variant="outline"
+                                    className="bg-emerald-100 text-emerald-800 border-emerald-200 "
+                                  >
+                                    Healthy
+                                  </Badge>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </TabsContent>
+
+        <TabsContent value="preview">
+          <Card>
+            <CardHeader>
+              <CardTitle>Data Preview</CardTitle>
+              <CardDescription>
+                First {previewData?.rows?.length || 0} rows of the dataset
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {previewData?.columns?.map((col) => (
+                        <TableHead key={col}>{col}</TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {previewData?.rows?.map((row, i) => (
+                      <TableRow key={i}>
+                        {previewData.columns.map((col) => (
+                          <TableCell key={col}>
+                            {row[col]?.toString() || ""}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="schema">
+          <Card>
+            <CardHeader>
+              <CardTitle>Dataset Schema</CardTitle>
+              <CardDescription>Column types and statistics</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Column Name</TableHead>
+                      <TableHead>Original Name</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Pandas Type</TableHead>
+                      <TableHead>Missing</TableHead>
+                      <TableHead>Unique</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {schemaData?.columns?.map((col) => (
+                      <TableRow key={col.id}>
+                        <TableCell className="font-medium">
+                          {col.name}
+                        </TableCell>
+                        <TableCell>{col.original_name}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{col.dtype}</Badge>
+                        </TableCell>
+                        <TableCell>{col.pandas_dtype}</TableCell>
+                        <TableCell>
+                          {col.null_count} ({(col.null_ratio * 100).toFixed(1)}
+                          %)
+                        </TableCell>
+                        <TableCell>{col.unique_count}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </motion.div>
   );
 };

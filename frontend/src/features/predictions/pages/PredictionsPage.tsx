@@ -14,7 +14,14 @@ import {
   X,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { pageVariants } from "../../../theme/motion";
+import { containerVariants, listItemVariants } from "../../../theme/motion";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
 
 export const PredictionsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -91,142 +98,193 @@ export const PredictionsPage: React.FC = () => {
 
   return (
     <motion.div
-      variants={pageVariants}
+      variants={containerVariants}
       initial="initial"
       animate="animate"
-      className="max-w-4xl mx-auto space-y-8"
+      className="max-w-4xl mx-auto space-y-10"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Batch Predictions
           </h1>
-          <p className="text-muted-foreground">
-            Using model: {model?.model_type_display || "Loading..."}
+          <p className="text-muted-foreground mt-1">
+            Using model:{" "}
+            <span className="font-semibold text-foreground">
+              {model?.model_type_display || "Loading..."}
+            </span>
           </p>
         </div>
+        {modelId && (
+          <Link to={`/app/modeling/${modelId}`}>
+            <Button variant="outline" size="sm" className="shadow-sm">
+              View Model Details
+            </Button>
+          </Link>
+        )}
       </div>
 
       {!predictionResult ? (
-        <div className="bg-card p-8 rounded-xl border border-border space-y-6">
-          <div className="flex items-start gap-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
-            <FileText className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-            <div className="text-sm">
-              <p className="font-medium text-primary">Schema Requirement</p>
-              <p className="text-muted-foreground mt-1">
-                Your upload must contain the same columns as the training data
-                (excluding the target column).
-              </p>
-            </div>
-          </div>
-
-          {!file ? (
-            <div
-              className="border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
-              onClick={() => document.getElementById("predict-upload")?.click()}
-            >
-              <Upload className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <p className="mt-4 text-sm font-medium">
-                Upload data for prediction
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                CSV or Excel files only
-              </p>
-              <input
-                id="predict-upload"
-                type="file"
-                className="hidden"
-                accept=".csv,.xlsx"
-                onChange={handleFileChange}
-              />
-            </div>
-          ) : (
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-neutral-50 rounded-lg border border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded text-primary">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{file.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {(file.size / 1024).toFixed(2)} KB
-                    </p>
-                  </div>
+        <motion.div variants={listItemVariants} className="space-y-8">
+          <Card className="border-none shadow-sm bg-primary/5 dark:bg-primary/10 border-primary/10">
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-4">
+                <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                  <FileText className="h-5 w-5" />
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setFile(null)}
-                  disabled={isPredicting}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="space-y-1">
+                  <p className="font-bold text-primary">Schema Requirement</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Your upload must contain the same columns as the training
+                    data (excluding the target column). Ensure data types match
+                    for optimal results.
+                  </p>
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {error && (
-                <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive text-sm rounded-md">
-                  <AlertCircle className="h-4 w-4" />
-                  {error}
+          <Card className="border-none shadow-sm">
+            <CardContent className="pt-6">
+              {!file ? (
+                <div
+                  className="border-2 border-dashed border-muted rounded-2xl p-16 text-center hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer group"
+                  onClick={() =>
+                    document.getElementById("predict-upload")?.click()
+                  }
+                >
+                  <div className="h-16 w-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                    <Upload className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
+                  </div>
+                  <p className="text-lg font-bold text-foreground">
+                    Upload data for prediction
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground max-w-xs mx-auto">
+                    Drag and drop your CSV or Excel file here, or click to
+                    browse.
+                  </p>
+                  <input
+                    id="predict-upload"
+                    type="file"
+                    className="hidden"
+                    accept=".csv,.xlsx"
+                    onChange={handleFileChange}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between p-5 bg-muted/30 rounded-2xl border border-border">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-primary/10 rounded-xl text-primary">
+                        <FileText className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="font-bold text-foreground">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(file.size / 1024).toFixed(2)} KB • Ready to process
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="rounded-full hover:bg-destructive/10 hover:text-destructive"
+                      onClick={() => setFile(null)}
+                      disabled={isPredicting}
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </div>
+
+                  {error && (
+                    <div className="flex items-center gap-3 p-4 bg-destructive/10 text-destructive text-sm rounded-xl border border-destructive/20">
+                      <AlertCircle className="h-5 w-5 shrink-0" />
+                      <p className="font-medium">{error}</p>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      variant="outline"
+                      className="px-6"
+                      onClick={() => setFile(null)}
+                      disabled={isPredicting}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="px-8 shadow-md"
+                      onClick={handlePredict}
+                      disabled={isPredicting}
+                    >
+                      {isPredicting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Layers className="mr-2 h-4 w-4" />
+                      )}
+                      {isPredicting ? "Processing..." : "Run Predictions"}
+                    </Button>
+                  </div>
                 </div>
               )}
-
-              <div className="flex justify-end gap-3">
+            </CardContent>
+          </Card>
+        </motion.div>
+      ) : (
+        <motion.div variants={listItemVariants} className="space-y-8">
+          <Card className="border-none shadow-sm bg-emerald-50 dark:bg-emerald-950/20 border-emerald-100 dark:border-emerald-900/30">
+            <CardContent className="pt-12 pb-12 text-center">
+              <div className="h-20 w-20 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center mx-auto mb-6">
+                <CheckCircle2 className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+                Predictions Complete
+              </h3>
+              <p className="text-emerald-700 dark:text-emerald-400 mt-2 max-w-md mx-auto">
+                Successfully processed{" "}
+                <span className="font-bold">{predictionResult.row_count}</span>{" "}
+                rows. Your results are ready for download.
+              </p>
+              <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
                 <Button
-                  variant="outline"
-                  onClick={() => setFile(null)}
-                  disabled={isPredicting}
+                  size="lg"
+                  className="shadow-lg bg-emerald-600 hover:bg-emerald-700 text-white border-none"
+                  onClick={() => window.open(predictionResult.download_url)}
                 >
-                  Cancel
+                  <Download className="mr-2 h-5 w-5" />
+                  Download Results (CSV)
                 </Button>
-                <Button onClick={handlePredict} disabled={isPredicting}>
-                  {isPredicting ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Layers className="mr-2 h-4 w-4" />
-                  )}
-                  {isPredicting ? "Processing..." : "Run Predictions"}
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-background/50"
+                  onClick={() => setPredictionResult(null)}
+                >
+                  Run Another Batch
                 </Button>
               </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="bg-green-50 border border-green-100 rounded-xl p-8 text-center">
-            <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
-            <h3 className="text-lg font-semibold mt-4 text-green-900">
-              Predictions Complete
-            </h3>
-            <p className="text-green-700 mt-2">
-              Successfully processed {predictionResult.row_count} rows.
-            </p>
-            <div className="mt-8 flex justify-center gap-4">
-              <Button
-                onClick={() => window.open(predictionResult.download_url)}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Download Results (CSV)
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setPredictionResult(null)}
-              >
-                Run Another Batch
-              </Button>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Preview Table Placeholder */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <div className="p-4 border-b border-border bg-neutral-50">
-              <h3 className="text-sm font-semibold">Preview (Top 5 rows)</h3>
-            </div>
-            <div className="p-8 text-center text-muted-foreground text-sm">
-              Preview table would be rendered here with predicted values.
-            </div>
-          </div>
-        </div>
+          <Card className="border-none shadow-sm overflow-hidden">
+            <CardHeader className="bg-muted/30">
+              <CardTitle className="text-lg">Preview Results</CardTitle>
+              <CardDescription>
+                Top 5 rows of the generated predictions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-12 text-center">
+              <div className="max-w-xs mx-auto">
+                <Layers className="h-12 w-12 text-muted-foreground/20 mx-auto mb-4" />
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Preview table is being generated. Download the full CSV to see
+                  all predicted values and confidence scores.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       )}
     </motion.div>
   );
