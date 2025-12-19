@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiClient } from "../../../api/client";
 import { datasetsApi } from "../../../api/datasets";
+import { mlApi } from "../../../api/ml";
 import { Button } from "../../../components/ui/button";
 import {
   Send,
@@ -26,6 +27,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../../../components/ui/tooltip";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../../components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/ui/select";
+import { Label } from "../../../components/ui/label";
 
 interface Message {
   id: string;
@@ -43,7 +58,13 @@ const SUGGESTED_PROMPTS = [
 
 export const AssistantPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const datasetId = searchParams.get("datasetId");
+  const initialDatasetId = searchParams.get("datasetId");
+
+  const [selectedDatasetId, setSelectedDatasetId] = useState<string>(
+    initialDatasetId || ""
+  );
+  const [selectedModelId, setSelectedModelId] = useState<string>("");
+
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -56,11 +77,23 @@ export const AssistantPage: React.FC = () => {
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch dataset info if datasetId is present
-  const { data: dataset } = useQuery({
-    queryKey: ["dataset", datasetId],
-    queryFn: () => datasetsApi.get(datasetId!),
-    enabled: !!datasetId,
+  // Fetch all datasets
+  const { data: datasets } = useQuery({
+    queryKey: ["datasets"],
+    queryFn: () => datasetsApi.list(),
+  });
+
+  // Fetch models (optionally filtered by dataset if selected)
+  const { data: models } = useQuery({
+    queryKey: ["models", selectedDatasetId],
+    queryFn: () => mlApi.list(selectedDatasetId || undefined),
+  });
+
+  // Fetch selected dataset details for display
+  const { data: selectedDataset } = useQuery({
+    queryKey: ["dataset", selectedDatasetId],
+    queryFn: () => datasetsApi.get(selectedDatasetId),
+    enabled: !!selectedDatasetId,
   });
 
   useEffect(() => {
@@ -73,7 +106,8 @@ export const AssistantPage: React.FC = () => {
     mutationFn: async (question: string) => {
       const response = await apiClient.post("/assistant/ask/", {
         question,
-        dataset_id: datasetId,
+        dataset_id: selectedDatasetId || undefined,
+        model_id: selectedModelId || undefined,
       });
       return response.data;
     },
@@ -118,197 +152,275 @@ export const AssistantPage: React.FC = () => {
   };
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="initial"
-      animate="animate"
-      className="flex flex-col h-[calc(100vh-10rem)] max-w-5xl mx-auto bg-card rounded-2xl border border-border overflow-hidden shadow-xl"
-    >
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-inner">
-            <Sparkles className="h-6 w-6" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="font-bold text-lg">AI Insights Assistant</h2>
-              <Badge
-                variant="secondary"
-                className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0"
-              >
-                Beta
-              </Badge>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Gemini 3 Flash
-              </span>
-              {dataset && (
-                <>
-                  <span>•</span>
-                  <span className="flex items-center gap-1 font-medium text-primary/80">
-                    <Database className="h-3 w-3" />
-                    {dataset.name}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                  onClick={clearChat}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Clear conversation</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth"
+    <div className="flex h-[calc(100vh-10rem)] gap-6 max-w-7xl mx-auto">
+      <motion.div
+        variants={containerVariants}
+        initial="initial"
+        animate="animate"
+        className="flex-1 flex flex-col bg-card rounded-2xl border border-border overflow-hidden shadow-xl"
       >
-        <AnimatePresence initial={false}>
-          {messages.map((msg) => (
-            <motion.div
-              key={msg.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              className={cn(
-                "flex gap-4 max-w-[85%]",
-                msg.role === "user" ? "ml-auto flex-row-reverse" : ""
-              )}
-            >
-              <div
-                className={cn(
-                  "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
-                  msg.role === "assistant"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground border border-border"
-                )}
-              >
-                {msg.role === "assistant" ? (
-                  <Bot className="h-6 w-6" />
-                ) : (
-                  <User className="h-6 w-6" />
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-border bg-muted/30 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-inner">
+              <Sparkles className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="font-bold text-lg">AI Insights Assistant</h2>
+                <Badge
+                  variant="secondary"
+                  className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0"
+                >
+                  Beta
+                </Badge>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Gemini 3 Flash
+                </span>
+                {selectedDataset && (
+                  <>
+                    <span>•</span>
+                    <span className="flex items-center gap-1 font-medium text-primary/80">
+                      <Database className="h-3 w-3" />
+                      {selectedDataset.name}
+                    </span>
+                  </>
                 )}
               </div>
-              <div className="space-y-1">
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="rounded-full h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    onClick={clearChat}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear conversation</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto p-6 space-y-8 scroll-smooth"
+        >
+          <AnimatePresence initial={false}>
+            {messages.map((msg) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                className={cn(
+                  "flex gap-4 max-w-[85%]",
+                  msg.role === "user" ? "ml-auto flex-row-reverse" : ""
+                )}
+              >
                 <div
                   className={cn(
-                    "p-4 rounded-2xl text-sm leading-relaxed shadow-sm",
+                    "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm",
                     msg.role === "assistant"
-                      ? "bg-muted/50 text-foreground rounded-tl-none border border-border/50"
-                      : "bg-primary text-primary-foreground rounded-tr-none"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground border border-border"
                   )}
                 >
-                  {msg.content}
+                  {msg.role === "assistant" ? (
+                    <Bot className="h-6 w-6" />
+                  ) : (
+                    <User className="h-6 w-6" />
+                  )}
                 </div>
-                <p
-                  className={cn(
-                    "text-[10px] text-muted-foreground px-1",
-                    msg.role === "user" ? "text-right" : "text-left"
-                  )}
-                >
-                  {msg.timestamp.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+                <div className="space-y-1">
+                  <div
+                    className={cn(
+                      "p-4 rounded-2xl text-sm leading-relaxed shadow-sm",
+                      msg.role === "assistant"
+                        ? "bg-muted/50 text-foreground rounded-tl-none border border-border/50"
+                        : "bg-primary text-primary-foreground rounded-tr-none"
+                    )}
+                  >
+                    {msg.content}
+                  </div>
+                  <p
+                    className={cn(
+                      "text-[10px] text-muted-foreground px-1",
+                      msg.role === "user" ? "text-right" : "text-left"
+                    )}
+                  >
+                    {msg.timestamp.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          {askMutation.isPending && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex gap-4 max-w-[85%]"
+            >
+              <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 shadow-sm">
+                <Bot className="h-6 w-6" />
+              </div>
+              <div className="bg-muted/50 p-4 rounded-2xl rounded-tl-none border border-border/50 flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-xs font-medium text-muted-foreground">
+                  Thinking...
+                </span>
               </div>
             </motion.div>
-          ))}
-        </AnimatePresence>
-        {askMutation.isPending && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex gap-4 max-w-[85%]"
-          >
-            <div className="h-10 w-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0 shadow-sm">
-              <Bot className="h-6 w-6" />
-            </div>
-            <div className="bg-muted/50 p-4 rounded-2xl rounded-tl-none border border-border/50 flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-xs font-medium text-muted-foreground">
-                Thinking...
-              </span>
-            </div>
-          </motion.div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Footer */}
-      <div className="p-6 border-t border-border bg-muted/20 space-y-6">
-        {messages.length === 1 && (
-          <div className="space-y-3">
-            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-2">
-              <MessageSquare className="h-3 w-3" /> Suggested Questions
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {SUGGESTED_PROMPTS.map((prompt) => (
-                <motion.button
-                  key={prompt}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleSend(prompt)}
-                  className="text-xs px-4 py-2 bg-card border border-border rounded-xl hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all flex items-center gap-2 shadow-sm font-medium"
+        {/* Footer */}
+        <div className="p-6 border-t border-border bg-muted/20 space-y-6">
+          {messages.length === 1 && (
+            <div className="space-y-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground px-1 flex items-center gap-2">
+                <MessageSquare className="h-3 w-3" /> Suggested Questions
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {SUGGESTED_PROMPTS.map((prompt) => (
+                  <motion.button
+                    key={prompt}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleSend(prompt)}
+                    className="text-xs px-4 py-2 bg-card border border-border rounded-xl hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all flex items-center gap-2 shadow-sm font-medium"
+                  >
+                    {prompt}
+                    <ChevronRight className="h-3 w-3 opacity-50" />
+                  </motion.button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <form
+            className="relative group"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+          >
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={
+                selectedDataset
+                  ? `Ask about ${selectedDataset.name}...`
+                  : "Ask a question about your data..."
+              }
+              className="w-full bg-card border border-border rounded-2xl pl-5 pr-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-lg transition-all group-hover:border-primary/30"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <Button
+                type="submit"
+                size="icon"
+                className="h-10 w-10 rounded-xl shadow-md"
+                disabled={!input.trim() || askMutation.isPending}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+
+          <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-medium">
+            <Info className="h-3 w-3" />
+            AI can make mistakes. Verify important information.
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Context Panel */}
+      <div className="w-80 flex-shrink-0 space-y-4">
+        <Card className="border-border bg-card">
+          <CardHeader className="border-b border-border pb-4">
+            <CardTitle className="text-foreground">Context</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-4">
+            <div className="space-y-2">
+              <Label>Dataset</Label>
+              <Select
+                value={selectedDatasetId}
+                onValueChange={setSelectedDatasetId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a dataset..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {datasets?.map((d: { id: string; name: string }) => (
+                    <SelectItem key={d.id} value={d.id}>
+                      {d.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Model</Label>
+              <Select
+                value={selectedModelId}
+                onValueChange={setSelectedModelId}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a model..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  {models?.results?.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.display_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="p-3 rounded-xl border border-blue-200 bg-blue-50 text-xs text-blue-700 flex items-start gap-2">
+              <Info className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
+              <p>
+                Selecting context helps tailor answers to your dataset or model.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Questions */}
+        <Card className="border-border bg-card">
+          <CardHeader className="border-b border-border pb-4">
+            <CardTitle className="text-foreground">Quick Questions</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="space-y-2">
+              {SUGGESTED_PROMPTS.map((question) => (
+                <button
+                  key={question}
+                  onClick={() => handleSend(question)}
+                  className="w-full text-left px-3 py-2.5 text-sm rounded-lg bg-muted/50 hover:bg-muted border border-border transition-all text-muted-foreground hover:text-foreground"
                 >
-                  {prompt}
-                  <ChevronRight className="h-3 w-3 opacity-50" />
-                </motion.button>
+                  {question}
+                </button>
               ))}
             </div>
-          </div>
-        )}
-
-        <form
-          className="relative group"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-        >
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={
-              dataset
-                ? `Ask about ${dataset.name}...`
-                : "Ask a question about your data..."
-            }
-            className="w-full bg-card border border-border rounded-2xl pl-5 pr-14 py-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-lg transition-all group-hover:border-primary/30"
-          />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
-            <Button
-              type="submit"
-              size="icon"
-              className="h-10 w-10 rounded-xl shadow-md"
-              disabled={!input.trim() || askMutation.isPending}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </form>
-
-        <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-medium">
-          <Info className="h-3 w-3" />
-          AI can make mistakes. Verify important information.
-        </div>
+          </CardContent>
+        </Card>
       </div>
-    </motion.div>
+    </div>
   );
 };

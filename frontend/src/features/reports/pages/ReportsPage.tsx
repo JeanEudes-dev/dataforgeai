@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   FileText,
   Plus,
   Download,
-  Share2,
   Trash2,
   Loader2,
   AlertCircle,
@@ -63,8 +62,7 @@ export default function ReportsPage() {
   // Fetch datasets for the project
   const { data: datasets } = useQuery({
     queryKey: ["datasets", projectId],
-    queryFn: () => datasetsApi.list(projectId!),
-    enabled: !!projectId,
+    queryFn: () => datasetsApi.list(projectId),
   });
 
   // Fetch models for the selected dataset
@@ -134,7 +132,7 @@ export default function ReportsPage() {
         return (
           <Badge
             variant="outline"
-            className="gap-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30"
+            className="gap-1 bg-emerald-50  text-emerald-7000 border-emerald-200"
           >
             <CheckCircle2 className="h-3 w-3" /> Ready
           </Badge>
@@ -143,7 +141,7 @@ export default function ReportsPage() {
         return (
           <Badge
             variant="outline"
-            className="gap-1 bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/30 animate-pulse"
+            className="gap-1 bg-blue-50  text-blue-700 border-blue-200 animate-pulse"
           >
             <Loader2 className="h-3 w-3 animate-spin" /> Processing
           </Badge>
@@ -194,7 +192,7 @@ export default function ReportsPage() {
               Generate Report
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-125">
             <DialogHeader>
               <DialogTitle className="text-xl">Generate New Report</DialogTitle>
               <DialogDescription>
@@ -355,30 +353,29 @@ export default function ReportsPage() {
                     </div>
                   </CardContent>
                   <div className="p-5 pt-0 flex gap-2">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="flex-1 gap-2 shadow-sm"
+                      asChild
+                    >
+                      <Link to={`/app/reports/${report.id}`}>View Report</Link>
+                    </Button>
                     {report.status === "completed" && (
-                      <>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1 gap-2 shadow-sm border-muted hover:border-primary/50 hover:bg-primary/5 transition-all"
-                          asChild
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="px-3 shadow-sm border-muted hover:border-primary/50 hover:bg-primary/5 transition-all"
+                        asChild
+                      >
+                        <a
+                          href={report.file}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
-                          <a
-                            href={report.file}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <Download className="h-3.5 w-3.5" /> Download
-                          </a>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="px-3 shadow-sm border-muted hover:border-primary/50 hover:bg-primary/5 transition-all"
-                        >
-                          <Share2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </>
+                          <Download className="h-3.5 w-3.5" />
+                        </a>
+                      </Button>
                     )}
                     <Button
                       variant="ghost"

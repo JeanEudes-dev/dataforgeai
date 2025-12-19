@@ -11,6 +11,7 @@ import { ModelingPage } from "../features/modeling/pages/ModelingPage";
 import ModelDetailsPage from "../features/modeling/pages/ModelDetailsPage";
 import { PredictionsPage } from "../features/predictions/pages/PredictionsPage";
 import ReportsPage from "../features/reports/pages/ReportsPage";
+import ReportDetailPage from "../features/reports/pages/ReportDetailPage";
 import { AssistantPage } from "../features/assistant/pages/AssistantPage";
 
 import { SettingsPage } from "../features/users/pages/SettingsPage";
@@ -44,6 +45,7 @@ export const router = createBrowserRouter([
       { path: "modeling/:modelId", element: <ModelDetailsPage /> },
       { path: "predictions", element: <PredictionsPage /> },
       { path: "reports", element: <ReportsPage /> },
+      { path: "reports/:reportId", element: <ReportDetailPage /> },
       { path: "assistant", element: <AssistantPage /> },
       { path: "settings", element: <SettingsPage /> },
     ],
