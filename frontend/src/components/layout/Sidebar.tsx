@@ -9,7 +9,6 @@ import {
   MessageSquare,
   Settings,
   Layers,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { Button } from "../ui/button";
@@ -42,9 +41,11 @@ export const Sidebar: React.FC = () => {
     <aside className="w-64 border-r border-border bg-card/50 backdrop-blur-xl flex flex-col shrink-0 z-20">
       <div className="h-16 flex items-center px-6 border-b border-border/50">
         <Link to="/app/projects" className="flex items-center gap-2 group">
-          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-            <Sparkles className="h-5 w-5" />
-          </div>
+          <img
+            src="/Icon.png"
+            alt="DataForge AI"
+            className="h-8 w-8 group-hover:scale-110 transition-transform"
+          />
           <span className="text-lg font-bold tracking-tight text-foreground">
             DataForge AI
           </span>
